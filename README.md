@@ -213,3 +213,11 @@ npm run format
 The build runs strict TypeScript checking before Vite. Tests cover numerical derivatives for every Transformer parameter group, causal masking, pattern learning from random weights, UTF-8 encoding, exact checkpoint resumption, chat formatting, validation measurement, origin handling, and the API lifecycle. Legacy RNN gradient and checkpoint tests remain. These tests establish implementation behavior, not general assistant capability. There are no browser interaction tests.
 
 Prettier uses two-space indentation, single quotes, semicolons, trailing commas, and a 100-character line width. Keep blank lines between functions and logical sections, one variable declaration per statement, and braces around conditionals and loops.
+
+## Contributing
+
+Contributions are welcome. Open an issue to discuss a bug or idea, or submit a pull request with a focused change and a description of how you tested it. Run `npm test`, `npm run build`, and `npm run format:check` before submitting code changes.
+
+## License
+
+Seed is licensed under the [MIT License](LICENSE). You may use, modify, and redistribute it, including commercially, provided you retain the copyright and license notice.

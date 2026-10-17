@@ -2,6 +2,7 @@
   "name": "seed-lm-studio",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "native:build": "node scripts/build-accelerate.ts",
