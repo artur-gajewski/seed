@@ -162,6 +162,20 @@ Enter submits either input. After sending a message, focus returns to the messag
 input, and the conversation follows the latest row automatically. The counters show
 remembered lessons, taught answers, and total learning updates.
 
+### Teach with the `!` command
+
+You can also teach directly in **Say something simple…**: prefix your preferred answer
+with `!`, for example `!The sky is blue.`. This teaches an answer to the latest message
+you sent in the visible conversation, rather than sending a new question. The `!` is
+removed before learning and does not count toward the 100-byte limit. Send a message
+first; the shortcut needs a previous reply to correct. Both Enter and the send button
+support this shortcut, and the input clears and regains focus after saving successfully.
+
+For example, after asking `What color is the sky?`, type `!The sky is blue.` and press
+Enter. Seed learns and saves that question-and-answer pair without generating another
+reply. Ask the question again when you want to check its progress. The **Teach an
+answer** button remains available for correcting any earlier reply in the conversation.
+
 ### How learning works
 
 Each message or taught answer triggers 12 small training updates. Training combines
@@ -173,7 +187,7 @@ answer. Each message and answer must fit in 100 UTF-8 bytes on one line, keeping
 complete lesson within the model's 256-token window. Up to 1,000 distinct questions
 are retained; older lessons are not silently removed when this limit is reached.
 
-Every send trains before generating a reply, including repeated questions. Replies
+Every ordinary message trains before generating a reply, including repeated questions. Replies
 also use random sampling (temperature 0.8), so the same question can produce different
 answers even when saved learning is restored correctly. Refreshing the page does not
 itself train the model. Early output may contain `�` replacement characters because

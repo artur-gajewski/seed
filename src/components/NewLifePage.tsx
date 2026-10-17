@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { NewLifeStatus } from '../../shared/api.ts';
 import { api } from '../lib/api.ts';
+import { parseNewLifeInput } from '../lib/newLifeInput.ts';
 import { Icon } from './Icon.tsx';
 
 interface Exchange {
@@ -21,11 +22,16 @@ export function NewLifePage() {
   const [notice, setNotice] = useState('');
   const log = useRef<HTMLDivElement>(null);
   const composer = useRef<HTMLTextAreaElement>(null);
-  const focusAfterSend = useRef(false);
+  const answerInput = useRef<HTMLTextAreaElement>(null);
+  const focusComposerAfterAction = useRef(false);
+
+  useLayoutEffect(() => {
+    if (teaching !== null) answerInput.current?.focus({ preventScroll: true });
+  }, [teaching]);
 
   useEffect(() => {
-    if (!busy && focusAfterSend.current) {
-      focusAfterSend.current = false;
+    if (!busy && focusComposerAfterAction.current) {
+      focusComposerAfterAction.current = false;
       composer.current?.focus({ preventScroll: true });
     }
   }, [busy]);
@@ -75,6 +81,16 @@ export function NewLifePage() {
   }
 
   const valid = (text: string) => byteLength(text) > 0 && byteLength(text) <= 100;
+  const isTeachingDraft = draft.trim().startsWith('!');
+  const draftContent = isTeachingDraft ? draft.trim().slice(1).trim() : draft.trim();
+
+  async function teachAnswer(message: string, preferredAnswer: string) {
+    setStatus(await api('new-life/teach', { message, answer: preferredAnswer.trim() }));
+    focusComposerAfterAction.current = true;
+    setTeaching(null);
+    setAnswer('');
+    setNotice('Answer learned and saved. Ask again to see how Seed responds.');
+  }
 
   return (
     <section className="chat-page new-life-page" aria-label="New life">
@@ -160,21 +176,14 @@ export function NewLifePage() {
                       event.preventDefault();
                       if (busy || !valid(answer)) return;
                       void act(async () => {
-                        setStatus(
-                          await api('new-life/teach', {
-                            message: exchange.message,
-                            answer: answer.trim(),
-                          }),
-                        );
-                        setTeaching(null);
-                        setAnswer('');
-                        setNotice('Answer learned and saved. Ask again to see how Seed responds.');
+                        await teachAnswer(exchange.message, answer);
                       });
                     }}
                   >
                     <label htmlFor={`lesson-${exchange.id}`}>What should Seed say?</label>
                     <textarea
                       id={`lesson-${exchange.id}`}
+                      ref={answerInput}
                       rows={2}
                       value={answer}
                       disabled={busy}
@@ -227,10 +236,16 @@ export function NewLifePage() {
           className="chat-composer"
           onSubmit={(event) => {
             event.preventDefault();
-            if (busy || !valid(draft)) return;
-            const message = draft.trim();
-            focusAfterSend.current = true;
+            if (busy || !valid(draftContent)) return;
+            focusComposerAfterAction.current = true;
             void act(async () => {
+              const input = parseNewLifeInput(draft, messages.at(-1)?.message);
+              if (input.kind === 'teach') {
+                await teachAnswer(input.message, input.answer);
+                setDraft('');
+                return;
+              }
+              const { message } = input;
               const result = await api('new-life/message', { message });
               setStatus(result.status);
               setMessages((previous) => [
@@ -260,18 +275,21 @@ export function NewLifePage() {
             }}
           />
           <div className="chat-composer-actions">
-            <span>{byteLength(draft)} / 100 bytes · one short line</span>
+            <span>
+              {byteLength(draftContent)} / 100 bytes ·{' '}
+              {isTeachingDraft ? 'Teaching latest answer' : 'one short line'}
+            </span>
             <button
               className="chat-send"
-              aria-label="Send and learn"
-              disabled={busy || !valid(draft)}
+              aria-label={isTeachingDraft ? 'Teach and save latest answer' : 'Send and learn'}
+              disabled={busy || !valid(draftContent)}
             >
               <Icon name="arrow" size={20} />
             </button>
           </div>
         </form>
         <p className="chat-footnote">
-          Keep messages and answers short so each lesson fits in Seed’s memory window.
+          Start with ! to teach an answer to your latest message, for example: !The sky is blue.
         </p>
       </div>
     </section>
