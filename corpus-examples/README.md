@@ -1,5 +1,25 @@
 # Seed corpus examples
 
+## Basic math corpus
+
+Import **`basic_math.txt`** for 5,295 unique, short question-and-answer examples:
+
+- Addition with operands from 0 to 20 and nonnegative subtraction up to 20.
+- Multiplication with factors from 0 to 10 and exact division by 1 to 10.
+- Counting, before/after, even/odd, equality, and greater-than comparisons.
+
+Arithmetic appears as symbols, words, and short stories. Every complete example fits
+within 256 byte tokens including role labels and special-token allowance. Division
+has no remainders or zero divisors; fractions, negative numbers, and decimals are not
+covered. Operand families reserved in `toddler_reasoning_evaluation.json` are excluded
+from addition and subtraction, including reversed addition operands.
+
+Regenerate with `node scripts/create-basic-math-corpus.ts`. This is synthetic practice
+material with repeated templates; low validation loss does not establish general math
+ability. The toddler evaluation covers only part of this curriculum. Continuing an
+existing model on this file may affect its earlier skills; preserve a checkpoint first
+if you want to compare results. No training is started by generating this file.
+
 ## Improved toddler corpus
 
 Use **`toddler_reasoning_improved_30000.txt`** for the revised experiment. The original
