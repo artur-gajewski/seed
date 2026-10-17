@@ -13,6 +13,7 @@ import { TrainingControls } from './components/TrainingControls.tsx';
 import { CheckpointControls } from './components/CheckpointControls.tsx';
 import { StudioNote } from './components/StudioNote.tsx';
 import { ChatPage } from './components/ChatPage.tsx';
+import { NewLifePage } from './components/NewLifePage.tsx';
 import { useChat } from './hooks/useChat.ts';
 
 export function App() {
@@ -152,7 +153,10 @@ export function App() {
             {notice}
           </div>
         )}
-        {tab === 'chat' ? (
+        <div hidden={tab !== 'new-life'}>
+          <NewLifePage />
+        </div>
+        {tab === 'new-life' ? null : tab === 'chat' ? (
           <ChatPage
             chat={chat}
             status={status}

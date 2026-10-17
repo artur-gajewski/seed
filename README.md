@@ -2,11 +2,12 @@
 
 **Seed is a local language-model training studio.** It lets you train a small model from scratch on your own text, watch its learning progress, and experiment with its output.
 
-The interface has three sections:
+The interface has four sections:
 
 - **Training:** Paste or import text, configure the model, start or resume training, and track training and validation loss.
 - **Text generation:** Give the model a prompt and adjust settings such as temperature and output length.
 - **Chat:** Exchange messages with the trained model using a conversation interface.
+- **New life:** Grow a separate model from scratch through your messages and taught answers, with automatically saved learning.
 
 The frontend uses **React, TypeScript, and Vite**. A **Node.js 24** backend handles the API, training, generation, and checkpoint storage. The Transformer engine—including attention, gradients, and optimization—is implemented directly in TypeScript, without machine-learning libraries or external inference APIs.
 
@@ -143,6 +144,52 @@ Enter sends a chat message; Shift + Enter inserts a newline. Temperature control
 
 Chat history and drafts remain in browser memory while switching pages and reset on refresh. Sending a message does not train the model.
 
+## New life: teach through chat
+
+Open **New life** below Chat to grow a separate model from random weights. Send a
+short message, then select **Teach an answer** below its reply to supply the response
+you wanted. For example, send `What is 1 + 1?` and teach `1 plus 1 is 2.` Early replies
+will be gibberish; a handful of lessons does not produce a fluent assistant.
+
+### Try a first lesson
+
+1. Send `What color is the sky?` in **Say something simple…**.
+2. Select **Teach an answer** below Seed's reply.
+3. Enter `The sky is blue.` in **What should Seed say?** and press Enter to teach and save.
+4. Ask the question again, then introduce other short questions and answers.
+
+Enter submits either input. After sending a message, focus returns to the message
+input, and the conversation follows the latest row automatically. The counters show
+remembered lessons, taught answers, and total learning updates.
+
+### How learning works
+
+Each message or taught answer triggers 12 small training updates. Training combines
+the latest lesson with randomly selected previous lessons to reduce forgetting.
+User messages teach language patterns; question-and-answer lessons teach responses.
+Generated replies are never automatically added to training. Teaching another answer
+to the same question replaces its previous lesson; asking again preserves the taught
+answer. Each message and answer must fit in 100 UTF-8 bytes on one line, keeping a
+complete lesson within the model's 256-token window. Up to 1,000 distinct questions
+are retained; older lessons are not silently removed when this limit is reached.
+
+Every send trains before generating a reply, including repeated questions. Replies
+also use random sampling (temperature 0.8), so the same question can produce different
+answers even when saved learning is restored correctly. Refreshing the page does not
+itself train the model. Early output may contain `�` replacement characters because
+the byte-level model has not yet learned to generate valid UTF-8 consistently.
+
+### Continuing later
+
+The model uses width 32, one layer, four attention heads, and learning rate 0.001.
+Its weights, optimizer state, and replay lessons are saved atomically after each
+learning action to **`data/new-life-checkpoint.json`**, independently of the studio's
+`data/checkpoint.json`. Saved learning reloads automatically after a server restart.
+**New conversation** clears the visible conversation while preserving learning.
+Conversation display is kept only for the current browser session; saved lessons
+include your messages and taught answers. Replies use the current message as context.
+This experimental mode can memorize lessons and can still forget earlier skills.
+
 ## Checkpoints and storage
 
 The app **automatically saves a checkpoint every 100 training updates**, based on the model's total update count, including across resumed training sessions. Checkpoints are written to `data/checkpoint.json` locally, or `/app/data/checkpoint.json` inside Docker. Each save atomically replaces the single checkpoint file.
@@ -162,6 +209,7 @@ Version 1 RNN checkpoints still load as RNNs, including their original optimizer
 - `server/validation.ts`: input validation and defaults.
 - `server/studio.ts`: model state, batches, data partitioning, validation, checkpoints.
 - `server/chat.ts`: conversation formatting and response extraction.
+- `server/new-life.ts`: independent chat learning, lesson replay, and New life checkpoint storage.
 - `server/model.ts`: decoder-only Transformer and version 2 checkpoints.
 - `server/tensor.ts`: matrix operations, causal attention, normalization, GELU, and backward derivatives.
 - `server/numerics.ts`, `server/accelerated-attention.ts`, and `native/accelerate.cc`: optional native CPU matrix acceleration and attention.
@@ -183,6 +231,9 @@ JSON requests and responses. Errors return `{ "error": "..." }`. No Origin heade
 | POST   | `/api/stop`              | Stop after the current synchronous training block               |
 | POST   | `/api/generate`          | Generate a text continuation                                    |
 | POST   | `/api/chat`              | Generate an assistant reply from recent turns                   |
+| GET    | `/api/new-life/status`   | Restore saved New life learning and return lesson/update counts |
+| POST   | `/api/new-life/message`  | Learn from a message, save, and generate a reply                |
+| POST   | `/api/new-life/teach`    | Learn a preferred answer and save                               |
 | POST   | `/api/checkpoint/save`   | Save weights, optimizer, and chart history                      |
 | POST   | `/api/checkpoint/load`   | Load the saved model                                            |
 | POST   | `/api/checkpoint/delete` | Delete the saved checkpoint while retaining the loaded model    |
@@ -202,6 +253,12 @@ curl http://127.0.0.1:3001/api/chat \
 ```
 
 The chat response contains `reply`, `tokens`, `elapsedMs`, and `modelStep`. The generate route takes `prompt` instead of `messages` and returns `completion` instead of `reply`. Token counts include a predicted stop token and are measured before chat trims subsequent role markers. Temperature is 0.1–2; output limits are 1–1,000 tokens.
+
+New life message requests take `{ "message": "What color is the sky?" }` and return
+`reply` and `status`. Teaching requests take `{ "message": "What color is the sky?",
+"answer": "The sky is blue." }` and return the updated status. Status includes `ready`,
+`steps`, `lessons`, and `corrections`. Requests wait for learning and saving to finish;
+concurrent New life operations are rejected while it is busy.
 
 ## Evaluate a trained checkpoint
 

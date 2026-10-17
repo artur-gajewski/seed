@@ -11,10 +11,18 @@ export function StudioHeader({ tab, status }: StudioHeaderProps) {
       <header>
         <div className="breadcrumb">
           Workspace <span>/</span>{' '}
-          <b>{tab === 'train' ? 'Training' : tab === 'chat' ? 'Chat' : 'Text generation'}</b>
+          <b>
+            {tab === 'train'
+              ? 'Training'
+              : tab === 'chat'
+                ? 'Chat'
+                : tab === 'new-life'
+                  ? 'New life'
+                  : 'Text generation'}
+          </b>
         </div>
       </header>
-      {tab !== 'chat' && (
+      {tab !== 'chat' && tab !== 'new-life' && (
         <div className="page-heading">
           <div>
             <h1>{tab === 'train' ? 'Train a model' : 'Generate text'}</h1>

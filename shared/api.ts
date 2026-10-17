@@ -79,7 +79,20 @@ export interface ChatResponse {
   elapsedMs: number;
   modelStep: number;
 }
+export interface NewLifeStatus {
+  steps: number;
+  lessons: number;
+  corrections: number;
+  ready: boolean;
+}
+export interface NewLifeReply {
+  reply: string;
+  status: NewLifeStatus;
+}
 export interface ApiResponses {
+  'new-life/status': NewLifeStatus;
+  'new-life/message': NewLifeReply;
+  'new-life/teach': NewLifeStatus;
   status: StudioStatus;
   train: StudioStatus;
   stop: StudioStatus;
@@ -90,6 +103,9 @@ export interface ApiResponses {
   'checkpoint/delete': { message: string };
 }
 export interface ApiRequests {
+  'new-life/status': undefined;
+  'new-life/message': { message: string };
+  'new-life/teach': { message: string; answer: string };
   status: undefined;
   train: TrainRequest;
   stop: Record<string, never>;

@@ -10,6 +10,7 @@ import {
 } from './http.ts';
 import type { Request, Response } from './http.ts';
 import { ModelStudio } from './studio.ts';
+import { NewLife } from './new-life.ts';
 import { tensorBackend } from './numerics.ts';
 
 export type { Request, Response } from './http.ts';
@@ -20,6 +21,7 @@ const buildDirectory = path.join(projectDirectory, 'dist');
 const developmentOrigins =
   process.env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : [];
 const studio = new ModelStudio(path.join(projectDirectory, 'data/checkpoint.json'));
+const newLife = new NewLife(path.join(projectDirectory, 'data/new-life-checkpoint.json'));
 
 async function handleApiRequest(
   request: Request,
@@ -29,6 +31,11 @@ async function handleApiRequest(
   // This is a local tool: other websites must not be able to mutate its model.
   if (isCrossOriginRequest(request, developmentOrigins)) {
     sendJson(response, 403, { error: 'Cross-origin requests are disabled' });
+    return;
+  }
+
+  if (request.method === 'GET' && pathname === '/api/new-life/status') {
+    sendJson(response, 200, await newLife.getStatus());
     return;
   }
 
@@ -46,6 +53,12 @@ async function handleApiRequest(
   const body = await readJsonBody(request);
 
   switch (pathname) {
+    case '/api/new-life/message':
+      sendJson(response, 200, await newLife.message(body));
+      return;
+    case '/api/new-life/teach':
+      sendJson(response, 200, await newLife.teach(body));
+      return;
     case '/api/train':
       studio.startTraining(body);
       sendJson(response, 202, studio.getStatus());
