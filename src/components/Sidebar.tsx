@@ -29,7 +29,7 @@ export function Sidebar({ tab, connected, architecture, onTabChange }: SidebarPr
         onClick={() => onTabChange('generate')}
         aria-label="Text generation"
       >
-        <Icon name="spark" /> Text generation <Icon name="arrow" size={14} />
+        <Icon name="spark" /> Text generation
       </button>
       <button
         className={`nav ${tab === 'chat' ? 'active' : ''}`}

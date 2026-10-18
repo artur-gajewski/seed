@@ -48,7 +48,7 @@ export function LossChart({ points }: { points: LossPoint[] }) {
             stroke="var(--chart-grid)"
             strokeDasharray="4 5"
           />
-          <text x="0" y={24 + i * 42} fill="var(--chart-label)" fontSize="10">
+          <text x="0" y={24 + i * 42} fill="var(--chart-label)" fontSize="13">
             {(high - ((high - low) * i) / 3).toFixed(2)}
           </text>
         </g>
@@ -70,10 +70,10 @@ export function LossChart({ points }: { points: LossPoint[] }) {
         r="4"
         fill="var(--chart-line)"
       />
-      <text x="44" y="172" fill="var(--chart-label)" fontSize="10">
+      <text x="44" y="172" fill="var(--chart-label)" fontSize="13">
         Step {points[0].step}
       </text>
-      <text x="664" y="172" textAnchor="end" fill="var(--chart-label)" fontSize="10">
+      <text x="664" y="172" textAnchor="end" fill="var(--chart-label)" fontSize="13">
         Step {points.at(-1)!.step}
       </text>
     </svg>
