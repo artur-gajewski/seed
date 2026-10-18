@@ -122,7 +122,9 @@ export function NewLifePage() {
       <div className="new-life-intro">
         <p>
           This model starts from scratch. It learns language from your messages and answers from
-          your teaching. Early replies will be gibberish. Type ! followed by the answer you wanted,
+          your teaching. Early replies will be gibberish.
+          <br />
+          Type ! followed by the answer you wanted,
           or a correction such as “No, the sky is blue.”
         </p>
         <div className="new-life-stats" aria-live="polite">

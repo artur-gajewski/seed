@@ -1181,7 +1181,6 @@ footer i {
 
 .new-life-intro {
   flex-shrink: 0;
-  max-width: 780px;
   padding: 0 0 20px;
 }
 
@@ -1425,8 +1424,13 @@ footer i {
   outline: none;
 }
 
-.new-life-page .chat-composer-area {
+.new-life-page .chat-composer-area,
+.new-life-page .chat-messages {
   max-width: none;
+}
+
+.new-life-page .chat-message.user {
+  margin-left: 0;
 }
 
 .new-life-page .chat-composer input {
