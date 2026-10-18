@@ -162,6 +162,11 @@ Enter submits the chat input. After sending a message or correction, focus retur
 input, and the conversation follows the latest row automatically. The counters show
 remembered lessons, taught answers, and total learning updates.
 
+Use **Up** and **Down** in the input to recall successfully submitted messages and
+corrections. Down past the latest entry restores the draft you were writing. Recalled
+text can be edited before sending; browsing history does not train the model. Input
+history lasts until the page is refreshed.
+
 ### Teach with `!` or a written correction
 
 You can also teach directly in **Say something simple…**: prefix your preferred answer

@@ -28,6 +28,16 @@ export function NewLifePage() {
   const log = useRef<HTMLDivElement>(null);
   const composer = useRef<HTMLInputElement>(null);
   const focusComposerAfterAction = useRef(false);
+  const inputHistory = useRef<string[]>([]);
+  const historyPosition = useRef<number | null>(null);
+  const unfinishedDraft = useRef('');
+
+  function rememberInput(input: string) {
+    inputHistory.current.push(input);
+    historyPosition.current = null;
+    unfinishedDraft.current = '';
+    setDraft('');
+  }
 
   useEffect(() => {
     if (!busy && focusComposerAfterAction.current) {
@@ -176,7 +186,7 @@ export function NewLifePage() {
               );
               if (input.kind === 'teach') {
                 await teachAnswer(input.message, input.answer, draft.trim());
-                setDraft('');
+                rememberInput(draft);
                 return;
               }
               const { message } = input;
@@ -186,7 +196,7 @@ export function NewLifePage() {
                 ...previous,
                 { id: Date.now(), message, reply: result.reply },
               ]);
-              setDraft('');
+              rememberInput(draft);
             });
           }}
         >
@@ -200,9 +210,40 @@ export function NewLifePage() {
             placeholder="Say something simple…"
             value={draft}
             disabled={busy}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={(event) => {
+              historyPosition.current = null;
+              setDraft(event.target.value);
+            }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+              if (event.nativeEvent.isComposing) return;
+              if (
+                (event.key === 'ArrowUp' || event.key === 'ArrowDown') &&
+                !event.altKey &&
+                !event.ctrlKey &&
+                !event.metaKey &&
+                !event.shiftKey
+              ) {
+                event.preventDefault();
+                const history = inputHistory.current;
+                if (!history.length) return;
+                if (event.key === 'ArrowUp') {
+                  if (historyPosition.current === null) {
+                    unfinishedDraft.current = draft;
+                    historyPosition.current = history.length - 1;
+                  } else {
+                    historyPosition.current = Math.max(0, historyPosition.current - 1);
+                  }
+                  setDraft(history[historyPosition.current]);
+                } else if (historyPosition.current !== null) {
+                  if (historyPosition.current < history.length - 1) {
+                    historyPosition.current++;
+                    setDraft(history[historyPosition.current]);
+                  } else {
+                    historyPosition.current = null;
+                    setDraft(unfinishedDraft.current);
+                  }
+                }
+              } else if (event.key === 'Enter') {
                 event.preventDefault();
                 event.currentTarget.form?.requestSubmit();
               }
