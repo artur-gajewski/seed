@@ -1203,27 +1203,6 @@ footer i {
   font-size: 12px;
 }
 
-.new-life-teacher {
-  display: grid;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.new-life-teacher textarea {
-  width: 100%;
-  padding: 12px;
-}
-
-.new-life-teacher-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.new-life-teacher-actions .primary-button {
-  width: auto;
-  margin: 0;
-}
-
 .new-life-page .chat-message {
   margin-bottom: 20px;
 }

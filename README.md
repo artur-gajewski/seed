@@ -147,22 +147,22 @@ Chat history and drafts remain in browser memory while switching pages and reset
 ## New life: teach through chat
 
 Open **New life** below Chat to grow a separate model from random weights. Send a
-short message, then select **Teach an answer** below its reply to supply the response
-you wanted. For example, send `What is 1 + 1?` and teach `1 plus 1 is 2.` Early replies
+short message, then type a correction in the same chat input to supply the response
+you wanted. For example, send `What is 1 + 1?` and teach `!1 plus 1 is 2.` Early replies
 will be gibberish; a handful of lessons does not produce a fluent assistant.
 
 ### Try a first lesson
 
 1. Send `What color is the sky?` in **Say something simple…**.
-2. Select **Teach an answer** below Seed's reply.
-3. Enter `The sky is blue.` in **What should Seed say?** and press Enter to teach and save.
+2. Wait for Seed's reply.
+3. Enter `!The sky is blue.` in **Say something simple…** and press Enter to teach and save.
 4. Ask the question again, then introduce other short questions and answers.
 
-Enter submits either input. After sending a message, focus returns to the message
+Enter submits the chat input. After sending a message or correction, focus returns to the message
 input, and the conversation follows the latest row automatically. The counters show
 remembered lessons, taught answers, and total learning updates.
 
-### Teach with the `!` command
+### Teach with `!` or a written correction
 
 You can also teach directly in **Say something simple…**: prefix your preferred answer
 with `!`, for example `!The sky is blue.`. This teaches an answer to the latest message
@@ -172,9 +172,32 @@ first; the shortcut needs a previous reply to correct. Both Enter and the send b
 support this shortcut, and the input clears and regains focus after saving successfully.
 
 For example, after asking `What color is the sky?`, type `!The sky is blue.` and press
-Enter. Seed learns and saves that question-and-answer pair without generating another
-reply. Ask the question again when you want to check its progress. The **Teach an
-answer** button remains available for correcting any earlier reply in the conversation.
+Enter. Seed learns and saves that question-and-answer pair, then acknowledges it in
+the chat with a randomly chosen phrase such as “Ok, I will try to learn this.” These
+acknowledgments are interface messages, not model-generated answers or training data.
+Ask the question again when you want to check its progress. Further corrections still
+teach the latest question, rather than the acknowledgment. To teach an earlier
+question, ask it again first.
+
+New life also recognizes explicit written corrections, ignoring capitalization:
+
+- `No. The sky is blue.` or `No, the sky is blue.`
+- `Nope, the sky is blue.` or `Not quite. The sky is blue.`
+- `That's wrong. The sky is blue.` or `Incorrect: The sky is blue.`
+- `Actually, the sky is blue.` or `Correction: The sky is blue.`
+- `The correct answer is The sky is blue.` or `The right answer: The sky is blue.`
+- `It should be The sky is blue.`, `You should say The sky is blue.`, or `I meant The sky is blue.`
+
+These forms use the same teaching action as `!`: the correction prefix is removed,
+the supplied answer is paired with your latest message, and learning is saved. The
+byte counter measures the extracted answer. The composer shows **Teaching latest
+answer** when it recognizes a correction. Combined cues such as `No, the correct
+answer is 4.` also work.
+
+Recognition uses explicit text patterns, not the model's understanding of arbitrary
+feedback. Bare feedback such as `No.` and questions such as `Actually, what color is
+the sky?` remain ordinary messages. Use `!` for an answer that
+is itself a question or wording the shortcut does not recognize.
 
 ### How learning works
 

@@ -1,33 +1,33 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { NewLifeStatus } from '../../shared/api.ts';
 import { api } from '../lib/api.ts';
-import { parseNewLifeInput } from '../lib/newLifeInput.ts';
+import { newLifeInputContent, parseNewLifeInput } from '../lib/newLifeInput.ts';
 import { Icon } from './Icon.tsx';
 
 interface Exchange {
   id: number;
   message: string;
   reply: string;
+  teaching?: boolean;
 }
+const TEACHING_REPLIES = [
+  'Ok, I will try to learn this.',
+  'Thanks, I will practice that.',
+  'Got it. I will keep learning from this.',
+  'Thank you for teaching me. I will try to remember.',
+  'Ok, I will work on getting that right.',
+];
 const byteLength = (text: string) => new TextEncoder().encode(text.trim()).length;
 
 export function NewLifePage() {
   const [status, setStatus] = useState<NewLifeStatus | null>(null);
   const [messages, setMessages] = useState<Exchange[]>([]);
   const [draft, setDraft] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [teaching, setTeaching] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
   const log = useRef<HTMLDivElement>(null);
   const composer = useRef<HTMLTextAreaElement>(null);
-  const answerInput = useRef<HTMLTextAreaElement>(null);
   const focusComposerAfterAction = useRef(false);
-
-  useLayoutEffect(() => {
-    if (teaching !== null) answerInput.current?.focus({ preventScroll: true });
-  }, [teaching]);
 
   useEffect(() => {
     if (!busy && focusComposerAfterAction.current) {
@@ -60,17 +60,16 @@ export function NewLifePage() {
     };
     scrollToLatest();
 
-    // Follow both new rows and layout changes, including teaching forms and tab visibility.
+    // Follow both new rows and layout changes, including tab visibility.
     const observer = new ResizeObserver(scrollToLatest);
     observer.observe(container);
     if (container.firstElementChild) observer.observe(container.firstElementChild);
     return () => observer.disconnect();
-  }, [messages, busy, teaching, error, notice]);
+  }, [messages, busy, error]);
 
   async function act(action: () => Promise<void>) {
     setBusy(true);
     setError('');
-    setNotice('');
     try {
       await action();
     } catch (reason) {
@@ -81,15 +80,16 @@ export function NewLifePage() {
   }
 
   const valid = (text: string) => byteLength(text) > 0 && byteLength(text) <= 100;
-  const isTeachingDraft = draft.trim().startsWith('!');
-  const draftContent = isTeachingDraft ? draft.trim().slice(1).trim() : draft.trim();
+  const { isTeaching: isTeachingDraft, content: draftContent } = newLifeInputContent(draft);
 
-  async function teachAnswer(message: string, preferredAnswer: string) {
+  async function teachAnswer(message: string, preferredAnswer: string, correction: string) {
     setStatus(await api('new-life/teach', { message, answer: preferredAnswer.trim() }));
     focusComposerAfterAction.current = true;
-    setTeaching(null);
-    setAnswer('');
-    setNotice('Answer learned and saved. Ask again to see how Seed responds.');
+    const reply = TEACHING_REPLIES[Math.floor(Math.random() * TEACHING_REPLIES.length)];
+    setMessages((previous) => [
+      ...previous,
+      { id: Date.now(), message: correction, reply, teaching: true },
+    ]);
   }
 
   return (
@@ -106,9 +106,6 @@ export function NewLifePage() {
           disabled={busy}
           onClick={() => {
             setMessages([]);
-            setTeaching(null);
-            setAnswer('');
-            setNotice('');
           }}
         >
           New conversation
@@ -118,8 +115,8 @@ export function NewLifePage() {
         <h1>A little more with every lesson.</h1>
         <p>
           This Seed starts from scratch. It learns language from your messages and answers from your
-          teaching. Early replies will be gibberish. Use “Teach an answer” to show it what you
-          wanted to hear.
+          teaching. Early replies will be gibberish. Type ! followed by the answer you wanted, or a
+          correction such as “No, the sky is blue.”
         </p>
         <div className="new-life-stats" aria-live="polite">
           <span>
@@ -158,59 +155,6 @@ export function NewLifePage() {
                 <div className="chat-message-content">
                   {exchange.reply || '(No readable reply yet.)'}
                 </div>
-                <button
-                  className="secondary-button"
-                  disabled={busy}
-                  onClick={() => {
-                    setTeaching(exchange.id);
-                    setAnswer('');
-                    setNotice('');
-                  }}
-                >
-                  Teach an answer
-                </button>
-                {teaching === exchange.id && (
-                  <form
-                    className="new-life-teacher"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      if (busy || !valid(answer)) return;
-                      void act(async () => {
-                        await teachAnswer(exchange.message, answer);
-                      });
-                    }}
-                  >
-                    <label htmlFor={`lesson-${exchange.id}`}>What should Seed say?</label>
-                    <textarea
-                      id={`lesson-${exchange.id}`}
-                      ref={answerInput}
-                      rows={2}
-                      value={answer}
-                      disabled={busy}
-                      onChange={(event) => setAnswer(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
-                          event.preventDefault();
-                          event.currentTarget.form?.requestSubmit();
-                        }
-                      }}
-                    />
-                    <small>{byteLength(answer)} / 100 bytes · one short line</small>
-                    <div className="new-life-teacher-actions">
-                      <button
-                        className="secondary-button"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => setTeaching(null)}
-                      >
-                        Cancel
-                      </button>
-                      <button className="primary-button" disabled={busy || !valid(answer)}>
-                        Teach and save
-                      </button>
-                    </div>
-                  </form>
-                )}
               </article>
             </div>
           ))}
@@ -227,11 +171,6 @@ export function NewLifePage() {
             {error}
           </div>
         )}
-        {notice && (
-          <div className="notice" role="status">
-            {notice}
-          </div>
-        )}
         <form
           className="chat-composer"
           onSubmit={(event) => {
@@ -239,9 +178,12 @@ export function NewLifePage() {
             if (busy || !valid(draftContent)) return;
             focusComposerAfterAction.current = true;
             void act(async () => {
-              const input = parseNewLifeInput(draft, messages.at(-1)?.message);
+              const input = parseNewLifeInput(
+                draft,
+                messages.findLast((exchange) => !exchange.teaching)?.message,
+              );
               if (input.kind === 'teach') {
-                await teachAnswer(input.message, input.answer);
+                await teachAnswer(input.message, input.answer, draft.trim());
                 setDraft('');
                 return;
               }
@@ -289,7 +231,8 @@ export function NewLifePage() {
           </div>
         </form>
         <p className="chat-footnote">
-          Start with ! to teach an answer to your latest message, for example: !The sky is blue.
+          Teach the latest answer with !The sky is blue. or No, the sky is blue. The send button
+          switches to teaching when a correction is recognized.
         </p>
       </div>
     </section>
