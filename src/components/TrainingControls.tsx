@@ -3,6 +3,7 @@ import type { StudioStatus, TrainingSettings } from '../../shared/api.ts';
 import { Icon } from './Icon.tsx';
 import { formatDuration } from '../lib/formatDuration.ts';
 interface TrainingControlsProps {
+  hasCorpus: boolean;
   status: StudioStatus;
   settings: TrainingSettings;
   busy: boolean;
@@ -13,6 +14,7 @@ interface TrainingControlsProps {
 }
 
 export function TrainingControls({
+  hasCorpus,
   status,
   settings,
   busy,
@@ -216,7 +218,7 @@ export function TrainingControls({
       ) : (
         <button
           className="primary-button"
-          disabled={busy || !connected}
+          disabled={busy || !connected || !hasCorpus}
           onClick={() => onTrain(false)}
         >
           <Icon name="play" />
@@ -227,7 +229,7 @@ export function TrainingControls({
       {status.model && !status.running && (
         <button
           className="secondary-button"
-          disabled={busy || !connected}
+          disabled={busy || !connected || !hasCorpus}
           onClick={() => onTrain(true)}
         >
           Continue existing model

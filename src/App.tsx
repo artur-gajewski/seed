@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { GenerateRequest, StudioStatus, TrainingSettings } from '../shared/api.ts';
 import type { GenerationResult, StudioTab } from './types.ts';
-import { SAMPLE } from './data/sample.ts';
 import { api } from './lib/api.ts';
 import { Sidebar } from './components/Sidebar.tsx';
 import { StudioHeader } from './components/StudioHeader.tsx';
@@ -25,7 +24,7 @@ export function App() {
     job: null,
     error: null,
   });
-  const [text, setText] = useState(SAMPLE);
+  const [text, setText] = useState('');
   const [tab, setTab] = useState<StudioTab>('train');
   const [settings, setSettings] = useState<TrainingSettings>({
     hiddenSize: 64,
@@ -191,6 +190,7 @@ export function App() {
               </div>
               <div className="secondary">
                 <TrainingControls
+                  hasCorpus={text.trim().length > 0}
                   status={status}
                   settings={settings}
                   busy={busy || chat.isSending}
