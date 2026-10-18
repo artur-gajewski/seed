@@ -1182,7 +1182,7 @@ footer i {
 .new-life-intro {
   flex-shrink: 0;
   max-width: 780px;
-  padding: 12px 0 20px;
+  padding: 0 0 20px;
 }
 
 .new-life-intro h1 {
@@ -1191,6 +1191,7 @@ footer i {
 }
 
 .new-life-intro p {
+  margin-top: 0;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -1409,7 +1410,8 @@ footer i {
   border-color: var(--accent);
 }
 
-.chat-composer textarea {
+.chat-composer textarea,
+.new-life-page .chat-composer input {
   width: 100%;
   min-height: 70px;
   max-height: 220px;
@@ -1423,7 +1425,17 @@ footer i {
   outline: none;
 }
 
-.chat-composer textarea::placeholder {
+.new-life-page .chat-composer-area {
+  max-width: none;
+}
+
+.new-life-page .chat-composer input {
+  min-height: 44px;
+  max-height: none;
+}
+
+.chat-composer textarea::placeholder,
+.new-life-page .chat-composer input::placeholder {
   color: var(--text-muted);
 }
 
@@ -1488,6 +1500,18 @@ footer i {
 
 .chat-footnote span {
   display: block;
+}
+
+.new-life-page .chat-footnote code {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 3px 2px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: 1em;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 480px) {

@@ -26,7 +26,7 @@ export function NewLifePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const log = useRef<HTMLDivElement>(null);
-  const composer = useRef<HTMLTextAreaElement>(null);
+  const composer = useRef<HTMLInputElement>(null);
   const focusComposerAfterAction = useRef(false);
 
   useEffect(() => {
@@ -97,9 +97,7 @@ export function NewLifePage() {
       <div className="chat-toolbar">
         <div className="chat-model">
           <Icon name="leaf" />
-          <div>
-            New life <span>{status?.ready ? 'Growing with you' : 'A fresh beginning'}</span>
-          </div>
+          <div>New life {!status?.ready && <span>A fresh beginning</span>}</div>
         </div>
         <button
           className="secondary-button"
@@ -112,11 +110,10 @@ export function NewLifePage() {
         </button>
       </div>
       <div className="new-life-intro">
-        <h1>A little more with every lesson.</h1>
         <p>
-          This Seed starts from scratch. It learns language from your messages and answers from your
-          teaching. Early replies will be gibberish. Type ! followed by the answer you wanted, or a
-          correction such as “No, the sky is blue.”
+          This model starts from scratch. It learns language from your messages and answers from
+          your teaching. Early replies will be gibberish. Type ! followed by the answer you wanted,
+          or a correction such as “No, the sky is blue.”
         </p>
         <div className="new-life-stats" aria-live="polite">
           <span>
@@ -129,11 +126,6 @@ export function NewLifePage() {
             <b>{status?.steps ?? 0}</b> learning updates
           </span>
         </div>
-        <p className="new-life-note">
-          Learning is saved automatically in its own checkpoint. Previous lessons are revisited with
-          each message. Generated replies are only learned when you teach them as an answer. New
-          conversations keep its learning; the visible conversation clears when you reload.
-        </p>
       </div>
       <div className="chat-conversation" ref={log}>
         <div
@@ -201,10 +193,10 @@ export function NewLifePage() {
           <label className="sr-only" htmlFor="new-life-message">
             Message New life
           </label>
-          <textarea
+          <input
+            type="text"
             id="new-life-message"
             ref={composer}
-            rows={2}
             placeholder="Say something simple…"
             value={draft}
             disabled={busy}
@@ -231,8 +223,9 @@ export function NewLifePage() {
           </div>
         </form>
         <p className="chat-footnote">
-          Teach the latest answer with !The sky is blue. or No, the sky is blue. The send button
-          switches to teaching when a correction is recognized.
+          Teach the latest answer with <code>!The sky is blue.</code> or{' '}
+          <code>No, the sky is blue.</code> The send button switches to teaching when a correction
+          is recognized.
         </p>
       </div>
     </section>
