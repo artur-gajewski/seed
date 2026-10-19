@@ -27,7 +27,7 @@ export function parseTrainingRequest(body: JsonObject): TrainRequest {
     throw new Error('Corpus exceeds 10 MB');
   }
 
-  const hiddenSize = requireInteger(body.hiddenSize ?? 64, 16, 256, 'Hidden size');
+  const hiddenSize = requireInteger(body.hiddenSize ?? 64, 16, 512, 'Hidden size');
   const steps = requireInteger(body.steps ?? 1000, 1, 1000000, 'Steps');
   const sequenceLength = requireInteger(body.sequenceLength ?? 64, 8, 256, 'Sequence length');
   const learningRate = requireNumber(body.learningRate ?? 0.001, 0.00001, 0.05, 'Learning rate');

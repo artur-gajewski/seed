@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LanguageModel } from '../server/model.ts';
+import { parseTrainingRequest } from '../server/validation.ts';
 
 function smallModel(): LanguageModel {
   return new LanguageModel('', 8, 42, { layers: 1, heads: 2, contextSize: 8 });
@@ -97,4 +98,34 @@ test('end-of-response tokens stop generation and are never displayed as text', (
   const model = smallModel();
   model.weights.outputBias.values[257] = 1000;
   assert.deepEqual(model.generateDetailed('Hello!', 50, 0.1, 1), { completion: '', tokens: 1 });
+});
+
+for (const width of [384, 512]) {
+  test(`Transformer supports width ${width} through request validation and checkpoint restoration`, () => {
+    const request = parseTrainingRequest({ text: 'abc'.repeat(30), hiddenSize: width, heads: 8 });
+    const model = new LanguageModel('', request.hiddenSize, 42, {
+      layers: 1,
+      heads: request.heads,
+      contextSize: 2,
+    });
+    const inputs = model.encode('ab');
+    const targets = model.encode('bc');
+    assert.ok(Number.isFinite(model.evaluate(inputs, targets)));
+    const restored = LanguageModel.restore(model.serialize());
+    assert.ok(restored instanceof LanguageModel);
+    assert.equal(restored.hiddenSize, width);
+    assert.equal(restored.evaluate(inputs, targets), model.evaluate(inputs, targets));
+  });
+}
+
+test('Transformer width expansion preserves width and context limits', () => {
+  const text = 'abc'.repeat(30);
+  assert.throws(() => parseTrainingRequest({ text, hiddenSize: 513 }), /Hidden size/);
+  assert.throws(() => parseTrainingRequest({ text, hiddenSize: 384, heads: 5 }), /divisible/);
+  assert.throws(() => parseTrainingRequest({ text, sequenceLength: 384 }), /Sequence length/);
+  assert.throws(() => new LanguageModel('', 520), /Invalid Transformer configuration/);
+  assert.throws(
+    () => new LanguageModel('', 512, 42, { contextSize: 384 }),
+    /Invalid Transformer configuration/,
+  );
 });

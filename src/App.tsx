@@ -27,13 +27,13 @@ export function App() {
   const [text, setText] = useState('');
   const [tab, setTab] = useState<StudioTab>('train');
   const [settings, setSettings] = useState<TrainingSettings>({
-    hiddenSize: 64,
-    steps: 1000,
-    sequenceLength: 64,
-    learningRate: 0.001,
-    layers: 2,
-    heads: 4,
-    batchSize: 2,
+    hiddenSize: 256,
+    steps: 30_000,
+    sequenceLength: 256,
+    learningRate: 0.0003,
+    layers: 4,
+    heads: 8,
+    batchSize: 8,
   });
   const [generation, setGeneration] = useState<GenerateRequest>({
     prompt: 'User: Hello!\nAssistant:',

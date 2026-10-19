@@ -105,6 +105,8 @@ export function TrainingControls({
             <option value="64">64</option>
             <option value="128">128</option>
             <option value="256">256</option>
+            <option value="384">384</option>
+            <option value="512">512</option>
           </select>
         </label>
         <div className="field-pair">

@@ -11,7 +11,7 @@ The interface has four sections:
 
 The frontend uses **React, TypeScript, and Vite**. A **Node.js 24** backend handles the API, training, generation, and checkpoint storage. The Transformer engine—including attention, gradients, and optimization—is implemented directly in TypeScript, without machine-learning libraries or external inference APIs.
 
-The default model has roughly **137,000 parameters** and runs on the CPU, with optional native acceleration on macOS. It starts with random weights, so its output depends entirely on the supplied training data. This makes Seed useful for learning and small experiments; broad assistant capabilities would require much more data and computing power.
+The Training panel’s default model has roughly **3.36 million parameters** and runs on the CPU, with optional native acceleration on macOS. It starts with random weights, so its output depends entirely on the supplied training data. This makes Seed useful for learning and small experiments; broad assistant capabilities would require much more data and computing power.
 
 You can run it locally or through Docker, and save checkpoints to continue training later.
 
@@ -112,7 +112,7 @@ See the [corpus examples guide](corpus-examples/README.md) for corpus descriptio
 4. Compare training and validation loss. The last 10% of encoded tokens are withheld from training. Validation evaluates up to three fixed windows at the first update, every 100 updates, and the last update. The dashed line shows the most recent validation measurement. Increasing validation loss while training loss drops can indicate overfitting.
 5. Test prompts and questions you did not train on. Low loss is not evidence of factual accuracy, reasoning, or reliable instruction following.
 
-Default configuration: width 64, two layers, four attention heads, a 64-token context, batch size 2, 1,000 updates, and peak learning rate 0.001. This is about 137,000 trainable parameters. Supported CPU limits are width/context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 3.36 million parameters, not a large production LLM. Larger settings cost substantially more CPU time.
+Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters. Supported CPU limits are width up to 512 and context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 13 million parameters, not a large production LLM. Larger settings cost substantially more CPU time.
 
 On macOS, run `npm run native:build` and restart the server to enable optional Apple Accelerate CPU acceleration. The portable JavaScript backend remains available. See [training performance](docs/training-performance.md) for setup requirements, benchmarks, correctness checks, and GPU trade-offs.
 
