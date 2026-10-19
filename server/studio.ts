@@ -1,6 +1,7 @@
 import { chatGenerationRequest, extractAssistantReply, parseChatRequest } from './chat.ts';
 import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { encodeCheckpoint, decodeCheckpoint } from './checkpoint.ts';
 import type {
   ChatResponse,
   GenerateResponse,
@@ -22,6 +23,7 @@ interface TrainingSession {
   validationTokens: number[];
   smoothedLoss: number | null;
   timing: TrainingTiming;
+  onProgress?: (job: Readonly<TrainingJob>) => void;
 }
 
 interface SavedCheckpoint {
@@ -90,7 +92,7 @@ export class ModelStudio {
     };
   }
 
-  startTraining(body: JsonObject): void {
+  startTraining(body: JsonObject, onProgress?: (job: Readonly<TrainingJob>) => void): void {
     if (this.isTraining) {
       throw new Error('Training is already running');
     }
@@ -155,6 +157,7 @@ export class ModelStudio {
       validationTokens,
       smoothedLoss: null,
       timing: new TrainingTiming(),
+      onProgress,
     };
     setTimeout(() => this.runTrainingBlock(session), 0);
   }
@@ -264,6 +267,7 @@ export class ModelStudio {
       }
     }
     job.estimatedRemainingMs = session.timing.recordUpdate(job.total - job.completed);
+    session.onProgress?.(job);
   }
 
   private evaluateValidation(model: LanguageModel, tokens: number[]): number {
@@ -331,7 +335,7 @@ export class ModelStudio {
     }
 
     // Serialize before awaiting I/O so training can continue without changing this snapshot.
-    const contents = JSON.stringify({
+    const contents = encodeCheckpoint({
       model: this.model.serialize(),
       history: this.lossHistory,
       trainingSettings: this.trainingSettings,
@@ -339,9 +343,13 @@ export class ModelStudio {
     const temporaryPath = `${this.checkpointPath}.${crypto.randomUUID()}.tmp`;
 
     await mkdir(path.dirname(this.checkpointPath), { recursive: true });
-    await writeFile(temporaryPath, contents);
-    // Rename atomically: readers see either the old checkpoint or the complete new one.
-    await rename(temporaryPath, this.checkpointPath);
+    try {
+      await writeFile(temporaryPath, contents);
+      // Rename atomically: readers see either the old checkpoint or the complete new one.
+      await rename(temporaryPath, this.checkpointPath);
+    } finally {
+      await rm(temporaryPath, { force: true });
+    }
   }
 
   async deleteCheckpoint(): Promise<void> {
@@ -350,8 +358,8 @@ export class ModelStudio {
 
   async loadCheckpoint(): Promise<void> {
     this.requireTrainingStopped();
-    const contents = await readFile(this.checkpointPath, 'utf8');
-    const saved = JSON.parse(contents) as SavedCheckpoint;
+    const contents = await readFile(this.checkpointPath);
+    const saved = decodeCheckpoint(contents) as SavedCheckpoint;
 
     // A training request might have arrived while the file was being read.
     this.requireTrainingStopped();

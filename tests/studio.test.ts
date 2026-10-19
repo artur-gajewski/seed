@@ -1,3 +1,4 @@
+import { decodeCheckpoint } from '../server/checkpoint.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -41,7 +42,7 @@ test('studio saves, restores, and resumes version 2 Transformer checkpoints', as
     const trainedStatus = studio.getStatus();
 
     await studio.saveCheckpoint();
-    const saved = JSON.parse(await readFile(checkpointPath, 'utf8')) as { model: ModelCheckpoint };
+    const saved = decodeCheckpoint(await readFile(checkpointPath)) as { model: ModelCheckpoint };
     assert.equal(saved.model.version, 2);
     assert.ok(saved.model.version === 2);
     assert.equal(saved.model.architecture, 'transformer');
@@ -107,7 +108,7 @@ test('training automatically saves every 100 model updates across resumed jobs',
     for (const steps of [2, 100]) {
       studio.startTraining({ ...settings, resume: true, steps });
       await waitForTraining(studio);
-      const saved = JSON.parse(await readFile(checkpointPath, 'utf8')) as {
+      const saved = decodeCheckpoint(await readFile(checkpointPath)) as {
         model: ModelCheckpoint;
         history: Array<{ step: number }>;
       };
@@ -207,7 +208,7 @@ test('version 1 RNN checkpoints still load and retain their model identity', asy
       legacy.generate('a', 12, 0.8, 1),
     );
     await studio.saveCheckpoint();
-    const saved = JSON.parse(await readFile(checkpointPath, 'utf8')) as { model: ModelCheckpoint };
+    const saved = decodeCheckpoint(await readFile(checkpointPath)) as { model: ModelCheckpoint };
     assert.equal(saved.model.version, 1);
   } finally {
     await rm(directory, { recursive: true, force: true });

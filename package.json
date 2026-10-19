@@ -8,6 +8,7 @@
     "native:build": "node scripts/build-accelerate.ts",
     "benchmark": "node scripts/benchmark-training.ts",
     "evaluate": "node scripts/evaluate-model.ts",
+    "train": "node scripts/train-model.ts",
     "profile:training": "node scripts/profile-training.ts",
     "dev": "node server/dev.ts",
     "server": "node server/index.ts",

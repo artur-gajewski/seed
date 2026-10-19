@@ -118,11 +118,74 @@ On macOS, run `npm run native:build` and restart the server to enable optional A
 
 The split is contiguous and does not deduplicate repeated examples. Repeated or near-identical examples in both partitions can make validation too optimistic. Keep a separate set of genuinely unseen questions for evaluating usefulness. The last partition should be representative of the task you want to measure.
 
-**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It does not create a JSON file or overwrite the saved checkpoint automatically. Click **Save checkpoint** to write the current model to `data/checkpoint.json`, replacing any previous checkpoint. This JSON file is a model snapshot, not a database of your training text.
+**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It does not immediately write a checkpoint file or overwrite the saved checkpoint. Click **Save checkpoint** to write the current model to `data/checkpoint.json`, replacing any previous checkpoint. This checkpoint is a model snapshot, not a database of your training text.
 
 **Continue existing model** trains further without resetting the learned weights. It retains the loaded architecture, context limit, and optimizer state, and accepts a new corpus. The selected batch size and training length apply to the new session. A resumed session restarts its learning-rate schedule. Architecture controls only affect new models.
 
 There is no pretrained English knowledge. For domain-specific chat, supply many accurate, varied question/answer examples. For broader language ability, a much larger corpus and accelerator-backed training infrastructure would be required. The portable engine uses one CPU thread; the optional Accelerate backend uses native CPU matrix operations. Neither backend uses GPU or distributed training. Individual updates and generation calls run synchronously on the API thread, yielding only between training blocks. Large settings can delay other API requests.
+
+## Train from the command line
+
+Use Node 24 (`nvm use`) and install dependencies with `npm ci`. Run training without
+starting the frontend or API:
+
+```sh
+npm run train -- --corpus corpus-examples/toddler_reasoning_corpus.txt --checkpoint data/checkpoint.json
+```
+
+Both `--corpus` (input text) and `--checkpoint` (output model) are required. Missing
+file arguments produce an error. Every omitted training setting uses the Training panel
+default, including when resuming. All settings can also be supplied explicitly:
+
+```sh
+npm run train -- \
+  --corpus corpus-examples/toddler_reasoning_corpus.txt \
+  --embedding-width 256 \
+  --layers 4 \
+  --attention-heads 8 \
+  --batch-size 8 \
+  --steps 30000 \
+  --learning-rate 0.0003 \
+  --context-window 256 \
+  --checkpoint data/checkpoint.json
+```
+
+Embedding width supports up to 512, including 384; it must be divisible by the number
+of attention heads. Context is measured in UTF-8 byte tokens. Run `npm run train -- --help`
+for all options and supported ranges. Relative paths resolve from your working directory.
+
+The command prints the numerical backend, effective settings, training progress, and losses.
+Progress includes estimated time remaining after every 100 updates in the current session,
+as well as every five seconds and when training stops. Estimates use the last ten update
+durations and display `calculating` until ten updates are available.
+It uses the same training engine, validation split, and learning-rate schedule as the studio.
+It replaces the selected checkpoint every 100 total model updates and saves again when
+training finishes. Ctrl+C or SIGTERM stops training and saves progress before exiting.
+An interrupted run exits with code 130; other failures exit with code 1.
+
+To continue a saved model for another 5,000 updates:
+
+```sh
+npm run train -- \
+  --corpus corpus-examples/toddler_reasoning_corpus.txt \
+  --checkpoint data/checkpoint.json \
+  --resume --steps 5000
+```
+
+Resume restores the learned weights and optimizer state. Omitted settings use the defaults
+listed above; `--steps` means additional updates. Architecture settings must match the
+checkpoint, so supply them explicitly if the saved model differs from the defaults.
+Batch size and learning rate can change. Each session restarts the
+learning-rate schedule. Keep the corpus separately; studio checkpoints do not include it.
+
+Use `--checkpoint data/checkpoint.json` to save to the studio's checkpoint. Use a different
+path when running independent experiments or when the web studio is running, so they do
+not overwrite each other's checkpoints. In the studio, use **Load checkpoint** after CLI
+training to load the saved model. To evaluate it:
+
+```sh
+npm run evaluate -- --checkpoint data/checkpoint.json
+```
 
 ## Chat and text generation
 
@@ -239,6 +302,10 @@ The app **automatically saves a checkpoint every 100 training updates**, based o
 Click **Save checkpoint** to save immediately, including updates since the last automatic save. After a restart, click **Load checkpoint** to restore the latest saved model. Updates since the last save are lost if the server stops.
 
 Click **Delete checkpoint** and confirm in the modal to permanently remove the saved checkpoint. Cancel or press Escape to keep it. Deleting keeps the currently loaded model and any training in progress available in memory; you can save the model again. Deleting an already missing checkpoint is harmless.
+
+New studio checkpoints use Node’s binary serialization to avoid the JavaScript string-size
+limit for larger models. The filename remains `checkpoint.json` for compatibility; existing
+JSON checkpoints still load. New life continues to use its separate JSON checkpoint.
 
 Version 2 Transformer checkpoints include architecture, tokenizer identity, configuration, weights, optimizer moments, update count, and chart history. They do **not** include the corpus, validation token partition, chat history, or draft. Keep the corpus file separately for future training. Unsaved weights are lost on server shutdown. Click **Load** after restarting to restore the saved model.
 
