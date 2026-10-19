@@ -1,15 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { basicMathExamples } from '../scripts/create-basic-math-corpus.ts';
 
 test('basic math corpus fits the context, has correct equations, and excludes held-out families', async () => {
   const directory = new URL('../corpus-examples/', import.meta.url);
-  const text = await readFile(new URL('basic_math.txt', directory), 'utf8');
+  const text = await readFile(new URL('toddler_reasoning_corpus.txt', directory), 'utf8');
   const evaluation = JSON.parse(
     await readFile(new URL('toddler_reasoning_evaluation.json', directory), 'utf8'),
   ) as Array<{ family: string; question: string }>;
   const reserved = new Set(evaluation.map(({ family }) => family));
-  const examples = text.trim().split('\n\n');
+  const basicQuestions = new Set(basicMathExamples.map((example) => example.split('\n')[0]));
+  const examples = text
+    .trim()
+    .split('\n\n')
+    .filter((example) => basicQuestions.has(example.split('\n')[0]));
+  const mergedQuestions = new Set([...text.matchAll(/^User: (.+)$/gm)].map((match) => match[1]));
   const questions = new Set<string>();
   let equations = 0;
   for (const example of examples) {
@@ -18,6 +24,7 @@ test('basic math corpus fits the context, has correct equations, and excludes he
     assert.ok(match);
     assert.ok(!questions.has(match[1]));
     questions.add(match[1]);
+    assert.ok(mergedQuestions.has(match[1]), `Missing merged question: ${match[1]}`);
     for (const equation of match[2].matchAll(
       /(\d+) (plus|minus|times|divided by|\+|-|\*|\/) (\d+) (?:is|=) (\d+)/g,
     )) {

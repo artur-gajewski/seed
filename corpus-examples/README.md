@@ -1,31 +1,10 @@
 # Seed corpus examples
 
-## Basic math corpus
+## Toddler reasoning corpus
 
-Import **`basic_math.txt`** for 5,295 unique, short question-and-answer examples:
+Use **`toddler_reasoning_corpus.txt`** for the toddler reasoning experiment.
 
-- Addition with operands from 0 to 20 and nonnegative subtraction up to 20.
-- Multiplication with factors from 0 to 10 and exact division by 1 to 10.
-- Counting, before/after, even/odd, equality, and greater-than comparisons.
-
-Arithmetic appears as symbols, words, and short stories. Every complete example fits
-within 256 byte tokens including role labels and special-token allowance. Division
-has no remainders or zero divisors; fractions, negative numbers, and decimals are not
-covered. Operand families reserved in `toddler_reasoning_evaluation.json` are excluded
-from addition and subtraction, including reversed addition operands.
-
-Regenerate with `node scripts/create-basic-math-corpus.ts`. This is synthetic practice
-material with repeated templates; low validation loss does not establish general math
-ability. The toddler evaluation covers only part of this curriculum. Continuing an
-existing model on this file may affect its earlier skills; preserve a checkpoint first
-if you want to compare results. No training is started by generating this file.
-
-## Improved toddler corpus
-
-Use **`toddler_reasoning_improved_30000.txt`** for the revised experiment. The original
-`toddler_reasoning_30000.txt` is preserved for comparison.
-
-The improved file contains 30,000 question-and-answer examples:
+The corpus contains 35,072 unique-question examples, combining toddler reasoning and basic math:
 
 - 14,000 examples selected from the original everyday reasoning, counting, comparison,
   sharing, and sequencing material, with introductory scene wrappers removed and exact
@@ -36,7 +15,11 @@ The improved file contains 30,000 question-and-answer examples:
 - 4,000 give-then-receive examples with two explicit calculation steps.
 - 4,000 receive-then-give examples with two explicit calculation steps.
 
-Arithmetic uses initial quantities and first operands from 0 to 12, and second-step
+The merged basic math lessons also cover addition and subtraction up to 20,
+multiplication and exact division, counting, even/odd, equality, and comparisons.
+Overlapping questions retain the toddler corpus answer.
+
+The toddler arithmetic examples use initial quantities and first operands from 0 to 12, and second-step
 operands from 0 to 8. Results are nonnegative. This is a small synthetic practice
 set, not a general mathematics curriculum. Names and objects vary, but the wording
 still comes from a limited set of templates.
@@ -54,7 +37,7 @@ answers. **Do not import this file for training.** The matching JSON file contai
 the same questions and answers plus arithmetic family identifiers for automated checks.
 
 An arithmetic family identifies an operation and its input numbers. All generated
-variants of an evaluation family are excluded from the improved training corpus,
+variants of an evaluation family are excluded from the training corpus,
 regardless of names, objects, or wording. Addition treats reversed operands as the
 same family. The previously tested `4 + 2`, `7 - 3`, and `7 - 3 + 2` families are
 explicitly reserved for evaluation.
@@ -65,7 +48,7 @@ boundary can still straddle both partitions, and the general examples still shar
 templates. The studio's validation loss is therefore not a substitute for answering
 the separate evaluation questions correctly.
 
-For a fair comparison, train a **new model** on the improved file using the same
+For a fair comparison, train a **new model** on the corpus using the same
 settings and update budget as your baseline. Continuing an old checkpoint is useful
 for experimentation, but its previous training may already include the reserved
 evaluation problems. Loading a new corpus does not erase that earlier learning.
@@ -80,7 +63,8 @@ incorrect answers under `data/evaluations/`. It does not train the model. See th
 [evaluation instructions](../README.md#evaluate-a-trained-checkpoint) for scoring
 limitations and checkpoint comparison options.
 
-Regenerate the files deterministically with:
+Regenerate the arithmetic and evaluation examples deterministically, preserving the
+general examples from the current training corpus, with:
 
 ```sh
 node scripts/improve-toddler-corpus.ts
@@ -95,13 +79,13 @@ Each corpus is a collection of text files that can be used to train the model
 on specific tasks or domains. The corpora are designed to be simple and focused,
 allowing for effective training without overwhelming the model with unnecessary complexity.
 
-## toddler_reasoning_30000.txt
+## toddler_reasoning_corpus.txt
 
 This corpus emphasizes simple reasoning rather than just memorizing conversations.
 It will cover counting, comparisons, spatial relationships, cause and effect, sequencing,
 object properties, everyday problem-solving, and basic logic.
 
-### Recommended settings for training with toddler_reasoning_30000.txt
+### Recommended settings for training with toddler_reasoning_corpus.txt
 
 **Embedding width: 256**
 
@@ -129,7 +113,7 @@ Reduce it to 4 if memory becomes an issue.
 **Training steps: 30,000**
 
 Because the model starts with random weights, it needs substantial training to learn language patterns.
-A budget of 30,000 steps provides a useful starting experiment for the 30,000-example corpus.
+A budget of 30,000 steps provides a starting experiment for the combined corpus.
 
 More steps do not automatically mean better results. Monitor training and evaluation loss to detect
 overfitting.

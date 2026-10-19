@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { basicMathExamples } from './create-basic-math-corpus.ts';
 
 interface Example {
   question: string;
@@ -8,7 +9,7 @@ interface Example {
 }
 
 const directory = new URL('../corpus-examples/', import.meta.url);
-const original = await readFile(new URL('toddler_reasoning_30000.txt', directory), 'utf8');
+const source = await readFile(new URL('toddler_reasoning_corpus.txt', directory), 'utf8');
 const hash = (value: string) => createHash('sha256').update(value).digest().readUInt32LE(0);
 const names = ['Mia', 'Ben', 'Anna', 'Eli', 'Ruby', 'Kai', 'Noah', 'Lily'];
 const objects = ['cookies', 'blocks', 'apples', 'pencils', 'marbles', 'stickers', 'shells', 'toys'];
@@ -47,11 +48,11 @@ function fixGrammar(text: string): string {
 }
 
 const general = new Map<string, Example>();
-for (const match of original.matchAll(/User: (.*?)\nAssistant: (.*?)(?=\n\nUser:|$)/gs)) {
+for (const match of source.matchAll(/User: (.*?)\nAssistant: (.*?)(?=\n\nUser:|$)/gs)) {
   let question = match[1].replace(/^(?:At [^,]+|In [^,]+|On a [^,]+), \w+ asks: /, '');
   let answer = match[2].trim();
-  // Replace arithmetic wholesale so its held-out number/operation families cannot leak
-  // through an old story with different names or introductory wording.
+  // Rebuild arithmetic while preserving the general examples in the current corpus.
+  // Exclude every wording variant of held-out number/operation families.
   if (/\b(?:plus|minus)\b/.test(answer)) continue;
   const comparison = question.match(
     /^(\w+) has a longer (\w+) than (\w+)\. \3 has a longer \2 than (\w+)\./,
@@ -170,13 +171,17 @@ const arithmetic = problems.flatMap((group) => {
   return [...examples.values()];
 });
 
-const generalExamples = [...general.values()]
-  .sort((a, b) => hash(a.question) - hash(b.question))
-  .slice(0, 14000);
-if (generalExamples.length !== 14000) throw new Error('Insufficient general examples');
+const generalExamples = [...general.values()].sort((a, b) => hash(a.question) - hash(b.question));
+if (generalExamples.length < 14000) throw new Error('Insufficient general examples');
 // Keep arithmetic families together so the studio's contiguous validation split
 // does not scatter their wording variants across both partitions.
-const training = [...generalExamples, ...arithmetic].sort(
+const merged = new Map<string, Example>();
+for (const example of [...generalExamples, ...arithmetic]) merged.set(example.question, example);
+for (const text of basicMathExamples) {
+  const match = /^User: ([^\n]+)\nAssistant: ([^\n]+)$/.exec(text)!;
+  if (!merged.has(match[1])) merged.set(match[1], { question: match[1], answer: match[2] });
+}
+const training = [...merged.values()].sort(
   (a, b) =>
     hash(a.family ?? a.question) - hash(b.family ?? b.question) ||
     a.question.localeCompare(b.question, 'en'),
@@ -192,7 +197,7 @@ for (const example of [...training, ...evaluation]) {
 }
 const format = (examples: Example[]) =>
   examples.map(({ question, answer }) => `User: ${question}\nAssistant: ${answer}\n`).join('\n');
-await writeFile(new URL('toddler_reasoning_improved_30000.txt', directory), format(training));
+await writeFile(new URL('toddler_reasoning_corpus.txt', directory), format(training));
 await writeFile(new URL('toddler_reasoning_evaluation.txt', directory), format(evaluation));
 await writeFile(
   new URL('toddler_reasoning_evaluation.json', directory),

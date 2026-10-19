@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 
 const directory = new URL('../corpus-examples/', import.meta.url);
@@ -113,6 +113,4 @@ for (let x = 0; x <= 20; x++) {
 // Keep operand families together; distribute topics throughout the file reproducibly.
 const hash = (group: string[]) => createHash('sha256').update(group[0]).digest('hex');
 groups.sort((a, b) => hash(a).localeCompare(hash(b)));
-const examples = groups.flat();
-await writeFile(new URL('basic_math.txt', directory), `${examples.join('\n\n')}\n`);
-console.log(`Wrote ${examples.length} unique basic math examples, each within 256 bytes.`);
+export const basicMathExamples = groups.flat();
