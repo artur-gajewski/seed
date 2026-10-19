@@ -1,15 +1,24 @@
 import { useRef } from 'react';
 import { Icon } from './Icon.tsx';
-import { SAMPLE } from '../data/sample.ts';
 interface CorpusEditorProps {
   text: string;
+  fileName?: string;
   running: boolean;
   busy: boolean;
   onTextChange: (text: string) => void;
   onImport: (file: File) => Promise<void>;
+  onUseSample: () => void;
 }
 
-export function CorpusEditor({ text, running, busy, onTextChange, onImport }: CorpusEditorProps) {
+export function CorpusEditor({
+  text,
+  fileName,
+  running,
+  busy,
+  onTextChange,
+  onImport,
+  onUseSample,
+}: CorpusEditorProps) {
   const upload = useRef<HTMLInputElement>(null);
   const tokens = Array.from(text).length;
   return (
@@ -23,15 +32,9 @@ export function CorpusEditor({ text, running, busy, onTextChange, onImport }: Co
       </div>
       <p className="card-description">Paste text or import a UTF-8 .txt file.</p>
       <div className="editor-toolbar">
-        <span>
-          <span className="file-dot" /> training-corpus.txt
-        </span>
+        <span>{fileName}</span>
         <div>
-          <button
-            className="text-button"
-            disabled={running || busy}
-            onClick={() => onTextChange(SAMPLE)}
-          >
+          <button className="text-button" disabled={running || busy} onClick={onUseSample}>
             Use sample
           </button>
           <button

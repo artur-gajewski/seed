@@ -39,9 +39,8 @@ test('studio saves, restores, and resumes version 2 Transformer checkpoints', as
     };
     studio.startTraining({ text: corpus, ...settings });
     await waitForTraining(studio);
-    const trainedStatus = studio.getStatus();
-
     await studio.saveCheckpoint();
+    const trainedStatus = studio.getStatus();
     const saved = decodeCheckpoint(await readFile(checkpointPath)) as { model: ModelCheckpoint };
     assert.equal(saved.model.version, 2);
     assert.ok(saved.model.version === 2);
@@ -177,7 +176,10 @@ test('deleting a checkpoint removes only the saved file and allows saving again'
     await studio.deleteCheckpoint();
     assert.equal(await studio.getCheckpointInfo(), null);
     await assert.rejects(readFile(checkpointPath), { code: 'ENOENT' });
-    assert.deepEqual(studio.getStatus(), status);
+    assert.deepEqual(studio.getStatus(), {
+      ...status,
+      model: { ...status.model!, checkpointFileName: undefined },
+    });
     assert.equal(studio.generate(prompt).completion, completion);
     await studio.deleteCheckpoint();
     await studio.saveCheckpoint();
@@ -211,6 +213,42 @@ test('version 1 RNN checkpoints still load and retain their model identity', asy
     const saved = decodeCheckpoint(await readFile(checkpointPath)) as { model: ModelCheckpoint };
     assert.equal(saved.model.version, 1);
   } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('checkpoint filename identifies only a model that has been saved or loaded', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-filename-'));
+  const checkpoint = path.join(directory, 'target-model.json');
+  const studio = new ModelStudio(checkpoint);
+  try {
+    assert.equal(studio.getStatus().model, null);
+    const settings = {
+      text: 'abc'.repeat(100),
+      hiddenSize: 16,
+      layers: 1,
+      heads: 2,
+      sequenceLength: 8,
+      batchSize: 1,
+      steps: 1,
+    };
+    studio.startTraining(settings);
+    await waitForTraining(studio);
+    assert.equal(studio.getStatus().model!.checkpointFileName, undefined);
+    await studio.saveCheckpoint();
+    assert.equal(studio.getStatus().model!.checkpointFileName, 'target-model.json');
+    const restored = new ModelStudio(checkpoint);
+    assert.equal(restored.getStatus().model, null);
+    await restored.loadCheckpoint();
+    assert.equal(restored.getStatus().model!.checkpointFileName, 'target-model.json');
+    studio.startTraining({ ...settings, steps: 100 });
+    assert.equal(studio.getStatus().model!.checkpointFileName, undefined);
+    await waitForTraining(studio);
+    assert.equal(studio.getStatus().model!.checkpointFileName, 'target-model.json');
+    await studio.deleteCheckpoint();
+    assert.equal(studio.getStatus().model!.checkpointFileName, undefined);
+  } finally {
+    studio.stopTraining();
     await rm(directory, { recursive: true, force: true });
   }
 });

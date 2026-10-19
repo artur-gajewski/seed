@@ -37,6 +37,7 @@ export interface StudioStatus {
   checkpoint?: { savedAt: string; sizeBytes: number } | null;
   running: boolean;
   model: {
+    checkpointFileName?: string;
     hiddenSize: number;
     vocabulary: number;
     parameters: number;

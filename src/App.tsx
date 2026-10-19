@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SAMPLE } from './data/sample.ts';
 import type { GenerateRequest, StudioStatus, TrainingSettings } from '../shared/api.ts';
 import type { GenerationResult, StudioTab } from './types.ts';
 import { api } from './lib/api.ts';
@@ -25,6 +26,7 @@ export function App() {
     error: null,
   });
   const [text, setText] = useState('');
+  const [corpusFileName, setCorpusFileName] = useState<string>();
   const [tab, setTab] = useState<StudioTab>('train');
   const [settings, setSettings] = useState<TrainingSettings>({
     hiddenSize: 256,
@@ -117,6 +119,7 @@ export function App() {
         throw new Error('File exceeds 10 MB');
       }
       setText(await file.text());
+      setCorpusFileName(file.name);
     });
 
   const generate = () =>
@@ -171,10 +174,15 @@ export function App() {
                 {tab === 'train' ? (
                   <CorpusEditor
                     text={text}
+                    fileName={corpusFileName}
                     running={status.running}
                     busy={busy || chat.isSending}
                     onTextChange={setText}
                     onImport={importCorpus}
+                    onUseSample={() => {
+                      setText(SAMPLE);
+                      setCorpusFileName('SAMPLE CORPUS');
+                    }}
                   />
                 ) : (
                   <Playground

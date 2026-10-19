@@ -42,6 +42,7 @@ const LOSS_SMOOTHING_DECAY = 0.95;
 export class ModelStudio {
   private readonly checkpointPath: string;
   private model: TrainableModel | null = null;
+  private savedModel: TrainableModel | null = null;
   private isTraining = false;
   private currentJob: TrainingJob | null = null;
   private lossHistory: LossPoint[] = [];
@@ -75,6 +76,8 @@ export class ModelStudio {
       running: this.isTraining,
       model: model
         ? {
+            checkpointFileName:
+              this.savedModel === model ? path.basename(this.checkpointPath) : undefined,
             hiddenSize: model.hiddenSize,
             vocabulary: model.vocabularySize,
             parameters: model.parameterCount,
@@ -335,8 +338,9 @@ export class ModelStudio {
     }
 
     // Serialize before awaiting I/O so training can continue without changing this snapshot.
+    const model = this.model;
     const contents = encodeCheckpoint({
-      model: this.model.serialize(),
+      model: model.serialize(),
       history: this.lossHistory,
       trainingSettings: this.trainingSettings,
     });
@@ -347,6 +351,7 @@ export class ModelStudio {
       await writeFile(temporaryPath, contents);
       // Rename atomically: readers see either the old checkpoint or the complete new one.
       await rename(temporaryPath, this.checkpointPath);
+      this.savedModel = model;
     } finally {
       await rm(temporaryPath, { force: true });
     }
@@ -354,6 +359,7 @@ export class ModelStudio {
 
   async deleteCheckpoint(): Promise<void> {
     await rm(this.checkpointPath, { force: true });
+    this.savedModel = null;
   }
 
   async loadCheckpoint(): Promise<void> {
@@ -368,6 +374,7 @@ export class ModelStudio {
       ? parseTrainingRequest({ ...saved.trainingSettings, text: ' '.repeat(64) })
       : undefined;
     this.model = model;
+    this.savedModel = model;
     if (settings) {
       const { text: _text, resume: _resume, ...trainingSettings } = settings;
       this.trainingSettings = trainingSettings;
