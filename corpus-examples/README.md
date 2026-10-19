@@ -1,5 +1,50 @@
 # Seed corpus examples
 
+## Short stories
+
+`short_stories.txt` contains 20,000 unique stories distributed evenly across 32
+handwritten templates, with varied names, places, and objects. Topics include sharing,
+small mistakes, nature, play, feelings, and simple problems. Locations use phrases such
+as “on the beach” and “on the hill.” This is a small synthetic practice corpus inspired
+by the TinyStories idea, not the official TinyStories dataset or a reproduction of its results.
+Templates still repeat, so fluent output or low validation loss can reflect memorization.
+
+Every story ends with `<|endofstory|>`, which Seed encodes as its learned stop token.
+The marker is not printed during generation. Each complete story, including its marker
+and beginning-token allowance, fits within 256 byte tokens. Paragraph breaks alone do
+not mark story endings. Training still samples random windows, which can cut across stories.
+
+Regenerate deterministically with:
+
+```sh
+node scripts/create-short-stories.ts
+```
+
+Start a fresh model so the previous corpus's mistakes and imbalance are not retained:
+
+```sh
+npm run train -- \
+  --corpus corpus-examples/short_stories.txt \
+  --checkpoint data/short-stories-checkpoint.json \
+  --embedding-width 256 --layers 4 --attention-heads 8 \
+  --batch-size 8 --steps 10000 --learning-rate 0.0003 --context-window 256
+```
+
+These settings are an experimental starting point. Preserve older checkpoints separately
+for comparison. Existing checkpoints remain loadable, but the new marker needs training
+before it can reliably stop a story. Increasing the model size or update count alone does
+not guarantee better stories.
+
+Use **Text generation**, not Chat, to test plain prose. Start with temperature 0.5,
+Top K 10, and 120 generated tokens. Try several beginnings, such as `Nina found a`,
+`Ben and Lily`, and `A small bird`. Compare spelling, consistent characters, a coherent
+ending, and similarity to training text across multiple completions. The model may still
+ignore the stop token or stop too early. The arithmetic evaluator does not measure stories.
+The studio's short validation sample also does not measure story coherence or novelty.
+
+To load the CLI result in the current web studio, stop any training, preserve the existing
+`data/checkpoint.json`, copy the story checkpoint to that path, and click **Load checkpoint**.
+
 ## Toddler reasoning corpus
 
 Use **`toddler_reasoning_corpus.txt`** for the toddler reasoning experiment.

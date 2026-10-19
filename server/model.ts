@@ -130,15 +130,23 @@ export class LanguageModel {
 
   encodeTrainingText(text: string): number[] {
     const chunks: number[][] = [[BEGINNING_OF_TEXT]];
+    // Explicit story boundaries use the same learned stop token as assistant replies.
+    // Paragraph breaks remain ordinary text; a story may contain multiple paragraphs.
+    const encodeContent = (content: string): number[] =>
+      content
+        .split('<|endofstory|>')
+        .flatMap((part, index) =>
+          index === 0 ? this.encode(part) : [END_OF_RESPONSE, ...this.encode(part)],
+        );
     let cursor = 0;
     // Add a learned stop marker after each assistant answer in the dialogue format.
-    // Ordinary prose is otherwise kept byte-for-byte, without role conversion.
+    // Unmarked prose is otherwise kept byte-for-byte, without role conversion.
     for (const match of text.matchAll(/(?:^|\n)Assistant:[\s\S]*?(?=\n\nUser:|$)/g)) {
       const answerEnd = match.index + match[0].trimEnd().length;
-      chunks.push(this.encode(text.slice(cursor, answerEnd)), [END_OF_RESPONSE]);
+      chunks.push(encodeContent(text.slice(cursor, answerEnd)), [END_OF_RESPONSE]);
       cursor = answerEnd;
     }
-    chunks.push(this.encode(text.slice(cursor)));
+    chunks.push(encodeContent(text.slice(cursor)));
     return chunks.flat();
   }
 

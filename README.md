@@ -201,6 +201,11 @@ User: What do plants need?
 Assistant: Plants need water, light, and suitable soil.
 ```
 
+For plain story training, end each story with `<|endofstory|>`. Seed converts that marker
+to its learned stop token, so generation can finish a story without printing the marker.
+Blank lines remain ordinary paragraph separators. See the [short-story corpus guide](corpus-examples/README.md#short-stories)
+for a reproducible corpus, training command, and generation settings.
+
 Training inserts a special end-of-response token after assistant answers. Generation can stop when the model predicts it; this is learned behavior, not a canned answer. Ordinary text is encoded as UTF-8 bytes. The tokenizer has 258 tokens: 256 bytes, a beginning token, and an end-of-response token. New characters are accepted without rebuilding a vocabulary. An insufficiently trained byte model may emit malformed UTF-8, which is displayed with replacement characters.
 
 Chat sends recent turns in the `User:` / `Assistant:` format. Requests accept up to 41 alternating messages, starting and ending with a user, with up to 2,000 Unicode code points per message. Chat formatting retains up to 4,096 code points of recent complete turns, but the model actually attends only to its configured context window in **bytes**, which may be much shorter. Text generation accepts prompts up to 4,096 code points.
