@@ -17,7 +17,7 @@ You can run it locally or through Docker, and save checkpoints to continue train
 
 ## Screenshot
 
-<img width="1517" height="1216" alt="Screenshot 2026-10-17 at 17 27 06" src="https://github.com/user-attachments/assets/085d27c2-2b82-4941-9994-fd60f8fa22c5" />
+<img width="1896" height="1283" alt="Screenshot 2026-10-19 at 12 03 47" src="https://github.com/user-attachments/assets/df17f4be-9d47-4991-873b-192fbb95d0c7" />
 
 ## Run with Docker
 
