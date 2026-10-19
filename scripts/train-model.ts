@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
+import { clearLine, cursorTo } from 'node:readline';
 import { ModelStudio } from '../server/studio.ts';
 import { tensorBackend } from '../server/numerics.ts';
 import type { TrainingJob } from '../shared/api.ts';
@@ -80,6 +81,13 @@ Use a separate checkpoint path if the web studio is also running.`);
       interrupted = true;
       studio.stopTraining();
     };
+    let progressLineActive = false;
+    const finishProgressLine = () => {
+      if (progressLineActive) {
+        process.stdout.write('\n');
+        progressLineActive = false;
+      }
+    };
     process.once('SIGINT', stop);
     process.once('SIGTERM', stop);
     try {
@@ -90,9 +98,15 @@ Use a separate checkpoint path if the web studio is also running.`);
           job.estimatedRemainingMs === undefined
             ? 'calculating'
             : formatDuration(job.estimatedRemainingMs);
-        console.log(
-          `${job.completed}/${job.total} · loss ${job.loss?.toFixed(4) ?? 'pending'} · validation ${job.validationLoss?.toFixed(4) ?? 'pending'} · remaining ${remaining}`,
-        );
+        const line = `${job.completed}/${job.total} · loss ${job.loss?.toFixed(4) ?? 'pending'} · validation ${job.validationLoss?.toFixed(4) ?? 'pending'} · remaining ${remaining}`;
+        if (process.stdout.isTTY) {
+          cursorTo(process.stdout, 0);
+          clearLine(process.stdout, 0);
+          process.stdout.write(line);
+          progressLineActive = true;
+        } else {
+          console.log(line);
+        }
         lastProgress = Date.now();
         lastReportedUpdate = job.completed;
       };
@@ -116,11 +130,13 @@ Use a separate checkpoint path if the web studio is also running.`);
       const status = studio.getStatus();
       if (status.error) throw new Error(status.error);
       await studio.saveCheckpoint();
+      finishProgressLine();
       console.log(
         `${interrupted ? 'Stopped' : 'Finished'} at update ${status.model!.steps}. Saved ${checkpoint}`,
       );
       if (interrupted) process.exitCode = 130;
     } finally {
+      finishProgressLine();
       process.removeListener('SIGINT', stop);
       process.removeListener('SIGTERM', stop);
     }

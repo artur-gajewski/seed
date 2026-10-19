@@ -155,6 +155,8 @@ of attention heads. Context is measured in UTF-8 byte tokens. Run `npm run train
 for all options and supported ranges. Relative paths resolve from your working directory.
 
 The command prints the numerical backend, effective settings, training progress, and losses.
+In an interactive terminal, progress refreshes on the same line. Redirected or piped output
+uses separate lines for readable logs.
 Progress includes estimated time remaining after every 100 updates in the current session,
 as well as every five seconds and when training stops. Estimates use the last ten update
 durations and display `calculating` until ten updates are available.
