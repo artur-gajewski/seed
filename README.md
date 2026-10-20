@@ -315,11 +315,15 @@ the byte-level model has not yet learned to generate valid UTF-8 consistently.
 
 ### Continuing later
 
-The model uses width 32, one layer, four attention heads, and learning rate 0.001.
-Its weights, optimizer state, and replay lessons are saved atomically after each
-learning action to **`data/new-life-checkpoint.json`**, independently of the studio's
-`data/checkpoint.json`. Saved learning reloads automatically after a server restart.
-**New conversation** clears the visible conversation while preserving learning.
+New Life offers 38K, 496K, 2.6M, and 13M parameter presets, each with its own learning.
+Weights, optimizer state, and replay lessons are saved atomically after each learning
+action to `data/new-life-checkpoint-38K.json`, `data/new-life-checkpoint-496K.json`,
+`data/new-life-checkpoint-2.6M.json`, or `data/new-life-checkpoint-13M.json`, independently
+of the studio's `data/checkpoint.json`. These files use binary serialization despite
+the `.json` extension; existing JSON contents remain readable. Legacy New Life
+filenames are migrated automatically when their preset is first loaded. An existing
+parameter-count checkpoint takes precedence. Saved learning reloads automatically
+after a server restart.
 Conversation display is kept only for the current browser session; saved lessons
 include your messages and taught answers. Replies use the current message as context.
 This experimental mode can memorize lessons and can still forget earlier skills.

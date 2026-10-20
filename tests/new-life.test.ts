@@ -145,3 +145,27 @@ test('New life presets keep independent memory and reject incompatible checkpoin
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('New life migrates legacy filenames and prefers an existing parameter-count checkpoint', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-new-life-migrate-'));
+  try {
+    const legacy = path.join(directory, 'new-life-checkpoint.json');
+    const current = path.join(directory, 'new-life-checkpoint-38K.json');
+    const oldLife = new NewLife(legacy);
+    const status = await oldLife.teach({ message: 'Hi', answer: 'Hello' });
+    const original = await readFile(legacy);
+    const migrated = new NewLife(current, 'small', legacy);
+    assert.deepEqual(await migrated.getStatus(), status);
+    assert.deepEqual(await readFile(current), original);
+    await assert.rejects(readFile(legacy), { code: 'ENOENT' });
+    await writeFile(legacy, '{broken');
+    assert.deepEqual(await new NewLife(current, 'small', legacy).getStatus(), status);
+    assert.equal(await readFile(legacy, 'utf8'), '{broken');
+    const missing = path.join(directory, 'missing.json');
+    await assert.rejects(new NewLife(missing, 'small', legacy).getStatus());
+    assert.equal(await readFile(legacy, 'utf8'), '{broken');
+    await assert.rejects(readFile(missing), { code: 'ENOENT' });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

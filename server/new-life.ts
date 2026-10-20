@@ -39,10 +39,12 @@ export class NewLife {
   private readonly checkpointPath: string;
 
   private readonly size: NewLifeSize;
+  private readonly legacyCheckpointPath?: string;
 
-  constructor(checkpointPath: string, size: NewLifeSize = 'small') {
+  constructor(checkpointPath: string, size: NewLifeSize = 'small', legacyCheckpointPath?: string) {
     this.size = size;
     this.checkpointPath = checkpointPath;
+    this.legacyCheckpointPath = legacyCheckpointPath;
   }
 
   private async exclusive<T>(action: () => Promise<T>): Promise<T> {
@@ -51,10 +53,19 @@ export class NewLife {
     try {
       if (!this.loaded) {
         let contents: Buffer | undefined;
+        let migrate = false;
         try {
           contents = await readFile(this.checkpointPath);
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+          if (this.legacyCheckpointPath) {
+            try {
+              contents = await readFile(this.legacyCheckpointPath);
+              migrate = true;
+            } catch (legacyError) {
+              if ((legacyError as NodeJS.ErrnoException).code !== 'ENOENT') throw legacyError;
+            }
+          }
         }
         if (contents !== undefined) {
           const saved = decodeCheckpoint(contents) as SavedLife;
@@ -75,6 +86,7 @@ export class NewLife {
           ) {
             throw new Error('New life checkpoint does not match the selected model size');
           }
+          if (migrate) await rename(this.legacyCheckpointPath!, this.checkpointPath);
           this.model = model;
           this.lessons = lessons;
         }

@@ -32,8 +32,12 @@ function getLife(size: unknown = 'small'): NewLife {
   if (!life) {
     const suffix = selected === 'small' ? '' : `-${selected}`;
     life = new NewLife(
-      path.join(projectDirectory, `data/new-life-checkpoint${suffix}.json`),
+      path.join(
+        projectDirectory,
+        `data/new-life-checkpoint-${NEW_LIFE_PRESETS[selected].label}.json`,
+      ),
       selected,
+      path.join(projectDirectory, `data/new-life-checkpoint${suffix}.json`),
     );
     lives.set(selected, life);
   }
