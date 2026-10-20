@@ -24,13 +24,13 @@ Run from the repository root with Node 24 and dependencies installed. Build the
 optional native backend with `npm run native:build` for faster CPU training.
 
 ```sh
-node scripts/color-reasoning.ts --generate
-npm run train -- --corpus corpus-examples/color_reasoning.txt \
-  --checkpoint data/color-reasoning-v2.json \
+node scripts/create-color-reasoning-01.ts
+npm run train -- --corpus data/inputs/color_reasoning_01.txt \
+  --checkpoint data/models/color-reasoning-v2.json \
   --embedding-width 128 --layers 3 --attention-heads 4 \
   --batch-size 8 --steps 6000 --learning-rate 0.001 --context-window 256
-node scripts/color-reasoning.ts --checkpoint data/color-reasoning-v2.json \
-  --output data/evaluations/color-reasoning-v2.json
+node scripts/evaluate-color-reasoning.ts --checkpoint data/models/color-reasoning-v2.json \
+  --output data/reports/color-reasoning-v2.json
 ```
 
 Generation of the corpus and initial weights is deterministic. Training batches
@@ -38,21 +38,21 @@ are sampled randomly, so results vary between training runs. Evaluation uses gre
 sampling, exact answer matching after case and final punctuation normalization,
 and up to 48 generated tokens. Conversation examples include their saved history;
 other examples start a fresh chat. The JSON report records every reply and scores
-by family. Seed's arithmetic evaluator cannot score this dataset.
+by family.
 
 Ask a single question directly:
 
 ```sh
-node scripts/color-reasoning.ts --checkpoint data/color-reasoning-v2.json \
+node scripts/evaluate-color-reasoning.ts --checkpoint data/models/color-reasoning-v2.json \
   --question "What color is a yellow submarine?"
 ```
 
 To test Chat's default sampling instead of greedy decoding:
 
 ```sh
-node scripts/color-reasoning.ts --checkpoint data/color-reasoning-v2.json \
+node scripts/evaluate-color-reasoning.ts --checkpoint data/models/color-reasoning-v2.json \
   --temperature 0.8 --top-k 0 \
-  --output data/evaluations/color-reasoning-v2-sampled.json
+  --output data/reports/color-reasoning-v2-sampled.json
 ```
 
 The recorded expanded run has 694,146 parameters and 6,437 total updates. It used
@@ -64,16 +64,17 @@ continue an existing model, use the same architecture options with `--resume`,
 
 ## Try in Seed
 
-Stop active studio training and back up `data/checkpoint.json` if needed, then copy:
+Stop active studio training and back up `data/models/checkpoint.json` if needed, then copy:
 
 ```sh
-cp data/color-reasoning-v2.json data/checkpoint.json
+cp data/models/color-reasoning-v2.json data/models/checkpoint.json
 ```
 
 Click **Load checkpoint** in Training and **New chat** in Chat. Use the lowest
 chat temperature for comparison with greedy evaluation. Docker uses a separate
 checkpoint volume; copying a host file does not update that volume. Runtime
-checkpoints and reports remain in git-ignored `data/`.
+checkpoints remain in git-ignored `data/models/`. Reference datasets are tracked in
+`data/references/`; generated score reports are saved in Git-ignored `data/reports/`.
 
 ## Recorded expanded results
 
@@ -95,6 +96,66 @@ Those are checks of known examples, separate from the held-out evaluation score.
 The task still uses only red, blue, green, yellow, black, and white. These results
 do not establish unrestricted color vocabulary, arbitrary question phrasing, or
 general conversational ability. Sampled results can vary between runs.
+
+## Supplemental training: add2
+
+`data/inputs/color_reasoning_02.txt` contains 31,173 sessions (about 3.3 MB)
+for continuing the existing model. It adds orange, purple, pink, brown, gray, grey,
+cyan, magenta, silver, gold, turquoise, navy, violet, beige, teal, and maroon while
+retaining examples of the original six colors. Gray and grey are treated as
+literal spellings: answers repeat the spelling used in the question.
+
+The supplement adds varied wording, new objects, missing punctuation, distractors,
+subject switching, and follow-ups that refer to an earlier scene or an explicit
+color change. Sessions range from one to five user/assistant turns. Each complete
+session fits the existing 256-token context, including beginning and stop tokens.
+Turns have blank-line separators so each answer receives a learned stop token.
+The generator selects 4,204 earlier sessions for replay and removes duplicate
+sessions before shuffling. Replay can reduce forgetting but does not guarantee it.
+
+Both the old held-out pairs and the original six unseen objects remain excluded
+from training. The separate `color_reasoning_02_reference.json` has 2,088 cases
+covering new held-out pairs, unseen wording, distractors, longer chat histories,
+and color updates. New held-out pairs are also absent from the original corpus.
+Neither evaluation file should be imported for training.
+
+Regenerate deterministically:
+
+```sh
+node scripts/create-color-reasoning-02.ts
+```
+
+Preserve the original model and continue a copy. This command assumes the existing
+128-wide, three-layer, four-head checkpoint with a 256-token context:
+
+```sh
+cp data/models/color-reasoning-v2.json data/models/color-reasoning-add2.json
+npm run train -- --resume \
+  --corpus data/inputs/color_reasoning_02.txt \
+  --checkpoint data/models/color-reasoning-add2.json \
+  --embedding-width 128 --layers 3 --attention-heads 4 \
+  --batch-size 8 --steps 4000 --learning-rate 0.0003 --context-window 256
+```
+
+The 4,000 additional steps and lower learning rate are starting settings, not a
+measured optimum. This supplement has not yet been trained or evaluated. Compare
+the new test on the original and continued checkpoints, then check the old test
+for regressions:
+
+```sh
+node scripts/evaluate-color-reasoning.ts --checkpoint data/models/color-reasoning-v2.json \
+  --evaluation data/references/color_reasoning_02_reference.json \
+  --output data/reports/add2-before.json
+node scripts/evaluate-color-reasoning.ts --checkpoint data/models/color-reasoning-add2.json \
+  --evaluation data/references/color_reasoning_02_reference.json \
+  --output data/reports/add2-after.json
+node scripts/evaluate-color-reasoning.ts --checkpoint data/models/color-reasoning-add2.json \
+  --output data/reports/add2-original-test.json
+```
+
+Add `--temperature 0.8 --top-k 0` and use different report filenames to test Chat's
+default sampling too. The supplement still uses synthetic templates and bounded
+contexts; it does not establish general conversation ability.
 
 ## Earlier experiment
 

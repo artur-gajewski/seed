@@ -57,13 +57,13 @@ docker compose logs -f studio
 docker compose down
 ```
 
-Checkpoints are stored at `/app/data/checkpoint.json` in the Compose `checkpoints` volume. The volume survives `docker compose down`; `docker compose down -v` deletes it. Host files in `data/` are not imported automatically.
+Checkpoints are stored at `/app/data/models/checkpoint.json` in the Compose `checkpoints` volume, mounted at `/app/data/models`. The volume survives `docker compose down`; `docker compose down -v` deletes it. Host checkpoints are not imported automatically. Included corpora and reference evaluation datasets are available under `/app/data/inputs` and `/app/data/references`.
 
 Without Compose:
 
 ```sh
 docker build -t seed-studio .
-docker run --rm --init -p 127.0.0.1:3001:3001 -v seed-checkpoints:/app/data seed-studio
+docker run --rm --init -p 127.0.0.1:3001:3001 -v seed-checkpoints:/app/data/models seed-studio
 ```
 
 ## Run locally
@@ -170,9 +170,12 @@ on Raspberry Pi have not yet been measured.
 
 ## Training
 
-An example English parent–child dialogue corpus is included in [corpus-examples/parent_child_corpus_en.txt](corpus-examples/parent_child_corpus_en.txt). Import this file in the Training page to experiment with short `User:` / `Assistant:` exchanges.
+The included [color reasoning corpus](data/inputs/color_reasoning_01.txt) contains
+short `User:` / `Assistant:` exchanges. The [supplemental corpus](data/inputs/color_reasoning_02.txt)
+adds colors, varied wording, and longer conversations. A [short-story corpus](data/inputs/short_stories.txt)
+is also available for plain text generation.
 
-See the [corpus examples guide](corpus-examples/README.md) for corpus descriptions, suggested training settings, and guidance on monitoring training.
+See the [corpus examples guide](data/README.md) for corpus descriptions, suggested training settings, and guidance on monitoring training.
 
 1. Paste or import a UTF-8 `.txt` file: at least 64 Unicode code points, up to 10 MB. The sample is a format example, not enough data for a capable assistant.
 2. Choose embedding width, layers, attention heads, context length, batch size, steps, and peak learning rate. Width must be divisible by the number of heads.
@@ -186,7 +189,7 @@ On macOS, run `npm run native:build` and restart the server to enable optional A
 
 The split is contiguous and does not deduplicate repeated examples. Repeated or near-identical examples in both partitions can make validation too optimistic. Keep a separate set of genuinely unseen questions for evaluating usefulness. The last partition should be representative of the task you want to measure.
 
-**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It does not immediately write a checkpoint file or overwrite the saved checkpoint. Click **Save checkpoint** to write the current model to `data/checkpoint.json`, replacing any previous checkpoint. This checkpoint is a model snapshot, not a database of your training text.
+**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It does not immediately write a checkpoint file or overwrite the saved checkpoint. Click **Save checkpoint** to write the current model to `data/models/checkpoint.json`, replacing any previous checkpoint. This checkpoint is a model snapshot, not a database of your training text.
 
 **Continue existing model** trains further without resetting the learned weights. It retains the loaded architecture, context limit, and optimizer state, and accepts a new corpus. The selected batch size and training length apply to the new session. A resumed session restarts its learning-rate schedule. Architecture controls only affect new models.
 
@@ -198,7 +201,7 @@ Use Node 24 (`nvm use`) and install dependencies with `npm ci`. Run training wit
 starting the frontend or API:
 
 ```sh
-npm run train -- --corpus corpus-examples/toddler_reasoning_corpus.txt --checkpoint data/checkpoint.json
+npm run train -- --corpus data/inputs/color_reasoning_01.txt --checkpoint data/models/checkpoint.json
 ```
 
 Both `--corpus` (input text) and `--checkpoint` (output model) are required. Missing
@@ -207,7 +210,7 @@ default, including when resuming. All settings can also be supplied explicitly:
 
 ```sh
 npm run train -- \
-  --corpus corpus-examples/toddler_reasoning_corpus.txt \
+  --corpus data/inputs/color_reasoning_01.txt \
   --embedding-width 256 \
   --layers 4 \
   --attention-heads 8 \
@@ -215,7 +218,7 @@ npm run train -- \
   --steps 30000 \
   --learning-rate 0.0003 \
   --context-window 256 \
-  --checkpoint data/checkpoint.json
+  --checkpoint data/models/checkpoint.json
 ```
 
 Embedding width supports up to 512, including 384; it must be divisible by the number
@@ -237,8 +240,8 @@ To continue a saved model for another 5,000 updates:
 
 ```sh
 npm run train -- \
-  --corpus corpus-examples/toddler_reasoning_corpus.txt \
-  --checkpoint data/checkpoint.json \
+  --corpus data/inputs/color_reasoning_01.txt \
+  --checkpoint data/models/checkpoint.json \
   --resume --steps 5000
 ```
 
@@ -248,13 +251,13 @@ checkpoint, so supply them explicitly if the saved model differs from the defaul
 Batch size and learning rate can change. Each session restarts the
 learning-rate schedule. Keep the corpus separately; studio checkpoints do not include it.
 
-Use `--checkpoint data/checkpoint.json` to save to the studio's checkpoint. Use a different
+Use `--checkpoint data/models/checkpoint.json` to save to the studio's checkpoint. Use a different
 path when running independent experiments or when the web studio is running, so they do
 not overwrite each other's checkpoints. In the studio, use **Load checkpoint** after CLI
 training to load the saved model. To evaluate it:
 
 ```sh
-npm run evaluate -- --checkpoint data/checkpoint.json
+npm run evaluate -- --checkpoint data/models/checkpoint.json
 ```
 
 ## Chat and text generation
@@ -271,7 +274,7 @@ Assistant: Plants need water, light, and suitable soil.
 
 For plain story training, end each story with `<|endofstory|>`. Seed converts that marker
 to its learned stop token, so generation can finish a story without printing the marker.
-Blank lines remain ordinary paragraph separators. See the [short-story corpus guide](corpus-examples/README.md#short-stories)
+Blank lines remain ordinary paragraph separators. See the [short-story corpus guide](data/README.md#short-stories)
 for a reproducible corpus, training command, and generation settings.
 
 Training inserts a special end-of-response token after assistant answers. Generation can stop when the model predicts it; this is learned behavior, not a canned answer. Ordinary text is encoded as UTF-8 bytes. The tokenizer has 258 tokens: 256 bytes, a beginning token, and an end-of-response token. New characters are accepted without rebuilding a vocabulary. An insufficiently trained byte model may emit malformed UTF-8, which is displayed with replacement characters.
@@ -363,9 +366,9 @@ the byte-level model has not yet learned to generate valid UTF-8 consistently.
 
 New Life offers 38K, 496K, 2.6M, and 13M parameter presets, each with its own learning.
 Weights, optimizer state, and replay lessons are saved atomically after each learning
-action to `data/new-life-checkpoint-38K.json`, `data/new-life-checkpoint-496K.json`,
-`data/new-life-checkpoint-2.6M.json`, or `data/new-life-checkpoint-13M.json`, independently
-of the studio's `data/checkpoint.json`. These files use binary serialization despite
+action to `data/models/new-life-checkpoint-38K.json`, `data/models/new-life-checkpoint-496K.json`,
+`data/models/new-life-checkpoint-2.6M.json`, or `data/models/new-life-checkpoint-13M.json`, independently
+of the studio's `data/models/checkpoint.json`. These files use binary serialization despite
 the `.json` extension; existing JSON contents remain readable. Legacy New Life
 filenames are migrated automatically when their preset is first loaded. An existing
 parameter-count checkpoint takes precedence. Saved learning reloads automatically
@@ -376,7 +379,7 @@ This experimental mode can memorize lessons and can still forget earlier skills.
 
 ## Checkpoints and storage
 
-The app **automatically saves a checkpoint every 100 training updates**, based on the model's total update count, including across resumed training sessions. Checkpoints are written to `data/checkpoint.json` locally, or `/app/data/checkpoint.json` inside Docker. Each save atomically replaces the single checkpoint file.
+The app **automatically saves a checkpoint every 100 training updates**, based on the model's total update count, including across resumed training sessions. Checkpoints are written to `data/models/checkpoint.json` locally, or `/app/data/models/checkpoint.json` inside Docker. Each save atomically replaces the single checkpoint file.
 
 Click **Save checkpoint** to save immediately, including updates since the last automatic save. After a restart, click **Load checkpoint** to restore the latest saved model. Updates since the last save are lost if the server stops.
 
@@ -392,6 +395,10 @@ Version 1 RNN checkpoints still load as RNNs, including their original optimizer
 
 ## Source layout
 
+- `data/inputs/`: training corpora, including color reasoning and short stories.
+- `data/references/`: reference evaluation datasets.
+- `data/reports/`: generated evaluation reports, ignored by Git.
+- `data/models/`: generated checkpoints, ignored by Git.
 - `server/index.ts`: HTTP routing and startup.
 - `server/http.ts`: request bodies, responses, origin checks, static files.
 - `server/validation.ts`: input validation and defaults.
@@ -450,85 +457,36 @@ concurrent New life operations are rejected while it is busy.
 
 ## Evaluate a trained checkpoint
 
-Use Node 24 (`nvm use`) and install dependencies with `npm ci`. Save the checkpoint
-you want to test using **Save checkpoint** in the app, then run from the repository root:
+Save the model using **Save checkpoint**, then evaluate it against the original
+color reasoning test from the repository root:
 
 ```sh
-npm run evaluate
+npm run evaluate -- --checkpoint data/models/checkpoint.json \
+  --output data/reports/color-reasoning.json
 ```
 
-This asks the saved model all **528 questions** from
-`corpus-examples/toddler_reasoning_evaluation.json`. Do not import either evaluation
-file as training material. The `.txt` version contains the same questions and reference
-answers for manual testing.
+The evaluator asks 2,306 questions about held-out color/object combinations, unseen
+objects, varied wording, and conversation continuations. It uses greedy decoding
+by default, normalizes case and final punctuation, and compares exact answers.
+The JSON report records every reply, pass/fail results, and scores by question family.
+Without `--output`, reports are written to `data/reports/<dataset>_report.json`.
+Existing report files are replaced, so use separate output filenames for comparisons.
 
-For a quicker check, run a smaller sample:
+For the supplemental color test:
 
 ```sh
-npm run evaluate -- --limit 20
+npm run evaluate -- --checkpoint data/models/checkpoint.json \
+  --evaluation data/references/color_reasoning_02_reference.json \
+  --output data/reports/color-reasoning-02.json
 ```
 
-This runs an evenly spaced 20-question sample against `data/checkpoint.json`.
-The evaluator loads the saved model in a separate process; it does not train, modify
-the checkpoint, or require the API to be running. It evaluates the saved update count,
-which may be behind the model currently in memory.
-
-To evaluate a copied checkpoint:
-
-```sh
-npm run evaluate -- --checkpoint /path/to/checkpoint.json
-```
-
-Each question starts a fresh chat. Defaults are temperature 0.4, top K 1, and a maximum
-of 160 generated byte tokens per answer. Top K 1 selects the most likely next token
-for repeatable comparisons. To approximate the chat page's temperature sampling,
-use `--temperature 0.4 --top-k 0`; those runs can vary. Keep settings and the evaluation
-subset unchanged when comparing checkpoints. Run `npm run evaluate -- --help` for options.
-
-The terminal reports numerical accuracy, a pass rate with additional name and equation
-checks, and mean, median, and 95th-percentile response times. A JSON report in
-`data/evaluations/` includes every question, reference answer, generated reply, scoring
-details, incorrect answers, scores by operation, model configuration, and generation
-settings. Use `--output /path/to/report.json` to choose a report location; existing
-files are not overwritten.
-
-Example terminal output:
-
-```text
-Numerical accuracy: 136/528 (25.8%)
-Pass with consistency checks: 112/528 (21.2%)
-Unrecognized answers: 0 (counted as incorrect)
-Response time: mean 703 ms · median 420.5 ms · p95 1314 ms
-Report with incorrect answers: .../data/evaluations/step-14900-<unique-id>.json
-```
-
-These are example results from a checkpoint at 14,900 updates, not a target score.
-Numerical accuracy measures the extracted final number. The consistency pass also
-requires no detected name or equation mismatch. An unrecognized answer is one the
-scorer cannot extract a number from; zero unrecognized answers does not mean zero
-wrong answers. The p95 response time is the time within which approximately 95% of
-answers completed.
-
-To compare saved checkpoints, keep the dataset and generation settings the same and
-save separate reports:
-
-```sh
-npm run evaluate -- --checkpoint /path/to/earlier-checkpoint.json --output data/evaluations/earlier.json
-npm run evaluate -- --checkpoint /path/to/later-checkpoint.json --output data/evaluations/later.json
-```
-
-Compare the overall scores and `summary.byOperation`, then inspect `incorrectAnswers`
-for recurring mistakes. Reports also record model update counts and settings.
-`npm test` checks application and corpus correctness; `npm run evaluate` measures the
-saved model's answers.
-
-Scoring uses rules tailored to this dataset. It recognizes numeric answers, common
-quantity statements, and explicit addition/subtraction equations. Unrecognized answers
-count as incorrect and remain in the report for manual review. Numerical accuracy
-can credit a correct number even when a name or explanation is wrong; the additional
-checks reject detected contradictions. Neither metric proves reasoning, and the
-checks cannot recognize every possible phrasing or error. The evaluator does not
-test whether this checkpoint previously trained on evaluation material.
+Keep both evaluation files separate from training material. Compare checkpoints
+using the same dataset and generation settings. Add `--temperature 0.8 --top-k 0`
+to test Chat's default sampling; sampled replies can vary. These controlled tests
+do not measure general reasoning or story quality. See the
+[color experiment guide](docs/color-reasoning.md) for training, resume commands,
+and recorded results. The evaluator loads a checkpoint in a separate process and
+does not modify it or require the API server to run.
 
 ## Checks and formatting
 

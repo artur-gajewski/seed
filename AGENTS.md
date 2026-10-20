@@ -4,12 +4,13 @@
 
 Seed is a local language-model training studio using React, TypeScript, Vite, and Node.js 24.
 
-- `src/` contains the UI: `components/`, `hooks/`, `lib/api.ts`, styles, and sample text in `data/`.
+- `src/` contains the UI: `components/`, `hooks/`, `lib/api.ts`, styles, and sample text in `lib/sample.ts`.
 - `server/` contains HTTP routing, training orchestration, checkpoint storage, and the Transformer engine. Keep routing separate from model and training logic.
 - `shared/api.ts` defines shared API types.
 - `tests/` covers models, tensor operations, chat, HTTP, and studio behavior.
-- `corpus-examples/` contains importable training text.
-- `dist/` is generated frontend output; `data/checkpoint.json` is runtime model storage.
+- `data/inputs/` contains importable training corpora; `data/references/` contains reference evaluation datasets. Generated score reports are stored in Git-ignored `data/reports/`.
+- `data/models/` contains generated checkpoints and is ignored by Git. The studio checkpoint is `data/models/checkpoint.json`.
+- `dist/` is generated frontend output.
 
 ## Build, Test, and Development Commands
 

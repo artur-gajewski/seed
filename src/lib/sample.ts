@@ -1,0 +1,1 @@
+export const SAMPLE = `User: What color is a red boat?\nAssistant: red.\n\nUser: What color is a blue ball?\nAssistant: blue.\n\nUser: What color is a green cup?\nAssistant: green.\n\nUser: What color is a yellow hat?\nAssistant: yellow.\n\nUser: What color is a black box?\nAssistant: black.\n\nUser: What color is a white kite?\nAssistant: white.\n\n`;

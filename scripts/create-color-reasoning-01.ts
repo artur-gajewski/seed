@@ -1,7 +1,5 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { parseArgs } from 'node:util';
+import { mkdir, writeFile } from 'node:fs/promises';
 import type { ChatMessage } from '../shared/api.ts';
-import { ModelStudio } from '../server/studio.ts';
 
 // Pair-level holdouts: no template in training contains a held-out color/object pair.
 const colors = ['red', 'blue', 'green', 'yellow', 'black', 'white'];
@@ -175,86 +173,26 @@ for (let i = 0; i < singleEvaluation.length; i += 3) {
     ],
   });
 }
-const { values } = parseArgs({
-  options: {
-    generate: { type: 'boolean' },
-    question: { type: 'string' },
-    checkpoint: { type: 'string', default: 'data/color-reasoning-v2.json' },
-    output: { type: 'string', default: 'data/evaluations/color-reasoning-v2.json' },
-    temperature: { type: 'string', default: '0.4' },
-    'top-k': { type: 'string', default: '1' },
-  },
-});
-if (values.generate) {
-  // Deterministic shuffle keeps the studio's contiguous validation tail representative.
-  let state = 20261020;
-  for (let i = training.length - 1; i > 0; i--) {
-    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-    const j = state % (i + 1);
-    [training[i], training[j]] = [training[j], training[i]];
-  }
-  await writeFile(
-    'corpus-examples/color_reasoning.txt',
-    training
-      .map(
-        ({ question, answer, history }) =>
-          `${history?.map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n`).join('') ?? ''}User: ${question}\nAssistant: ${answer}.\n\n`,
-      )
-      .join(''),
-  );
-  await writeFile(
-    'corpus-examples/color_reasoning_evaluation.json',
-    JSON.stringify(evaluation, null, 2) + '\n',
-  );
-  console.log(`Generated ${training.length} training and ${evaluation.length} held-out examples.`);
-} else if (values.question) {
-  const studio = new ModelStudio(values.checkpoint);
-  await studio.loadCheckpoint();
-  console.log(
-    studio.chat({
-      messages: [{ role: 'user', content: values.question }],
-      temperature: Number(values.temperature),
-      topK: Number(values['top-k']),
-      maxTokens: 48,
-    }).reply,
-  );
-} else {
-  const examples = JSON.parse(
-    await readFile('corpus-examples/color_reasoning_evaluation.json', 'utf8'),
-  ) as Example[];
-  const studio = new ModelStudio(values.checkpoint);
-  await studio.loadCheckpoint();
-  const results = examples.map((example) => {
-    const { reply } = studio.chat({
-      messages: [...(example.history ?? []), { role: 'user', content: example.question }],
-      temperature: Number(values.temperature),
-      topK: Number(values['top-k']),
-      maxTokens: 48,
-    });
-    const passed =
-      reply
-        .trim()
-        .toLowerCase()
-        .replace(/[.!?]+$/, '') === example.answer;
-    return { ...example, reply, passed };
-  });
-  const summary = Object.fromEntries(
-    [...new Set(results.map((r) => r.family))].map((family) => {
-      const group = results.filter((r) => r.family === family);
-      return [family, { correct: group.filter((r) => r.passed).length, total: group.length }];
-    }),
-  );
-  const report = {
-    checkpoint: values.checkpoint,
-    steps: studio.getStatus().model?.steps,
-    temperature: Number(values.temperature),
-    topK: Number(values['top-k']),
-    summary,
-    correct: results.filter((r) => r.passed).length,
-    total: results.length,
-    results,
-  };
-  await mkdir('data/evaluations', { recursive: true });
-  await writeFile(values.output, JSON.stringify(report, null, 2) + '\n');
-  console.log(JSON.stringify({ ...report, results: undefined }, null, 2));
+await mkdir(new URL('../data/inputs/', import.meta.url), { recursive: true });
+await mkdir(new URL('../data/references/', import.meta.url), { recursive: true });
+// Deterministic shuffle keeps the studio's contiguous validation tail representative.
+let state = 20261020;
+for (let i = training.length - 1; i > 0; i--) {
+  state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+  const j = state % (i + 1);
+  [training[i], training[j]] = [training[j], training[i]];
 }
+await writeFile(
+  new URL('../data/inputs/color_reasoning_01.txt', import.meta.url),
+  training
+    .map(
+      ({ question, answer, history }) =>
+        `${history?.map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n`).join('') ?? ''}User: ${question}\nAssistant: ${answer}.\n\n`,
+    )
+    .join(''),
+);
+await writeFile(
+  new URL('../data/references/color_reasoning_01_reference.json', import.meta.url),
+  JSON.stringify(evaluation, null, 2) + '\n',
+);
+console.log(`Generated ${training.length} training and ${evaluation.length} held-out examples.`);

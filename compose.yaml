@@ -4,7 +4,7 @@ services:
     ports:
       - '127.0.0.1:3001:3001'
     volumes:
-      - checkpoints:/app/data
+      - checkpoints:/app/data/models
     init: true
     restart: unless-stopped
 

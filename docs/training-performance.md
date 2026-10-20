@@ -77,19 +77,13 @@ HTTP scheduling, and competing work. These are projected compute times, not comp
 training runs; temperature, thermal conditions, thread settings, and corpus-dependent values can
 affect results. The benchmark never loads or overwrites application checkpoints.
 
-## Results
+## Historical measurements
 
-Measured on an Apple M4 Max, arm64 macOS, Node 24.18.0, with the configuration above.
-The original engine is repository revision `e57184bbf422ba02c9a4af102db43dccda7db1f6`.
-See [benchmark-results.json](benchmark-results.json) for individual update timings.
-
-To benchmark that revision with the same harness, create a separate checkout and point the harness
-at its model module:
-
-```sh
-git worktree add --detach /tmp/seed-original e57184bbf422ba02c9a4af102db43dccda7db1f6
-SEED_TENSOR_BACKEND=javascript BENCH_MODEL_PATH=/tmp/seed-original/server/model.ts npm run benchmark
-```
+The following timings were recorded on October 16, 2026, on an Apple M4 Max,
+arm64 macOS, Node 24.18.0, with the configuration above. They document earlier
+optimization work and do not measure the current revision. The raw benchmark
+results are no longer included in the repository. Run the benchmark commands
+above to measure the current engine on your machine.
 
 | Implementation                                    | Median ms/update | Projected hours / 30,000 updates |
 | ------------------------------------------------- | ---------------: | -------------------------------: |
@@ -129,7 +123,7 @@ nonzero accumulated derivatives against the original scalar kernel, validate nat
 and aliasing, and compare full model outputs, gradients, AdamW weights/moments, and resumed updates
 between JavaScript and Accelerate with tolerance `1e-10 * (1 + abs(reference))`.
 
-A separate comparison against the original engine snapshot checked 63,581 numeric values across
+A separate historical comparison against the original engine snapshot checked 63,581 numeric values across
 logits, gradients, three updates, and checkpoint state. JavaScript matched exactly on that fixture;
 Accelerate's largest absolute difference was `7.77e-16`. This is a short-run numerical check, not
 a guarantee of identical long-run trajectories. Native tests skip when the optional addon is absent;

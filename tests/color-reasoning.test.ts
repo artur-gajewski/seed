@@ -4,12 +4,12 @@ import { readFile } from 'node:fs/promises';
 
 test('color reasoning evaluation holds complete color/object pairs out of training', async () => {
   const corpus = await readFile(
-    new URL('../corpus-examples/color_reasoning.txt', import.meta.url),
+    new URL('../data/inputs/color_reasoning_01.txt', import.meta.url),
     'utf8',
   );
   const examples = JSON.parse(
     await readFile(
-      new URL('../corpus-examples/color_reasoning_evaluation.json', import.meta.url),
+      new URL('../data/references/color_reasoning_01_reference.json', import.meta.url),
       'utf8',
     ),
   ) as { question: string; answer: string; family: string }[];

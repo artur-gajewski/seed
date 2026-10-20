@@ -11,16 +11,42 @@ A summary of new features, improvements, and changes in Seed.
 
 ## 2026-10-20
 
-- **Color reasoning experiment:** Added `corpus-examples/color_reasoning.txt` with
+- **Data layout:** Moved training corpora to `data/inputs`, reference evaluations
+  to `data/references`, and generated checkpoints to Git-ignored `data/models`.
+  The studio now uses `data/models/checkpoint.json`; New Life models, CLI examples,
+  generators, and Docker storage use the same layout. Generated score reports
+  are saved in Git-ignored `data/reports` while reference evaluation datasets are tracked.
+  Reference files now use `_reference.json` filenames, including
+  `color_reasoning_01_reference.json` and `color_reasoning_02_reference.json`.
+- **Corpus tools:** Focused corpus creation and evaluation on color reasoning,
+  removed the other corpus creation and evaluation tools and their related tests,
+  retained `short_stories.txt`, and updated setup and evaluation examples. The
+  built-in sample now uses color questions.
+- **Supplemental color training:** Added `color_reasoning_02.txt` with 31,173
+  sessions spanning 22 color spellings, varied wording, distractors, color changes,
+  and conversations of up to five turns. Includes replay of earlier lessons,
+  a deterministic generator, 2,088 separate evaluation cases, and documentation
+  for continuing and comparing checkpoints. The color evaluator now accepts
+  `--evaluation PATH` to select a test dataset.
+- **Color reasoning experiment:** Added `data/inputs/color_reasoning_01.txt` with
   12,610 training examples covering six colors, 97 objects, varied question wording,
   distractors, and conversation continuations. Includes a reproducible corpus
   generator, 2,306 separate evaluation examples, and tests for held-out pairs and
   unseen objects.
-- **Color model evaluation:** Added `scripts/color-reasoning.ts` to evaluate saved
+- **Color model evaluation:** Added `scripts/evaluate-color-reasoning.ts` to evaluate saved
   checkpoints, ask individual questions, and compare greedy decoding with sampled
-  replies. JSON reports include individual answers and scores by question family.
+  replies. Corpus generation is separated into `scripts/create-color-reasoning-01.ts`
+  and `scripts/create-color-reasoning-02.ts`. JSON reports include individual
+  answers and scores by question family.
+  `npm run evaluate` defaults to the studio checkpoint and writes a dataset-specific
+  report such as `data/reports/color_reasoning_01_report.json`. Custom output
+  directories are created automatically, and the evaluator rejects an output path
+  that would overwrite its reference dataset.
   The [experiment guide](docs/color-reasoning.md) documents training, resuming,
   evaluation, loading the model in Seed, and measured results and limitations.
+- **Performance documentation:** Removed the raw benchmark results file and obsolete
+  checkout instructions. Retained timings are labeled as historical measurements,
+  with commands for benchmarking the current engine.
 - **Linux and Raspberry Pi acceleration:** Added an optional OpenBLAS native backend
   for Float64 matrix multiplication in training and generation. Linux selects it
   automatically when built; `SEED_TENSOR_BACKEND=openblas` requires it explicitly.
@@ -30,7 +56,7 @@ A summary of new features, improvements, and changes in Seed.
 - **New Life model sizes:** Added selectable 38K, 496K, 2.6M, and 13M parameter
   presets, with independent saved learning for each size.
 - **New Life checkpoint names:** Checkpoints now use parameter-count filenames such
-  as `data/new-life-checkpoint-38K.json`. Legacy filenames migrate automatically
+  as `data/models/new-life-checkpoint-38K.json`. Legacy filenames migrate automatically
   when their preset is first loaded; an existing parameter-count checkpoint takes
   precedence. Files use binary serialization despite their `.json` extension;
   existing JSON contents remain readable.
@@ -46,14 +72,8 @@ A summary of new features, improvements, and changes in Seed.
 - **Larger models:** Added embedding widths 384 and 512 while retaining the default
   width of 256.
 - **Corpus visibility:** The Training page now displays the imported corpus filename.
-- **Story training:** Added a short-story corpus, then improved it with a reproducible
-  generator and explicit `<|endofstory|>` markers. The tokenizer maps the marker to
+- **Story training:** Added a short-story corpus with explicit `<|endofstory|>` markers. The tokenizer maps the marker to
   the learned stop token so generation can end a story without printing it.
-- **Corpus cleanup:** Consolidated toddler training material into
-  `corpus-examples/toddler_reasoning_corpus.txt`, updated examples and guidance, and
-  removed the older `toddler_reasoning_30000.txt`,
-  `toddler_reasoning_improved_30000.txt`, and `basic_math.txt` files. Update scripts
-  that reference those older paths.
 - Refreshed the README screenshot.
 
 ## 2026-10-18
@@ -80,14 +100,7 @@ A summary of new features, improvements, and changes in Seed.
 - **New Life:** Added a separate experimental model that learns through messages
   and taught answers, automatically saves learning, and reloads it after a server
   restart. Added `!`-prefixed teaching from the chat input.
-- **Checkpoint evaluation:** Added improved toddler reasoning training material,
-  a held-out evaluation dataset, and `npm run evaluate` for comparing saved models.
-  Reports include numerical accuracy, consistency checks, response timings, and
-  individual incorrect answers. These scores measure this dataset rather than
-  general reasoning ability.
-- Added basic math training material and its generator; the standalone corpus file
-  was subsequently removed in the October 19 cleanup.
 - Documented the MIT license and refreshed README screenshots.
 
 See the [README](README.md) for current setup and usage instructions and the
-[corpus examples guide](corpus-examples/README.md) for training data recommendations.
+[corpus examples guide](data/README.md) for training data recommendations.

@@ -1,6 +1,7 @@
 node_modules/
 dist/
-data/
+/data/models/
+/data/reports/
 package-lock.json
 .idea/
 .agents/

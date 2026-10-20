@@ -10,6 +10,9 @@ COPY public ./public
 COPY shared ./shared
 COPY server ./server
 COPY tests ./tests
+COPY scripts ./scripts
+COPY data/inputs ./data/inputs
+COPY data/references ./data/references
 RUN npm test && npm run build
 
 # The server uses only Node's standard library; no runtime npm packages needed.
@@ -23,7 +26,11 @@ COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/server ./server
 COPY --from=build --chown=node:node /app/shared ./shared
 COPY --from=build --chown=node:node /app/package.json ./package.json
-RUN mkdir -p /app/data && chown node:node /app/data
+COPY --from=build --chown=node:node /app/scripts ./scripts
+COPY --from=build --chown=node:node /app/src/lib/formatDuration.ts ./src/lib/formatDuration.ts
+COPY --from=build --chown=node:node /app/data/inputs ./data/inputs
+COPY --from=build --chown=node:node /app/data/references ./data/references
+RUN mkdir -p /app/data/models && chown -R node:node /app/data
 
 USER node
 EXPOSE 3001

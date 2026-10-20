@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SAMPLE } from './data/sample.ts';
+import { SAMPLE } from './lib/sample.ts';
 import type { GenerateRequest, StudioStatus, TrainingSettings } from '../shared/api.ts';
 import type { GenerationResult, StudioTab } from './types.ts';
 import { api } from './lib/api.ts';

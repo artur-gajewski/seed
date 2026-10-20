@@ -1,30 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createShortStories } from '../scripts/create-short-stories.ts';
 import { LanguageModel } from '../server/model.ts';
 
-test('short stories are reproducible, balanced, bounded, and explicitly terminated', async () => {
-  const stories = createShortStories();
-  const text = await readFile(
-    new URL('../corpus-examples/short_stories.txt', import.meta.url),
-    'utf8',
-  );
+test('included short stories are unique, bounded, and explicitly terminated', async () => {
+  const text = await readFile(new URL('../data/inputs/short_stories.txt', import.meta.url), 'utf8');
+  const stories = text.trim().split('\n\n');
   assert.equal(stories.length, 20000);
-  assert.equal(new Set(stories.map(({ text }) => text)).size, 20000);
-  assert.equal(text, stories.map(({ text }) => `${text}\n<|endofstory|>`).join('\n\n') + '\n');
-  const counts = new Map<number, number>();
-  const validationPatterns = new Set<number>();
+  assert.equal(new Set(stories).size, 20000);
   const model = new LanguageModel('', 8, 42, { layers: 1, heads: 2, contextSize: 256 });
-  for (const [index, story] of stories.entries()) {
-    counts.set(story.pattern, (counts.get(story.pattern) ?? 0) + 1);
-    if (index >= 18000) validationPatterns.add(story.pattern);
-    assert.ok(model.encodeTrainingText(`${story.text}\n<|endofstory|>`).length <= 256);
-    assert.doesNotMatch(story.text, /\bin the (?:hill|beach)\b|\bcald\b|It did not belong to/);
+  for (const story of stories) {
+    assert.ok(story.endsWith('\n<|endofstory|>'));
+    assert.ok(model.encodeTrainingText(story).length <= 256);
   }
-  assert.equal(counts.size, 32);
-  assert.ok([...counts.values()].every((count) => count === 625));
-  assert.equal(validationPatterns.size, 32);
 });
 
 test('story markers become stop tokens while paragraphs and dialogue retain their meaning', () => {

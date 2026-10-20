@@ -22,7 +22,7 @@ async function waitForTraining(studio: ModelStudio): Promise<void> {
 
 test('studio saves, restores, and resumes version 2 Transformer checkpoints', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'seed-studio-'));
-  const checkpointPath = path.join(directory, 'data/checkpoint.json');
+  const checkpointPath = path.join(directory, 'data/models/checkpoint.json');
   const studio = new ModelStudio(checkpointPath);
   const restoredStudio = new ModelStudio(checkpointPath);
   const corpus = 'abc'.repeat(50);
@@ -89,7 +89,7 @@ test('studio saves, restores, and resumes version 2 Transformer checkpoints', as
 
 test('training automatically saves every 100 model updates across resumed jobs', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'seed-autosave-'));
-  const checkpointPath = path.join(directory, 'data/checkpoint.json');
+  const checkpointPath = path.join(directory, 'data/models/checkpoint.json');
   const studio = new ModelStudio(checkpointPath);
   const settings = {
     text: 'abc'.repeat(50),

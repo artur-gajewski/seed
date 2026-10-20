@@ -21,7 +21,7 @@ const buildDirectory = path.join(projectDirectory, 'dist');
 // Vite forwards browser Origin unchanged, even if the proxy rewrites Host.
 const developmentOrigins =
   process.env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : [];
-const studio = new ModelStudio(path.join(projectDirectory, 'data/checkpoint.json'));
+const studio = new ModelStudio(path.join(projectDirectory, 'data/models/checkpoint.json'));
 const lives = new Map<NewLifeSize, NewLife>();
 function getLife(size: unknown = 'small'): NewLife {
   if (typeof size !== 'string' || !Object.hasOwn(NEW_LIFE_PRESETS, size)) {
@@ -34,10 +34,10 @@ function getLife(size: unknown = 'small'): NewLife {
     life = new NewLife(
       path.join(
         projectDirectory,
-        `data/new-life-checkpoint-${NEW_LIFE_PRESETS[selected].label}.json`,
+        `data/models/new-life-checkpoint-${NEW_LIFE_PRESETS[selected].label}.json`,
       ),
       selected,
-      path.join(projectDirectory, `data/new-life-checkpoint${suffix}.json`),
+      path.join(projectDirectory, `data/models/new-life-checkpoint${suffix}.json`),
     );
     lives.set(selected, life);
   }
@@ -103,7 +103,7 @@ async function handleApiRequest(
 
     case '/api/checkpoint/save':
       await studio.saveCheckpoint();
-      sendJson(response, 200, { message: 'Checkpoint saved to data/checkpoint.json' });
+      sendJson(response, 200, { message: 'Checkpoint saved to data/models/checkpoint.json' });
       return;
 
     case '/api/checkpoint/delete':
