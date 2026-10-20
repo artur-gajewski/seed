@@ -11,6 +11,16 @@ A summary of new features, improvements, and changes in Seed.
 
 ## 2026-10-20
 
+- **Color reasoning experiment:** Added `corpus-examples/color_reasoning.txt` with
+  12,610 training examples covering six colors, 97 objects, varied question wording,
+  distractors, and conversation continuations. Includes a reproducible corpus
+  generator, 2,306 separate evaluation examples, and tests for held-out pairs and
+  unseen objects.
+- **Color model evaluation:** Added `scripts/color-reasoning.ts` to evaluate saved
+  checkpoints, ask individual questions, and compare greedy decoding with sampled
+  replies. JSON reports include individual answers and scores by question family.
+  The [experiment guide](docs/color-reasoning.md) documents training, resuming,
+  evaluation, loading the model in Seed, and measured results and limitations.
 - **Linux and Raspberry Pi acceleration:** Added an optional OpenBLAS native backend
   for Float64 matrix multiplication in training and generation. Linux selects it
   automatically when built; `SEED_TENSOR_BACKEND=openblas` requires it explicitly.
