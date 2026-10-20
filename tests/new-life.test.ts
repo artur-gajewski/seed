@@ -4,6 +4,16 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { NewLife } from '../server/new-life.ts';
+import { decodeCheckpoint } from '../server/checkpoint.ts';
+import type { TransformerCheckpoint } from '../server/model.ts';
+
+async function readLife(checkpoint: string) {
+  return decodeCheckpoint(await readFile(checkpoint)) as {
+    version: number;
+    model: TransformerCheckpoint;
+    lessons: { message: string; answer?: string }[];
+  };
+}
 
 test('New life learns user text and corrections, persists replay memory, and preserves other checkpoints', async () => {
   const directory = await mkdtemp(path.join(tmpdir(), 'seed-new-life-'));
@@ -21,7 +31,8 @@ test('New life learns user text and corrections, persists replay memory, and pre
     const first = await life.message({ message: 'Hello!' });
     assert.equal(typeof first.reply, 'string');
     assert.deepEqual(first.status, { ready: true, steps: 12, lessons: 1, corrections: 0 });
-    const saved = JSON.parse(await readFile(checkpoint, 'utf8'));
+    assert.equal((await readFile(checkpoint))[0], 0xff);
+    const saved = await readLife(checkpoint);
     assert.deepEqual(
       saved.lessons,
       [{ message: 'Hello!' }],
@@ -33,14 +44,18 @@ test('New life learns user text and corrections, persists replay memory, and pre
     await life.message({ message: 'Hello!' });
     const another = await life.teach({ message: 'What is 1 + 1?', answer: '1 plus 1 is 2.' });
     assert.equal(another.lessons, 2);
+    // Existing JSON saves remain readable and are upgraded on the next successful save.
+    await writeFile(checkpoint, JSON.stringify(await readLife(checkpoint)));
     const restored = new NewLife(checkpoint);
     assert.deepEqual(await restored.getStatus(), another);
-    const contents = JSON.parse(await readFile(checkpoint, 'utf8'));
+    const contents = await readLife(checkpoint);
     assert.equal(contents.lessons[0].answer, 'Hello, friend!');
     assert.equal(await readFile(ordinary, 'utf8'), 'existing studio checkpoint');
     const updated = await restored.teach({ message: 'Hello!', answer: 'Hi there!' });
     assert.equal(updated.lessons, 2);
     assert.equal(updated.corrections, 2);
+    assert.equal((await readFile(checkpoint))[0], 0xff);
+    assert.deepEqual(await new NewLife(checkpoint).getStatus(), updated);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
@@ -100,5 +115,33 @@ test('New life preserves memory after a failed save and reports corrupt checkpoi
     assert.equal(await readFile(checkpoint, 'utf8'), '{broken');
   } finally {
     await rm(corrupt, { recursive: true, force: true });
+  }
+});
+
+test('New life presets keep independent memory and reject incompatible checkpoints', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-new-life-sizes-'));
+  try {
+    const smallPath = path.join(directory, 'small.json');
+    const mediumPath = path.join(directory, 'medium.json');
+    const small = new NewLife(smallPath);
+    await small.teach({ message: 'Hi', answer: 'Hello' });
+    const original = await readFile(smallPath, 'utf8');
+    const medium = new NewLife(mediumPath, 'medium');
+    assert.equal((await medium.getStatus()).ready, false);
+    await medium.teach({ message: 'A', answer: 'B' });
+    const saved = await readLife(mediumPath);
+    assert.deepEqual(saved.model.config, {
+      hiddenSize: 128,
+      layers: 2,
+      heads: 4,
+      contextSize: 256,
+    });
+    assert.deepEqual(saved.lessons, [{ message: 'A', answer: 'B' }]);
+    assert.equal(await readFile(smallPath, 'utf8'), original);
+    assert.deepEqual(await new NewLife(mediumPath, 'medium').getStatus(), await medium.getStatus());
+    await assert.rejects(new NewLife(smallPath, 'large').getStatus(), /does not match/);
+    assert.equal(await readFile(smallPath, 'utf8'), original);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
   }
 });

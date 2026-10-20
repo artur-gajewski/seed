@@ -11,6 +11,7 @@ import {
 import type { Request, Response } from './http.ts';
 import { ModelStudio } from './studio.ts';
 import { NewLife } from './new-life.ts';
+import { NEW_LIFE_PRESETS, type NewLifeSize } from '../shared/api.ts';
 import { tensorBackend } from './numerics.ts';
 
 export type { Request, Response } from './http.ts';
@@ -21,7 +22,23 @@ const buildDirectory = path.join(projectDirectory, 'dist');
 const developmentOrigins =
   process.env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : [];
 const studio = new ModelStudio(path.join(projectDirectory, 'data/checkpoint.json'));
-const newLife = new NewLife(path.join(projectDirectory, 'data/new-life-checkpoint.json'));
+const lives = new Map<NewLifeSize, NewLife>();
+function getLife(size: unknown = 'small'): NewLife {
+  if (typeof size !== 'string' || !Object.hasOwn(NEW_LIFE_PRESETS, size)) {
+    throw new Error('Invalid New life model size');
+  }
+  const selected = size as NewLifeSize;
+  let life = lives.get(selected);
+  if (!life) {
+    const suffix = selected === 'small' ? '' : `-${selected}`;
+    life = new NewLife(
+      path.join(projectDirectory, `data/new-life-checkpoint${suffix}.json`),
+      selected,
+    );
+    lives.set(selected, life);
+  }
+  return life;
+}
 
 async function handleApiRequest(
   request: Request,
@@ -35,7 +52,7 @@ async function handleApiRequest(
   }
 
   if (request.method === 'GET' && pathname === '/api/new-life/status') {
-    sendJson(response, 200, await newLife.getStatus());
+    sendJson(response, 200, await getLife().getStatus());
     return;
   }
 
@@ -53,11 +70,14 @@ async function handleApiRequest(
   const body = await readJsonBody(request);
 
   switch (pathname) {
+    case '/api/new-life/settings':
+      sendJson(response, 200, await getLife(body.size).getStatus());
+      return;
     case '/api/new-life/message':
-      sendJson(response, 200, await newLife.message(body));
+      sendJson(response, 200, await getLife(body.size).message(body));
       return;
     case '/api/new-life/teach':
-      sendJson(response, 200, await newLife.teach(body));
+      sendJson(response, 200, await getLife(body.size).teach(body));
       return;
     case '/api/train':
       studio.startTraining(body);

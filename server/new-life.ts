@@ -2,8 +2,10 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { LanguageModel } from './model.ts';
+import { encodeCheckpoint, decodeCheckpoint } from './checkpoint.ts';
 import type { ModelCheckpoint } from './model.ts';
-import type { NewLifeReply, NewLifeStatus } from '../shared/api.ts';
+import { NEW_LIFE_PRESETS } from '../shared/api.ts';
+import type { NewLifeSize, NewLifeReply, NewLifeStatus } from '../shared/api.ts';
 import type { JsonObject } from './validation.ts';
 import { extractAssistantReply } from './chat.ts';
 
@@ -36,7 +38,10 @@ export class NewLife {
 
   private readonly checkpointPath: string;
 
-  constructor(checkpointPath: string) {
+  private readonly size: NewLifeSize;
+
+  constructor(checkpointPath: string, size: NewLifeSize = 'small') {
+    this.size = size;
     this.checkpointPath = checkpointPath;
   }
 
@@ -45,14 +50,14 @@ export class NewLife {
     this.busy = true;
     try {
       if (!this.loaded) {
-        let contents: string | undefined;
+        let contents: Buffer | undefined;
         try {
-          contents = await readFile(this.checkpointPath, 'utf8');
+          contents = await readFile(this.checkpointPath);
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
         }
         if (contents !== undefined) {
-          const saved = JSON.parse(contents) as SavedLife;
+          const saved = decodeCheckpoint(contents) as SavedLife;
           if (saved.version !== 1 || !Array.isArray(saved.lessons) || saved.lessons.length > 1000) {
             throw new Error('Invalid New life checkpoint');
           }
@@ -62,6 +67,14 @@ export class NewLife {
           }));
           const model = LanguageModel.restore(saved.model);
           if (!(model instanceof LanguageModel)) throw new Error('New life requires a Transformer');
+          const preset = NEW_LIFE_PRESETS[this.size];
+          if (
+            Object.entries(model.config).some(
+              ([key, value]) => value !== preset[key as keyof typeof model.config],
+            )
+          ) {
+            throw new Error('New life checkpoint does not match the selected model size');
+          }
           this.model = model;
           this.lessons = lessons;
         }
@@ -106,12 +119,13 @@ export class NewLife {
 
   private async learn(lesson: Lesson): Promise<void> {
     // Work on a candidate so failed training or saving leaves the last saved life intact.
+    const preset = NEW_LIFE_PRESETS[this.size];
     const model = this.model
       ? LanguageModel.restore(this.model.serialize())
-      : new LanguageModel('', 32, randomBytes(4).readUInt32LE(), {
-          layers: 1,
-          heads: 4,
-          contextSize: 256,
+      : new LanguageModel('', preset.hiddenSize, randomBytes(4).readUInt32LE(), {
+          layers: preset.layers,
+          heads: preset.heads,
+          contextSize: preset.contextSize,
         });
     if (!(model instanceof LanguageModel)) throw new Error('New life requires a Transformer');
     const lessons = this.lessons.filter((previous) => previous.message !== lesson.message);
@@ -127,9 +141,15 @@ export class NewLife {
           : `User: ${entry.message}\nAssistant: ${entry.answer}`,
       );
     for (let step = 0; step < 12; step++) {
-      const replay = lessons[Math.floor(Math.random() * lessons.length)];
+      const batch = [
+        newest,
+        ...Array.from(
+          { length: preset.batchSize - 1 },
+          () => lessons[Math.floor(Math.random() * lessons.length)],
+        ),
+      ];
       model.trainBatch(
-        [newest, replay].map((entry) => {
+        batch.map((entry) => {
           const encoded = tokens(entry);
           return { inputs: encoded.slice(0, -1), targets: encoded.slice(1) };
         }),
@@ -140,7 +160,10 @@ export class NewLife {
     const temporary = `${this.checkpointPath}.${randomUUID()}.tmp`;
     try {
       await mkdir(path.dirname(this.checkpointPath), { recursive: true });
-      await writeFile(temporary, JSON.stringify({ version: 1, model: model.serialize(), lessons }));
+      await writeFile(
+        temporary,
+        encodeCheckpoint({ version: 1, model: model.serialize(), lessons }),
+      );
       await rename(temporary, this.checkpointPath);
     } finally {
       await rm(temporary, { force: true });

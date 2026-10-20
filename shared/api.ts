@@ -80,6 +80,20 @@ export interface ChatResponse {
   elapsedMs: number;
   modelStep: number;
 }
+export const NEW_LIFE_PRESETS = {
+  small: { label: '38K', hiddenSize: 32, layers: 1, heads: 4, batchSize: 2, contextSize: 256 },
+  medium: { label: '496K', hiddenSize: 128, layers: 2, heads: 4, batchSize: 4, contextSize: 256 },
+  large: { label: '2.6M', hiddenSize: 256, layers: 3, heads: 8, batchSize: 6, contextSize: 256 },
+  'x-large': {
+    label: '13M',
+    hiddenSize: 512,
+    layers: 4,
+    heads: 8,
+    batchSize: 8,
+    contextSize: 256,
+  },
+} as const;
+export type NewLifeSize = keyof typeof NEW_LIFE_PRESETS;
 export interface NewLifeStatus {
   steps: number;
   lessons: number;
@@ -92,6 +106,7 @@ export interface NewLifeReply {
 }
 export interface ApiResponses {
   'new-life/status': NewLifeStatus;
+  'new-life/settings': NewLifeStatus;
   'new-life/message': NewLifeReply;
   'new-life/teach': NewLifeStatus;
   status: StudioStatus;
@@ -105,8 +120,9 @@ export interface ApiResponses {
 }
 export interface ApiRequests {
   'new-life/status': undefined;
-  'new-life/message': { message: string };
-  'new-life/teach': { message: string; answer: string };
+  'new-life/settings': { size: NewLifeSize };
+  'new-life/message': { message: string; size?: NewLifeSize };
+  'new-life/teach': { message: string; answer: string; size?: NewLifeSize };
   status: undefined;
   train: TrainRequest;
   stop: Record<string, never>;

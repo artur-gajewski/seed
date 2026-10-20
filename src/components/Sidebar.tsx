@@ -44,7 +44,7 @@ export function Sidebar({ tab, connected, architecture, onTabChange }: SidebarPr
         onClick={() => onTabChange('new-life')}
         aria-current={tab === 'new-life' ? 'page' : undefined}
       >
-        <Icon name="leaf" /> New life
+        <Icon name="leaf" /> New Life
       </button>
       <div className="engine-status">
         <span className={`dot ${connected ? 'active' : ''}`} />

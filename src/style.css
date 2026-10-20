@@ -1173,12 +1173,24 @@ footer i {
 
 .new-life-intro {
   flex-shrink: 0;
-  padding: 0 0 20px;
+  padding: 20px 0;
 }
 
 .new-life-intro h1 {
   margin: 0 0 12px;
   font-size: 1.875rem;
+}
+
+.new-life-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.new-life-model-details {
+  color: var(--text-muted);
 }
 
 .new-life-intro p {
@@ -1377,6 +1389,22 @@ footer i {
   padding: 22px 0;
   color: var(--text-muted);
   font-size: 1rem;
+}
+
+.new-life-learning > svg {
+  animation: seed-spin 1.2s linear infinite;
+}
+
+@keyframes seed-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-life-learning > svg {
+    animation: none;
+  }
 }
 
 .chat-thinking > svg {

@@ -17,7 +17,7 @@ export function StudioHeader({ tab, status }: StudioHeaderProps) {
               : tab === 'chat'
                 ? 'Chat'
                 : tab === 'new-life'
-                  ? 'New life'
+                  ? 'New Life'
                   : 'Text generation'}
           </b>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { NewLifeStatus } from '../../shared/api.ts';
+import { NEW_LIFE_PRESETS } from '../../shared/api.ts';
+import type { NewLifeSize, NewLifeStatus } from '../../shared/api.ts';
 import { api } from '../lib/api.ts';
 import { newLifeInputContent, parseNewLifeInput } from '../lib/newLifeInput.ts';
 import { Icon } from './Icon.tsx';
@@ -18,8 +19,21 @@ const TEACHING_REPLIES = [
   'Ok, I will work on getting that right.',
 ];
 const byteLength = (text: string) => new TextEncoder().encode(text.trim()).length;
+const MODEL_SIZE_STORAGE_KEY = 'seed.newLife.modelSize';
+
+function rememberedModelSize(): NewLifeSize {
+  try {
+    const saved = localStorage.getItem(MODEL_SIZE_STORAGE_KEY);
+    if (saved && Object.hasOwn(NEW_LIFE_PRESETS, saved)) return saved as NewLifeSize;
+  } catch {
+    // Browser storage can be unavailable; the default model still works.
+  }
+  return 'small';
+}
 
 export function NewLifePage() {
+  const [initialSize] = useState(rememberedModelSize);
+  const [size, setSize] = useState<NewLifeSize>(initialSize);
   const [status, setStatus] = useState<NewLifeStatus | null>(null);
   const [messages, setMessages] = useState<Exchange[]>([]);
   const [draft, setDraft] = useState('');
@@ -47,8 +61,16 @@ export function NewLifePage() {
   }, [busy]);
 
   useEffect(() => {
+    try {
+      localStorage.setItem(MODEL_SIZE_STORAGE_KEY, size);
+    } catch {
+      // Keep model selection usable when browser storage is unavailable.
+    }
+  }, [size]);
+
+  useEffect(() => {
     let live = true;
-    api('new-life/status').then(
+    api('new-life/settings', { size: initialSize }).then(
       (next) => {
         if (live) setStatus(next);
       },
@@ -59,7 +81,7 @@ export function NewLifePage() {
     return () => {
       live = false;
     };
-  }, []);
+  }, [initialSize]);
 
   useLayoutEffect(() => {
     const container = log.current;
@@ -93,7 +115,7 @@ export function NewLifePage() {
   const { isTeaching: isTeachingDraft, content: draftContent } = newLifeInputContent(draft);
 
   async function teachAnswer(message: string, preferredAnswer: string, correction: string) {
-    setStatus(await api('new-life/teach', { message, answer: preferredAnswer.trim() }));
+    setStatus(await api('new-life/teach', { message, answer: preferredAnswer.trim(), size }));
     focusComposerAfterAction.current = true;
     const reply = TEACHING_REPLIES[Math.floor(Math.random() * TEACHING_REPLIES.length)];
     setMessages((previous) => [
@@ -104,28 +126,44 @@ export function NewLifePage() {
 
   return (
     <section className="chat-page new-life-page" aria-label="New life">
-      <div className="chat-toolbar">
-        <div className="chat-model">
-          <Icon name="leaf" />
-          <div>New life {!status?.ready && <span>A fresh beginning</span>}</div>
-        </div>
-        <button
-          className="secondary-button"
-          disabled={busy}
-          onClick={() => {
-            setMessages([]);
-          }}
-        >
-          New conversation
-        </button>
-      </div>
       <div className="new-life-intro">
+        <div className="new-life-settings">
+          <label>
+            Parameters:{' '}
+            <select
+              value={size}
+              disabled={busy}
+              onChange={(event) => {
+                const nextSize = event.target.value as NewLifeSize;
+                void act(async () => {
+                  const next = await api('new-life/settings', { size: nextSize });
+                  setSize(nextSize);
+                  setStatus(next);
+                  setMessages([]);
+                  setDraft('');
+                  inputHistory.current = [];
+                  historyPosition.current = null;
+                  unfinishedDraft.current = '';
+                });
+              }}
+            >
+              {Object.entries(NEW_LIFE_PRESETS).map(([value, preset]) => (
+                <option key={value} value={value}>
+                  {preset.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <span className="new-life-model-details">
+            Width {NEW_LIFE_PRESETS[size].hiddenSize} · {NEW_LIFE_PRESETS[size].layers}{' '}
+            {NEW_LIFE_PRESETS[size].layers === 1 ? 'layer' : 'layers'} ·{' '}
+            {NEW_LIFE_PRESETS[size].heads} heads · Batch {NEW_LIFE_PRESETS[size].batchSize} ·{' '}
+            {NEW_LIFE_PRESETS[size].contextSize}-token context. Each size remembers its own lessons.
+          </span>
+        </div>
         <p>
           This model starts from scratch. It learns language from your messages and answers from
           your teaching. Early replies will be gibberish.
-          <br />
-          Type ! followed by the answer you wanted,
-          or a correction such as “No, the sky is blue.”
         </p>
         <div className="new-life-stats" aria-live="polite">
           <span>
@@ -163,8 +201,9 @@ export function NewLifePage() {
             </div>
           ))}
           {busy && (
-            <p className="chat-thinking" role="status">
-              Seed is learning and saving…
+            <p className="chat-thinking new-life-learning" role="status">
+              <Icon name="leaf" size={22} />
+              <span className="sr-only">Seed is learning and saving…</span>
             </p>
           )}
         </div>
@@ -192,7 +231,7 @@ export function NewLifePage() {
                 return;
               }
               const { message } = input;
-              const result = await api('new-life/message', { message });
+              const result = await api('new-life/message', { message, size });
               setStatus(result.status);
               setMessages((previous) => [
                 ...previous,
