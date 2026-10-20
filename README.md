@@ -15,6 +15,8 @@ The Training panel’s default model has roughly **3.36 million parameters** and
 
 You can run it locally or through Docker, and save checkpoints to continue training later.
 
+See the [release notes](RELEASE_NOTES.md) for changes recorded in the Git history.
+
 ## Table of contents
 
 - [Screenshot](#screenshot)
