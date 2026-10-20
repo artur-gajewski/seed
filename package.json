@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "native:build": "node scripts/build-accelerate.ts",
+    "native:build": "node scripts/build-native.ts",
     "benchmark": "node scripts/benchmark-training.ts",
     "evaluate": "node scripts/evaluate-model.ts",
     "train": "node scripts/train-model.ts",

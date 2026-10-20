@@ -1,5 +1,9 @@
 #include <node_api.h>
+#ifdef SEED_OPENBLAS
+#include <cblas.h>
+#else
 #include <Accelerate/Accelerate.h>
+#endif
 #include <climits>
 #include <cmath>
 #include <cstdint>

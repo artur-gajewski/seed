@@ -21,6 +21,7 @@ You can run it locally or through Docker, and save checkpoints to continue train
 - [Run with Docker](#run-with-docker)
 - [Run locally](#run-locally)
   - [Run on a MacBook with acceleration](#run-on-a-macbook-with-acceleration)
+  - [Raspberry Pi and Linux OpenBLAS acceleration](#raspberry-pi-and-linux-openblas-acceleration)
 - [Training](#training)
 - [Train from the command line](#train-from-the-command-line)
 - [Chat and text generation](#chat-and-text-generation)
@@ -122,6 +123,49 @@ NODE_INCLUDE_DIR=/path/to/node/include/node npm run native:build
 
 Run `npm run benchmark` to measure training speed on your MacBook; its output reports the selected backend. See [training performance](docs/training-performance.md) for benchmark settings and results.
 
+### Raspberry Pi and Linux OpenBLAS acceleration
+
+On Raspberry Pi 5, use a 64-bit OS and Node.js 24. Install the native build dependencies,
+then build the optional OpenBLAS addon:
+
+```bash
+sudo apt update
+sudo apt install g++ pkg-config libopenblas-dev
+nvm use
+npm ci
+npm run native:build
+npm run build
+OPENBLAS_NUM_THREADS=4 SEED_TENSOR_BACKEND=openblas npm start
+```
+
+The build locates Node headers from the active Node installation, node-gyp's cache,
+or system include directories. If needed, set `NODE_INCLUDE_DIR` to the matching
+Node 24 `include/node` directory. `CXX` can select the C++ compiler and
+`PKG_CONFIG_PATH` can locate a custom OpenBLAS installation.
+
+Linux automatically selects OpenBLAS when `native/openblas.node` is present;
+otherwise it uses JavaScript. Setting `SEED_TENSOR_BACKEND=openblas` requires the
+addon and fails clearly if unavailable. `SEED_TENSOR_BACKEND=javascript` forces
+the portable implementation. A broken installed addon surfaces its load error.
+The addon accelerates Float64 matrix multiplication in both forward and backward
+passes; model architecture and checkpoint formats stay compatible. Other operations
+still run in JavaScript. Rebuild native addons on the target machine after copying
+source to a different platform. The default Docker image remains JavaScript-only.
+
+Compare the backends on the Pi with the same bounded workload:
+
+```bash
+BENCH_WIDTH=128 BENCH_LAYERS=2 BENCH_HEADS=4 BENCH_BATCH=4 BENCH_CONTEXT=64 SEED_TENSOR_BACKEND=javascript npm run benchmark
+OPENBLAS_NUM_THREADS=4 BENCH_WIDTH=128 BENCH_LAYERS=2 BENCH_HEADS=4 BENCH_BATCH=4 BENCH_CONTEXT=64 SEED_TENSOR_BACKEND=openblas npm run benchmark
+```
+
+Try `OPENBLAS_NUM_THREADS=1`, `2`, and `4`; more threads can add overhead for small
+matrices. For OpenMP builds, use `OMP_NUM_THREADS` instead, as described in the
+[OpenBLAS runtime documentation](https://www.openmathlib.org/OpenBLAS/docs/runtime_variables/).
+Run `SEED_TENSOR_BACKEND=openblas npm test` after building to check numerical parity,
+gradients, optimizer state, and resumed training against JavaScript. Performance gains
+on Raspberry Pi have not yet been measured.
+
 ## Training
 
 An example English parent–child dialogue corpus is included in [corpus-examples/parent_child_corpus_en.txt](corpus-examples/parent_child_corpus_en.txt). Import this file in the Training page to experiment with short `User:` / `Assistant:` exchanges.
@@ -144,7 +188,7 @@ The split is contiguous and does not deduplicate repeated examples. Repeated or 
 
 **Continue existing model** trains further without resetting the learned weights. It retains the loaded architecture, context limit, and optimizer state, and accepts a new corpus. The selected batch size and training length apply to the new session. A resumed session restarts its learning-rate schedule. Architecture controls only affect new models.
 
-There is no pretrained English knowledge. For domain-specific chat, supply many accurate, varied question/answer examples. For broader language ability, a much larger corpus and accelerator-backed training infrastructure would be required. The portable engine uses one CPU thread; the optional Accelerate backend uses native CPU matrix operations. Neither backend uses GPU or distributed training. Individual updates and generation calls run synchronously on the API thread, yielding only between training blocks. Large settings can delay other API requests.
+There is no pretrained English knowledge. For domain-specific chat, supply many accurate, varied question/answer examples. For broader language ability, a much larger corpus and accelerator-backed training infrastructure would be required. The portable engine uses one CPU thread; the optional Accelerate and OpenBLAS backends use native CPU matrix operations. None of these backends uses GPU or distributed training. Individual updates and generation calls run synchronously on the API thread, yielding only between training blocks. Large settings can delay other API requests.
 
 ## Train from the command line
 

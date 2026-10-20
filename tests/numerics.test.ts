@@ -108,16 +108,37 @@ test('linear matches original outputs and accumulated gradients for rectangular 
   }
 });
 
-const addon = new URL('../native/accelerate.node', import.meta.url);
-const hasNative = process.platform === 'darwin' && existsSync(addon);
+test('backend selection supports explicit JavaScript and rejects invalid or unsupported backends', () => {
+  const source = `import { tensorBackend } from ${JSON.stringify(new URL('../server/numerics.ts', import.meta.url).href)}; console.log(tensorBackend);`;
+  const run = (backend: string) =>
+    spawnSync(process.execPath, ['--input-type=module', '-e', source], {
+      env: { ...process.env, SEED_TENSOR_BACKEND: backend },
+      encoding: 'utf8',
+    });
+  const portable = run('javascript');
+  assert.equal(portable.status, 0, portable.stderr);
+  assert.equal(portable.stdout.trim(), 'javascript');
+  const invalid = run('unknown');
+  assert.notEqual(invalid.status, 0);
+  assert.match(invalid.stderr, /SEED_TENSOR_BACKEND must be/);
+  const unsupported = run(process.platform === 'darwin' ? 'openblas' : 'accelerate');
+  assert.notEqual(unsupported.status, 0);
+  assert.match(unsupported.stderr, /is unavailable/);
+});
+
+const nativeBackend = process.platform === 'darwin' ? 'accelerate' : 'openblas';
+const addon = new URL(`../native/${nativeBackend}.node`, import.meta.url);
+const hasNative = ['darwin', 'linux'].includes(process.platform) && existsSync(addon);
 test(
-  'Accelerate matches JavaScript forward, gradients, AdamW moments, and resumed updates',
+  `${nativeBackend} matches JavaScript forward, gradients, AdamW moments, and resumed updates`,
   {
     skip: !hasNative,
   },
   () => {
     const source = `
     import { LanguageModel } from ${JSON.stringify(new URL('../server/model.ts', import.meta.url).href)};
+    import { tensorBackend } from ${JSON.stringify(new URL('../server/numerics.ts', import.meta.url).href)};
+    if (tensorBackend !== process.env.SEED_TENSOR_BACKEND) throw new Error('Requested backend was not selected');
     const model = new LanguageModel('', 8, 42, { layers: 2, heads: 2, contextSize: 8 });
     const batch = [{ inputs: [97,98,99,97], targets: [98,99,97,98] },
                    { inputs: [99,98,97,99], targets: [98,97,99,98] }];
@@ -150,7 +171,7 @@ test(
           );
       } else assert.deepEqual(actual, expected);
     };
-    compare(run('accelerate'), run('javascript'));
+    compare(run(nativeBackend), run('javascript'));
   },
 );
 

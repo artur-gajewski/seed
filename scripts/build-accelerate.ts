@@ -32,7 +32,7 @@ const result = spawnSync(
     'dynamic_lookup',
     '-I',
     headers,
-    join(root, 'native/accelerate.cc'),
+    join(root, 'native/blas.cc'),
     '-framework',
     'Accelerate',
     '-o',
