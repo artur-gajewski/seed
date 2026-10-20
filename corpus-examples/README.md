@@ -1,5 +1,15 @@
 # Seed corpus examples
 
+## Table of contents
+
+- [Short stories](#short-stories)
+- [Toddler reasoning corpus](#toddler-reasoning-corpus)
+  - [Separate evaluation questions](#separate-evaluation-questions)
+- [toddler_reasoning_corpus.txt](#toddler_reasoning_corpustxt)
+  - [Recommended settings for training with toddler_reasoning_corpus.txt](#recommended-settings-for-training-with-toddler_reasoning_corpustxt)
+  - [Expected training workload](#expected-training-workload)
+  - [Monitoring training](#monitoring-training)
+
 ## Short stories
 
 `short_stories.txt` contains 20,000 unique stories distributed evenly across 32

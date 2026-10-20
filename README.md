@@ -15,6 +15,28 @@ The Training panel’s default model has roughly **3.36 million parameters** and
 
 You can run it locally or through Docker, and save checkpoints to continue training later.
 
+## Table of contents
+
+- [Screenshot](#screenshot)
+- [Run with Docker](#run-with-docker)
+- [Run locally](#run-locally)
+  - [Run on a MacBook with acceleration](#run-on-a-macbook-with-acceleration)
+- [Training](#training)
+- [Train from the command line](#train-from-the-command-line)
+- [Chat and text generation](#chat-and-text-generation)
+- [New life: teach through chat](#new-life-teach-through-chat)
+  - [Try a first lesson](#try-a-first-lesson)
+  - [Teach with `!` or a written correction](#teach-with--or-a-written-correction)
+  - [How learning works](#how-learning-works)
+  - [Continuing later](#continuing-later)
+- [Checkpoints and storage](#checkpoints-and-storage)
+- [Source layout](#source-layout)
+- [API](#api)
+- [Evaluate a trained checkpoint](#evaluate-a-trained-checkpoint)
+- [Checks and formatting](#checks-and-formatting)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Screenshot
 
 <img width="1896" height="1283" alt="Screenshot 2026-10-19 at 12 03 47" src="https://github.com/user-attachments/assets/df17f4be-9d47-4991-873b-192fbb95d0c7" />
