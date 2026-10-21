@@ -1,5 +1,7 @@
 # Seed
 
+[![Tests](https://github.com/artur-gajewski/seed/actions/workflows/tests.yml/badge.svg)](https://github.com/artur-gajewski/seed/actions/workflows/tests.yml)
+
 **Seed is a local language-model training studio.** It lets you train a small model from scratch on your own text, watch its learning progress, and experiment with its output.
 
 The interface has four sections:
