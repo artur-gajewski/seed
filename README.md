@@ -33,7 +33,7 @@ See the [PyTorch guide](docs/pytorch.md) for GPU setup, command-line experiments
   - [Teach with `!` or a written correction](#teach-with--or-a-written-correction)
   - [How learning works](#how-learning-works)
   - [Continuing later](#continuing-later)
-- [Checkpoints and storage](#checkpoints-and-storage)
+- [Models and storage](#models-and-storage)
 - [Source layout](#source-layout)
 - [API](#api)
 - [Evaluate a trained checkpoint](#evaluate-a-trained-checkpoint)
@@ -42,6 +42,8 @@ See the [PyTorch guide](docs/pytorch.md) for GPU setup, command-line experiments
 - [License](#license)
 
 ## Screenshot
+
+This screenshot predates the PyTorch backend and the Models panel described below.
 
 <img width="1896" height="1283" alt="Screenshot 2026-10-19 at 12 03 47" src="https://github.com/user-attachments/assets/df17f4be-9d47-4991-873b-192fbb95d0c7" />
 
@@ -58,7 +60,7 @@ docker compose logs -f studio
 docker compose down
 ```
 
-Checkpoints are stored at `/app/data/models/checkpoint.pt` in the Compose `checkpoints` volume, mounted at `/app/data/models`. The volume survives `docker compose down`; `docker compose down -v` deletes it. Host checkpoints are not imported automatically. Included corpora and reference evaluation datasets are available under `/app/data/inputs` and `/app/data/references`.
+Checkpoints are stored at `/app/data/models/seed_default.pt` in the Compose `checkpoints` volume, mounted at `/app/data/models`. The volume survives `docker compose down`; `docker compose down -v` deletes it. Host checkpoints are not imported automatically. Included corpora and reference evaluation datasets are available under `/app/data/inputs` and `/app/data/references`.
 
 Without Compose:
 
@@ -72,6 +74,7 @@ docker run --rm --init -p 127.0.0.1:3001:3001 -v seed-checkpoints:/app/data/mode
 Use Node **24** (`nvm use` reads `.nvmrc`) and Python **3.11+** (Python 3.12 recommended on macOS).
 
 ```sh
+nvm use
 npm ci
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -e ./python
@@ -118,19 +121,36 @@ See the [corpus examples guide](data/README.md) for corpus descriptions, suggest
 
 1. Paste or import a UTF-8 `.txt` file: at least 64 Unicode code points, up to 10 MB. The sample is a format example, not enough data for a capable assistant.
 2. Choose embedding width, layers, attention heads, context length, batch size, steps, and peak learning rate. Width must be divisible by the number of heads.
-3. Start a new model. All weights are initialized randomly. Batched next-token training uses AdamW, gradient clipping, learning-rate warmup, and cosine decay.
+3. Click **Start training** when no model is loaded, **Train with new weights** to reset a model, or **Continue existing model** to retain its learned weights. Fresh models start with randomly initialized weights. Batched next-token training uses AdamW, gradient clipping, learning-rate warmup, and cosine decay.
 4. Compare training and validation loss. The last 10% of encoded tokens are withheld from training. Validation evaluates up to three fixed windows at the first update, every 100 updates, and the last update. The dashed line shows the most recent validation measurement. Increasing validation loss while training loss drops can indicate overfitting.
 5. Test prompts and questions you did not train on. Low loss is not evidence of factual accuracy, reasoning, or reliable instruction following.
 
-Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters. Supported model limits are width up to 512 and context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 13 million parameters, not a large production LLM. Larger settings cost substantially more CPU time.
+Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters. Supported model limits are width up to 512 and context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 13 million parameters, not a large production LLM. Larger settings require more memory and training time.
 
 Choose the training device in the Training panel. See the [PyTorch guide](docs/pytorch.md) for GPU setup. Earlier TypeScript CPU benchmarks are retained in [training performance](docs/training-performance.md).
 
 The split is contiguous and does not deduplicate repeated examples. Repeated or near-identical examples in both partitions can make validation too optimistic. Keep a separate set of genuinely unseen questions for evaluating usefulness. The last partition should be representative of the task you want to measure.
 
-**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It saves every 100 global updates, at completion, and when stopped. Click **Save checkpoint** to save immediately to the currently selected `.pt` file (initially `data/models/checkpoint.pt`). This checkpoint is a model snapshot, not a database of your training text.
+**Train with new weights** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It saves every 100 global updates, at completion, and when stopped. Automatic saves use the currently selected `.pt` file (initially `data/models/seed_default.pt`). This checkpoint is a model snapshot, not a database of your training text.
 
 **Continue existing model** trains further without resetting the learned weights. It retains the loaded architecture, context limit, and optimizer state, and accepts a new corpus. The selected batch size and training length apply to the new session. A resumed session restarts its learning-rate schedule. Architecture controls only affect new models.
+
+Loading a model prefills Training settings with its architecture and saved session
+settings. Refreshing the page restores those settings for the active model; regular
+status polling preserves subsequent manual edits. The session step setting means
+additional updates, not the model's lifetime update count.
+
+Architecture, parameter count, vocabulary, and lifetime training steps describe the
+active model during training. When idle settings differ from that model, the Training
+page labels the architecture, parameter estimate, and vocabulary as **Selected**;
+lifetime updates remain labeled **Current model steps**. Batch size changes the work
+per update, not the number of parameters. Width 512, four layers, eight heads, and
+context 256 give 13,006,082 parameters.
+
+The loss chart fills its card's available width and resizes with the window. The
+status badge shows green **Model ready** text when idle with a model loaded and
+pulsing yellow **Training in progress** text while training. Only the text pulses;
+reduced-motion preferences disable the animation.
 
 There is no pretrained English knowledge. For domain-specific chat, supply many accurate, varied question/answer examples. For broader language ability, a much larger corpus and accelerator-backed training infrastructure would be required. PyTorch runs model operations in a separate process so training does not block HTTP status requests. Model updates, generation, and New life actions are serialized in the worker; a queued generation or learning operation can delay the next update or stop acknowledgment. Distributed training is not implemented.
 
@@ -152,8 +172,8 @@ progress refreshes on one line; redirected output remains JSON lines. Ctrl+C sav
 and exits. `--resume` restores weights and optimizer state and runs additional
 updates with a new learning-rate schedule. Keep corpus files separately.
 
-CLI `.pt` checkpoints load directly in the studio: select the filename in Checkpoints
-and click **Load checkpoint**. Save/delete then apply to that selected file. Avoid
+CLI `.pt` checkpoints load directly in the studio: select the filename in **Models**
+and click **Load model**. Further training saves to that selected file. Avoid
 training from CLI and the studio against the same checkpoint path at the same time.
 
 See the [PyTorch guide](docs/pytorch.md) for complete commands and checkpoint
@@ -268,7 +288,7 @@ New Life offers 38K, 496K, 2.6M, and 13M parameter presets, each with its own le
 Weights, optimizer state, and replay lessons are saved atomically after each learning
 action to `data/models/new-life-checkpoint-38K.pt`, `data/models/new-life-checkpoint-496K.pt`,
 `data/models/new-life-checkpoint-2.6M.pt`, or `data/models/new-life-checkpoint-13M.pt`, independently
-of the studio's `data/models/checkpoint.pt`. Existing Transformer New life JSON/V8
+of the studio's `data/models/seed_default.pt`. Existing Transformer New life JSON/V8
 checkpoints are converted to `.pt` when their preset is first loaded, preserving
 lessons, weights, and optimizer moments. Legacy files are retained. An existing `.pt`
 checkpoint takes precedence. Saved learning reloads automatically
@@ -277,24 +297,30 @@ Conversation display is kept only for the current browser session; saved lessons
 include your messages and taught answers. Replies use the current message as context.
 This experimental mode can memorize lessons and can still forget earlier skills.
 
-## Checkpoints and storage
+## Models and storage
 
 The app saves every 100 global training updates, at completion, when stopped, and
-on graceful server shutdown. The default is `data/models/checkpoint.pt`; select
-another `.pt` file in Checkpoints and click **Load checkpoint** to switch the active
+on graceful server shutdown. The default is `data/models/seed_default.pt`; select
+another `.pt` file in **Models** and click **Load model** to switch the active
 model and save destination. `SEED_CHECKPOINT` changes the startup destination.
 
-**Save checkpoint** saves immediately. **Delete checkpoint** requires confirmation
-and removes the selected file while retaining the in-memory model. Active training
-can create the file again at its next save. Files are replaced atomically.
+Click **Create new model**, enter a name, and click **Create** to create and select
+a fresh, untrained model using the selected training settings. Current weights, optimizer
+state, update count, and loss history are not reused. Existing files are never overwritten
+by creation; further training saves to the new checkpoint.
+
+The Models panel has **Load model** and **Create new model** buttons. Manual Save
+and Delete buttons are not shown; training progress saves automatically. The save
+and delete API endpoints remain available. Checkpoint files are replaced atomically.
 
 Checkpoints contain model configuration, weights, AdamW state, global step, and
 studio loss history/settings when saved by the API. They do not contain the corpus,
-chat display, or drafts. After a restart, choose a file and click **Load checkpoint**.
+chat display, or drafts. After a restart, choose a file and click **Load model**.
 
-If the default `.pt` file does not exist, Load converts the corresponding legacy
-`checkpoint.json` (JSON or V8 binary) without modifying the source. Float64 values
-are converted to Float32 for GPU execution. Legacy RNN checkpoints are supported
+If `seed_default.pt` is missing, loading the default first copies an existing
+`checkpoint.pt`, retaining the original. Otherwise it imports `seed_default.json`
+when present, or the original `checkpoint.json` (JSON or V8 binary), without modifying
+the source. Float64 values are converted to Float32 for GPU execution. Legacy RNN checkpoints are supported
 only by the retained TypeScript reference engine and cannot load into PyTorch.
 
 ## Source layout
@@ -311,8 +337,8 @@ only by the retained TypeScript reference engine and cannot load into PyTorch.
 - `python/seed_torch/model.py`: PyTorch Transformer and optimizer.
 - `server/studio.ts`: retained TypeScript reference studio for legacy scripts/tests.
 - `server/chat.ts`: conversation formatting and response extraction.
-- `server/new-life.ts`: independent chat learning, lesson replay, and New life checkpoint storage.
-- `server/model.ts`: decoder-only Transformer and version 2 checkpoints.
+- `server/new-life.ts`: retained TypeScript reference for chat learning and legacy New life tests.
+- `server/model.ts`: retained Float64 Transformer reference and version 2 checkpoint conversion.
 - `server/tensor.ts`: matrix operations, causal attention, normalization, GELU, and backward derivatives.
 - `server/numerics.ts`, `server/accelerated-attention.ts`, and `native/accelerate.cc`: optional native CPU matrix acceleration and attention.
 - `server/legacy-model.ts`: original RNN, retained for version 1 checkpoints.
@@ -334,9 +360,11 @@ JSON requests and responses. Errors return `{ "error": "..." }`. No Origin heade
 | POST   | `/api/generate`          | Generate a text continuation                                    |
 | POST   | `/api/chat`              | Generate an assistant reply from recent turns                   |
 | GET    | `/api/new-life/status`   | Restore saved New life learning and return lesson/update counts |
+| POST   | `/api/new-life/settings` | Select a New Life preset and return its saved status            |
 | POST   | `/api/new-life/message`  | Learn from a message, save, and generate a reply                |
 | POST   | `/api/new-life/teach`    | Learn a preferred answer and save                               |
 | POST   | `/api/checkpoint/save`   | Save weights, optimizer, and chart history                      |
+| POST   | `/api/checkpoint/create` | Create and select a fresh model; return HTTP 201                |
 | POST   | `/api/checkpoint/load`   | Load the saved model                                            |
 | POST   | `/api/checkpoint/delete` | Delete the saved checkpoint while retaining the loaded model    |
 
@@ -345,6 +373,21 @@ curl http://127.0.0.1:3001/api/train \
   -H 'Content-Type: application/json' \
   -d '{"text":"The sun rises in the morning. The moon is visible at night. Plants need light and water.\n","hiddenSize":64,"layers":2,"heads":4,"sequenceLength":64,"batchSize":2,"steps":1000,"learningRate":0.001,"resume":false}'
 ```
+
+Create a named, untrained model without a corpus:
+
+```sh
+curl http://127.0.0.1:3001/api/checkpoint/create \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"my-experiment","device":"auto","settings":{"hiddenSize":256,"layers":4,"heads":8,"sequenceLength":256,"batchSize":8,"steps":30000,"learningRate":0.0003}}'
+```
+
+Creation returns HTTP 201 and the updated status. The `.pt` extension is appended
+when omitted. Names use letters, numbers, dots, hyphens, or underscores, start with a
+letter or number, and contain at most 100 characters before the extension. Names
+beginning with `new-life-` are reserved. Duplicate names and creation during training
+are rejected. New models always start with fresh weights, optimizer state, zero
+updates, and empty loss history. Existing model files are preserved.
 
 Training returns HTTP 202; poll `/api/status`. A second training job is rejected while one is running. Add `"device":"mps"`, `"cuda"`, `"cpu"`, or `"auto"` to a new training request. Status includes the active backend/device and available checkpoint filenames. POST `/api/checkpoint/load` with `{ "fileName": "color-reasoning-torch.pt" }` loads a CLI checkpoint from the model directory.
 
@@ -366,7 +409,7 @@ concurrent New life operations are rejected while it is busy.
 
 ```sh
 source .venv/bin/activate
-seed-torch evaluate --device mps --checkpoint data/models/checkpoint.pt \
+seed-torch evaluate --device mps --checkpoint data/models/seed_default.pt \
   --evaluation data/references/color_reasoning_01_reference.json \
   --output data/reports/color-reasoning.json
 ```
@@ -393,7 +436,7 @@ Prettier uses two-space indentation, single quotes, semicolons, trailing commas,
 
 ## Contributing
 
-Contributions are welcome. Open an issue to discuss a bug or idea, or submit a pull request with a focused change and a description of how you tested it. Run `npm test`, `npm run build`, and `npm run format:check` before submitting code changes.
+Contributions are welcome. Open an issue to discuss a bug or idea, or submit a pull request with a focused change and a description of how you tested it. Run `npm test`, the Python suite, `npm run build`, and `npm run format:check` before submitting code changes. See the [PyTorch guide](docs/pytorch.md#validation) for Python formatting and lint checks.
 
 ## License
 

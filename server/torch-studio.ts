@@ -1,6 +1,16 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { access, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import {
+  access,
+  copyFile,
+  link,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  stat,
+  writeFile,
+} from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -54,7 +64,7 @@ export class TorchStudio {
   private loadedLives = new Set<NewLifeSize>();
 
   constructor(
-    checkpointPath = path.join(root, 'data/models/checkpoint.pt'),
+    checkpointPath = path.join(root, 'data/models/seed_default.pt'),
     options: { python?: string; device?: string } = {},
   ) {
     this.checkpointPath = path.resolve(checkpointPath);
@@ -240,6 +250,47 @@ export class TorchStudio {
       await this.request('save');
     });
   }
+  async createCheckpoint(body: JsonObject): Promise<StudioStatus> {
+    return this.mutate(async () => {
+      if (typeof body.name !== 'string' || !body.name.trim())
+        throw new Error('Enter a checkpoint name');
+      const name = body.name.trim();
+      const fileName = name.endsWith('.pt') ? name : `${name}.pt`;
+      if (
+        !/^[A-Za-z0-9][\w.-]*\.pt$/.test(fileName) ||
+        fileName.length > 103 ||
+        fileName.startsWith('new-life-')
+      ) {
+        throw new Error(
+          'Use up to 100 letters, numbers, dots, hyphens or underscores for the checkpoint name',
+        );
+      }
+      if (
+        typeof body.settings !== 'object' ||
+        body.settings === null ||
+        Array.isArray(body.settings)
+      )
+        throw new Error('Supply training settings');
+      const {
+        text: _text,
+        resume: _resume,
+        ...settings
+      } = parseTrainingRequest({ ...(body.settings as JsonObject), text: ' '.repeat(64) });
+      if (
+        body.device !== undefined &&
+        !['auto', 'cpu', 'mps', 'cuda'].includes(String(body.device))
+      )
+        throw new Error('Invalid training device');
+      const target = path.join(path.dirname(this.checkpointPath), fileName);
+      await this.request('create', {
+        path: target,
+        settings,
+        ...(body.device ? { device: body.device } : {}),
+      });
+      this.checkpointPath = target;
+      return this.getStatus();
+    });
+  }
   async deleteCheckpoint(): Promise<void> {
     return this.mutate(async () => {
       await this.request('delete', { path: this.checkpointPath });
@@ -276,7 +327,28 @@ export class TorchStudio {
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || body.fileName !== undefined)
           throw error;
-        const legacy = target.replace(/\.pt$/, '.json');
+        const previousDefault = path.join(path.dirname(target), 'checkpoint.pt');
+        if (path.basename(target) === 'seed_default.pt' && existsSync(previousDefault)) {
+          const temporary = `${target}.${crypto.randomUUID()}.tmp`;
+          try {
+            await copyFile(previousDefault, temporary);
+            try {
+              await link(temporary, target);
+            } catch (copyError) {
+              if ((copyError as NodeJS.ErrnoException).code !== 'EEXIST') throw copyError;
+            }
+          } finally {
+            await rm(temporary, { force: true });
+          }
+          await this.request('load', { path: target });
+          this.checkpointPath = target;
+          return this.getStatus();
+        }
+        const legacy =
+          path.basename(target) === 'seed_default.pt' &&
+          !existsSync(target.replace(/\.pt$/, '.json'))
+            ? path.join(path.dirname(target), 'checkpoint.json')
+            : target.replace(/\.pt$/, '.json');
         await this.withInterchange(legacy, (file) =>
           this.request('load', { path: target, interchange: file }),
         );

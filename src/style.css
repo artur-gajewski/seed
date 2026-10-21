@@ -259,7 +259,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 35px 0 29px;
+  margin: 11px 0 29px;
   gap: 16px;
 }
 .eyebrow {
@@ -294,6 +294,27 @@ h1 {
 }
 .state-badge.training {
   background: var(--success-background);
+  color: #fde047;
+}
+.state-badge.training > span {
+  animation: training-throb 1.8s ease-in-out infinite;
+}
+@keyframes training-throb {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .state-badge.training > span {
+    animation: none;
+  }
+}
+.state-badge.ready {
+  color: #86efac;
 }
 .stats {
   display: grid;
@@ -487,6 +508,7 @@ i {
 .config input,
 .config select,
 .checkpoint select,
+.checkpoint input,
 .generation-settings input {
   display: block;
   width: 100%;
@@ -606,6 +628,13 @@ i {
 .checkpoint-actions > button:first-child {
   flex: 1;
 }
+.create-checkpoint-button {
+  width: 100%;
+  margin-top: 8px;
+}
+.card.checkpoint {
+  margin-bottom: 24px;
+}
 .checkpoint-actions > .danger-button {
   width: 100%;
 }
@@ -717,31 +746,6 @@ i {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-}
-.honest-note {
-  padding: 0 7px;
-}
-.honest-note > span {
-  font-size: 0.9375rem;
-  letter-spacing: 1.2px;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.honest-note p {
-  font-size: 0.9375rem;
-  color: var(--text-muted);
-  line-height: 1.9;
-  margin: 10px 0 15px;
-}
-.honest-note button {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  background: none;
-  border: 0;
-  padding: 0;
-  font-size: 0.9375rem;
-  color: var(--accent);
 }
 .loss-key {
   font-size: 0.9375rem;
@@ -1037,9 +1041,6 @@ footer i {
   .config {
     grid-row: span 2;
   }
-  .honest-note {
-    grid-column: 2;
-  }
   .page-heading {
     display: block;
   }
@@ -1069,9 +1070,6 @@ footer i {
   }
   h1 {
     font-size: 1.875rem;
-  }
-  .chart {
-    height: auto;
   }
 }
 @media (max-width: 480px) {
@@ -1114,9 +1112,6 @@ footer i {
   }
   .secondary {
     display: flex;
-  }
-  .honest-note {
-    padding: 5px;
   }
   .stats {
     padding: 17px 0;

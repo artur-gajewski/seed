@@ -32,13 +32,16 @@ export function StudioHeader({ tab, status }: StudioHeaderProps) {
                 : 'Enter a prompt to generate a continuation.'}
             </p>
           </div>
-          <div className={`state-badge ${status.running ? 'training' : ''}`}>
-            <span className={`dot ${status.running ? 'active pulse' : ''}`} />
-            {status.running
-              ? 'Training in progress'
-              : status.model
-                ? 'Model ready'
-                : 'No model loaded'}
+          <div
+            className={`state-badge ${status.running ? 'training' : status.model ? 'ready' : ''}`}
+          >
+            <span>
+              {status.running
+                ? 'Training in progress'
+                : status.model
+                  ? 'Model ready'
+                  : 'No model loaded'}
+            </span>
           </div>
         </div>
       )}

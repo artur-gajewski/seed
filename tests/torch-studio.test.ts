@@ -249,3 +249,107 @@ test('graceful worker shutdown saves a running training job', async () => {
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('creating a checkpoint starts fresh with selected settings, preserves the previous file, and rejects duplicates', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-torch-create-'));
+  const studio = new TorchStudio(path.join(directory, 'checkpoint.pt'), { device: 'cpu' });
+  const restored = new TorchStudio(path.join(directory, 'second.pt'), { device: 'cpu' });
+  const settings = {
+    hiddenSize: 16,
+    layers: 1,
+    heads: 2,
+    sequenceLength: 16,
+    batchSize: 2,
+    steps: 2,
+    learningRate: 0.001,
+  };
+  try {
+    const created = await studio.createCheckpoint({ name: 'first', settings, device: 'cpu' });
+    assert.equal(created.checkpointFileName, 'first.pt');
+    assert.equal(created.model!.checkpointFileName, 'first.pt');
+    assert.equal(created.model!.steps, 0);
+    assert.equal(created.model!.hiddenSize, 16);
+    assert.ok(created.checkpoints!.includes('first.pt'));
+    await studio.startTraining({ ...settings, text, resume: true });
+    await finished(studio);
+    const original = await readFile(path.join(directory, 'first.pt'));
+    const copy = await studio.createCheckpoint({
+      name: 'second.pt',
+      settings: { ...settings, hiddenSize: 32, heads: 4 },
+    });
+    assert.equal(copy.checkpointFileName, 'second.pt');
+    assert.equal(copy.model!.steps, 0);
+    assert.equal(copy.model!.hiddenSize, 32);
+    assert.equal(copy.model!.heads, 4);
+    assert.notEqual(copy.model!.parameters, created.model!.parameters);
+    assert.deepEqual(copy.history, []);
+    assert.equal(copy.job, null);
+    const savedCopy = await readFile(path.join(directory, 'second.pt'));
+    await assert.rejects(studio.createCheckpoint({ name: 'second', settings }), /already exists/);
+    assert.deepEqual(await readFile(path.join(directory, 'second.pt')), savedCopy);
+    for (const name of ['../escape', 'new-life-checkpoint-38K', '', '/tmp/escape']) {
+      await assert.rejects(studio.createCheckpoint({ name, settings }));
+    }
+    assert.equal((await studio.getStatus()).checkpointFileName, 'second.pt');
+    await studio.startTraining({ ...settings, text, resume: true, steps: 1 });
+    assert.equal((await finished(studio)).model!.steps, 1);
+    assert.deepEqual(await readFile(path.join(directory, 'first.pt')), original);
+    assert.equal((await restored.loadCheckpoint()).model!.steps, 1);
+    await studio.startTraining({ ...settings, text, resume: true, steps: 20000 });
+    await assert.rejects(
+      studio.createCheckpoint({ name: 'while-training', settings }),
+      /Stop training/,
+    );
+    await studio.stopTraining();
+  } finally {
+    await Promise.all([studio.close(), restored.close()]);
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('the renamed default model still imports the original checkpoint.json', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-default-name-'));
+  const studio = new TorchStudio(path.join(directory, 'seed_default.pt'), { device: 'cpu' });
+  try {
+    const model = new LanguageModel('', 16, 42, { layers: 1, heads: 2, contextSize: 16 });
+    await writeFile(
+      path.join(directory, 'checkpoint.json'),
+      encodeCheckpoint({ model: model.serialize() }),
+    );
+    const loaded = await studio.loadCheckpoint();
+    assert.equal(loaded.checkpointFileName, 'seed_default.pt');
+    assert.equal(loaded.model!.checkpointFileName, 'seed_default.pt');
+    assert.ok((await readFile(path.join(directory, 'seed_default.pt'))).length > 0);
+  } finally {
+    await studio.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('the renamed default prefers existing checkpoint.pt and preserves its contents', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-default-native-'));
+  const old = new TorchStudio(path.join(directory, 'checkpoint.pt'), { device: 'cpu' });
+  const studio = new TorchStudio(path.join(directory, 'seed_default.pt'), { device: 'cpu' });
+  try {
+    await old.startTraining({
+      text,
+      hiddenSize: 16,
+      layers: 1,
+      heads: 2,
+      sequenceLength: 16,
+      steps: 1,
+    });
+    await finished(old);
+    await old.close();
+    const original = await readFile(path.join(directory, 'checkpoint.pt'));
+    await writeFile(path.join(directory, 'checkpoint.json'), 'obsolete legacy file');
+    const loaded = await studio.loadCheckpoint();
+    assert.equal(loaded.model!.steps, 1);
+    assert.equal(loaded.checkpointFileName, 'seed_default.pt');
+    assert.deepEqual(await readFile(path.join(directory, 'checkpoint.pt')), original);
+    assert.deepEqual(await readFile(path.join(directory, 'seed_default.pt')), original);
+  } finally {
+    await Promise.all([old.close(), studio.close()]);
+    await rm(directory, { recursive: true, force: true });
+  }
+});

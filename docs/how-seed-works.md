@@ -11,8 +11,9 @@ facts, and patterns of explanation. The objective does not explicitly demand tru
 understanding, however. A plausible continuation can still be false, inconsistent, or unrelated
 to what the user intended.
 
-Seed makes this process small enough to inspect. Its model engine is implemented directly in
-TypeScript, including the Transformer, gradient calculations, and optimizer. New models start
+Seed makes this process small enough to inspect. Its studio and API use a Python/PyTorch
+Transformer with automatic differentiation and AdamW, accelerated by MPS, CUDA, or CPU.
+A Float64 TypeScript implementation remains available as a numerical reference. New models start
 without pretrained language knowledge. The **Training** section teaches a model from a corpus;
 **New Life** teaches a separate model through short messages and supplied answers. Neither
 section calls an external language-model service to provide its generated responses.
@@ -66,9 +67,11 @@ Finally, an output projection produces one score, or **logit**, for each vocabul
 Softmax converts scores into probabilities. The result is a distribution over possible next
 tokens, rather than a retrieved sentence or a direct lookup of a stored answer.
 
-Seed implements a decoder-only Transformer in [server/model.ts](../server/model.ts). The
-underlying attention, matrix operations, and derivatives live in
-[server/tensor.ts](../server/tensor.ts).
+Seed implements its PyTorch decoder-only Transformer in
+[python/seed_torch/model.py](../python/seed_torch/model.py). Its causal attention and
+gradients use PyTorch operations. The original manual implementation remains in
+[server/model.ts](../server/model.ts) and [server/tensor.ts](../server/tensor.ts) for
+legacy experiments and numerical parity tests.
 
 ## Learning means changing weights
 
@@ -118,7 +121,7 @@ with roughly 3.36 million parameters. It shares important mechanisms with LLMs w
 far smaller than models normally described as large. Increasing its size raises capacity and
 computational cost; it does not supply missing knowledge or better examples.
 
-The training engine in [server/studio.ts](../server/studio.ts) encodes the corpus and reserves
+The training worker in [python/seed_torch/worker.py](../python/seed_torch/worker.py) encodes the corpus and reserves
 its final 10% of tokens for validation. Training samples windows from the remaining portion
 and predicts the token following each input token. Its learning rate warms up, then follows
 a cosine decay toward a lower rate. The default run uses batches of eight for 30,000 updates
@@ -146,7 +149,12 @@ Starting a new model resets learned weights. Continuing an existing model retain
 the optimizer state, then trains on the supplied corpus with a restarted learning-rate
 schedule. Studio checkpoints preserve model configuration, weights, optimizer state, update
 count, and chart history. They do not include the source corpus, which must be kept separately.
-The studio saves automatically every 100 total updates and also offers an explicit save.
+The studio saves automatically every 100 total updates, on completion, on stop, and
+during graceful shutdown. The **Models** panel loads saved `.pt` models and creates
+named models from scratch. **Create new model** always starts with new weights, a
+new optimizer, zero updates, and empty loss history, even if another model is loaded.
+The default filename is `data/models/seed_default.pt`. **Load model** restores the
+saved architecture and session settings into the Training controls.
 
 ## Generation uses learned probabilities
 
@@ -170,7 +178,7 @@ interaction.
 
 New Life uses its own model and saved lessons, independently of the Training model. Each
 parameter preset has its own learning. Its implementation in
-[server/new-life.ts](../server/new-life.ts) uses the same Transformer and optimizer, but
+[python/seed_torch/worker.py](../python/seed_torch/worker.py) uses the same PyTorch Transformer and optimizer, but
 organizes data around short lessons instead of a large imported corpus.
 
 An ordinary message becomes a lesson containing `User: <message>`. Seed performs 12 training

@@ -75,7 +75,7 @@ def export_interchange(path, model, optimizer):
         json.dump(payload, file)
 
 
-def save(path, model, optimizer, session):
+def save(path, model, optimizer, session, *, exclusive=False):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + "." + uuid.uuid4().hex + ".tmp")
@@ -93,7 +93,10 @@ def save(path, model, optimizer, session):
             },
             temporary,
         )
-        os.replace(temporary, path)
+        if exclusive:
+            os.link(temporary, path)
+        else:
+            os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
 

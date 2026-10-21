@@ -84,9 +84,9 @@ export function TrainingControls({
             </dd>
           </dl>
           <p>
-            Train a new model applies all settings and starts with random weights. Continue existing
-            model keeps its architecture and context limit, while using the selected batch size,
-            steps, and learning rate.
+            Train with new weights applies all settings and starts with random weights. Continue
+            existing model keeps its architecture and context limit, while using the selected batch
+            size, steps, and learning rate.
           </p>
         </div>
         <form method="dialog" className="confirmation-actions">
@@ -128,14 +128,13 @@ export function TrainingControls({
             value={settings.hiddenSize}
             onChange={(e) => onSettingChange('hiddenSize', e.target.value)}
           >
-            <option value="16">16</option>
-            <option value="32">32</option>
-            <option value="48">48</option>
-            <option value="64">64</option>
-            <option value="128">128</option>
-            <option value="256">256</option>
-            <option value="384">384</option>
-            <option value="512">512</option>
+            {[...new Set([16, 32, 48, 64, 128, 256, 384, 512, settings.hiddenSize])]
+              .sort((a, b) => a - b)
+              .map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
           </select>
         </label>
         <div className="field-pair">
@@ -158,11 +157,13 @@ export function TrainingControls({
               value={settings.heads}
               onChange={(event) => onSettingChange('heads', event.target.value)}
             >
-              {[1, 2, 4, 8].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
+              {[...new Set([1, 2, 4, 8, settings.heads])]
+                .sort((a, b) => a - b)
+                .map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
             </select>
           </label>
         </div>
@@ -172,11 +173,13 @@ export function TrainingControls({
             value={settings.batchSize}
             onChange={(event) => onSettingChange('batchSize', event.target.value)}
           >
-            {[1, 2, 4, 8].map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
+            {[...new Set([1, 2, 4, 8, settings.batchSize])]
+              .sort((a, b) => a - b)
+              .map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
           </select>
         </label>
         <div className="field-pair">
@@ -208,11 +211,13 @@ export function TrainingControls({
             value={settings.sequenceLength}
             onChange={(e) => onSettingChange('sequenceLength', e.target.value)}
           >
-            {[16, 32, 48, 64, 128, 256].map((n) => (
-              <option key={n} value={n}>
-                {n} tokens
-              </option>
-            ))}
+            {[...new Set([16, 32, 48, 64, 128, 256, settings.sequenceLength])]
+              .sort((a, b) => a - b)
+              .map((n) => (
+                <option key={n} value={n}>
+                  {n} tokens
+                </option>
+              ))}
           </select>
         </label>
       </fieldset>
@@ -253,7 +258,7 @@ export function TrainingControls({
           onClick={() => onTrain(false)}
         >
           <Icon name="play" />
-          {status.model ? 'Train a new model' : 'Start training'}
+          {status.model ? 'Train with new weights' : 'Start training'}
           <Icon name="arrow" />
         </button>
       )}

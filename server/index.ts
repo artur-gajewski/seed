@@ -19,7 +19,7 @@ const buildDirectory = path.join(projectDirectory, 'dist');
 const developmentOrigins =
   process.env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : [];
 export const studio = new TorchStudio(
-  process.env.SEED_CHECKPOINT || path.join(projectDirectory, 'data/models/checkpoint.pt'),
+  process.env.SEED_CHECKPOINT || path.join(projectDirectory, 'data/models/seed_default.pt'),
 );
 
 async function handleApiRequest(
@@ -92,6 +92,9 @@ async function handleApiRequest(
 
     case '/api/checkpoint/load':
       sendJson(response, 200, await studio.loadCheckpoint(body));
+      return;
+    case '/api/checkpoint/create':
+      sendJson(response, 201, await studio.createCheckpoint(body));
       return;
 
     default:

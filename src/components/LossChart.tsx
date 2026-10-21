@@ -1,6 +1,21 @@
+import { useEffect, useRef, useState } from 'react';
 import type { LossPoint } from '../../shared/api.ts';
 
 export function LossChart({ points }: { points: LossPoint[] }) {
+  const chart = useRef<SVGSVGElement>(null);
+  const [width, setWidth] = useState(690);
+  const hasPoints = points.length > 0;
+
+  useEffect(() => {
+    const element = chart.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) setWidth(entry.contentRect.width);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasPoints]);
+
   if (!points.length) {
     return (
       <div className="chart-empty">
@@ -16,7 +31,8 @@ export function LossChart({ points }: { points: LossPoint[] }) {
   const low = Math.max(0, Math.min(...values) - 0.2);
   const high = Math.max(...values) + 0.2;
 
-  const x = (i: number) => 44 + (i / Math.max(1, points.length - 1)) * 620;
+  const right = Math.max(45, width - 26);
+  const x = (i: number) => 44 + (i / Math.max(1, points.length - 1)) * (right - 44);
 
   const y = (v: number) => 145 - ((v - low) / (high - low)) * 125;
   const line = points.map((p, i) => `${x(i)},${y(p.loss)}`).join(' ');
@@ -27,8 +43,9 @@ export function LossChart({ points }: { points: LossPoint[] }) {
     .join(' ');
   return (
     <svg
+      ref={chart}
       className="chart"
-      viewBox="0 0 690 180"
+      viewBox={`0 0 ${width} 180`}
       role="img"
       aria-label={`Training loss, from ${points[0].loss.toFixed(3)} to ${points.at(-1)!.loss.toFixed(3)}`}
     >
@@ -42,7 +59,7 @@ export function LossChart({ points }: { points: LossPoint[] }) {
         <g key={i}>
           <line
             x1="44"
-            x2="664"
+            x2={right}
             y1={20 + i * 42}
             y2={20 + i * 42}
             stroke="var(--chart-grid)"
@@ -73,7 +90,7 @@ export function LossChart({ points }: { points: LossPoint[] }) {
       <text x="44" y="172" fill="var(--chart-label)" fontSize="13">
         Step {points[0].step}
       </text>
-      <text x="664" y="172" textAnchor="end" fill="var(--chart-label)" fontSize="13">
+      <text x={right} y="172" textAnchor="end" fill="var(--chart-label)" fontSize="13">
         Step {points.at(-1)!.step}
       </text>
     </svg>

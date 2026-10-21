@@ -118,6 +118,22 @@ test('API validates, trains, generates, stops, and resumes a model', async () =>
     assert.equal(chatResponse.data.modelStep, 1);
     assert.ok(chatResponse.data.tokens >= 1 && chatResponse.data.tokens <= 40);
     assert.equal((await request('chat', { messages: [] })).status, 400);
+    const created = await request('checkpoint/create', {
+      name: 'created-from-api',
+      settings: {
+        hiddenSize: 16,
+        layers: 2,
+        heads: 4,
+        sequenceLength: 64,
+        batchSize: 2,
+        steps: 100,
+        learningRate: 0.001,
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.data.checkpointFileName, 'created-from-api.pt');
+    assert.equal(created.data.model!.steps, 0);
+    assert.ok(created.data.checkpoints!.includes('created-from-api.pt'));
   } finally {
     try {
       await request('stop', {});

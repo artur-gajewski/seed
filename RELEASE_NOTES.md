@@ -4,11 +4,40 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Contents
 
+- [Unreleased](#unreleased)
 - [2026-10-21](#2026-10-21)
 - [2026-10-20](#2026-10-20)
 - [2026-10-19](#2026-10-19)
 - [2026-10-18](#2026-10-18)
 - [2026-10-17](#2026-10-17)
+
+## Unreleased
+
+- **PyTorch backend:** Studio training, generation, Chat, and New Life now run in a
+  persistent Python worker. Automatic device selection prefers CUDA, then Apple
+  Silicon MPS, then CPU. The API retains request validation and origin checks;
+  status polling remains responsive while model operations run in the worker.
+- **GPU experiments:** Added the `seed-torch` training/evaluation CLI, single-line
+  terminal progress, CPU Float64 parity tests, and conversion between native `.pt`
+  files and the retained TypeScript engine's Transformer checkpoints. Docker now
+  includes Python and CPU PyTorch. MPS execution was validated on an M4 Max;
+  CUDA hardware validation and matched speed comparisons remain outstanding.
+- **Models panel:** Added **Select model**, **Load model**, and **Create new model**.
+  Creation asks for a name, always initializes fresh weights and optimizer state
+  from the selected settings, resets updates/history, saves without overwriting an
+  existing file, and selects the new model. Removed manual Save and Delete buttons;
+  automatic saving and the explicit API endpoints remain available.
+- **Model storage:** The default is now `data/models/seed_default.pt`. Loading it
+  can copy an existing `checkpoint.pt`, preserving the source, or import legacy
+  Transformer JSON/V8 checkpoints. CLI-trained `.pt` models load directly. New Life
+  uses separate native checkpoints per preset and preserves lessons during migration.
+- **Training controls:** Loading or reconnecting to an active model fills in its
+  architecture and saved session settings. Idle architecture edits show a labeled
+  parameter estimate; live training shows the actual model and separate lifetime
+  and session update counts. Renamed the reset action to **Train with new weights**.
+- **Studio layout:** The loss plot fills its card width. The ready badge uses green
+  text; training uses yellow text with a text-only pulse and reduced-motion support.
+  Removed the Model limits panel and adjusted heading/panel spacing.
 
 ## 2026-10-21
 

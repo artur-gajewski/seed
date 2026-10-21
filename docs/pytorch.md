@@ -13,13 +13,24 @@ which prefers CUDA, then MPS). `SEED_CPU_THREADS` defaults to four.
 
 The Training panel offers available devices for new training jobs and shows the
 active backend. Continuing training keeps the model's current device. To change the
-device for an existing model, save, restart with `SEED_DEVICE`, and load the checkpoint.
+device for an existing model, stop training to save progress, restart with
+`SEED_DEVICE`, and load the model.
 
-In Checkpoints, choose `color-reasoning-torch.pt` and click **Load checkpoint** to use
-your CLI-trained model directly for generation, chat, or continued training. Save
-and delete apply to the selected file. The default file is `data/models/checkpoint.pt`;
+In **Models**, choose `color-reasoning-torch.pt` and click **Load model** to use
+your CLI-trained model directly for generation, chat, or continued training. Further
+training saves automatically to the selected file. The default file is `data/models/seed_default.pt`;
 `SEED_CHECKPOINT` overrides its startup path. Keep separate paths for concurrent CLI
 and studio runs. CLI and studio native checkpoints are compatible in both directions.
+
+When loading the default model for the first time, an existing `checkpoint.pt` is
+copied to `seed_default.pt` if the latter is missing. The original file is preserved.
+
+**Create new model** opens a name dialog. **Create** always initializes an
+untrained model from the selected settings and selects the new `.pt` file. It ignores
+the current model, resetting optimizer state, training steps, and loss history. Existing
+checkpoint files are preserved, and duplicate names are rejected.
+`POST /api/checkpoint/create` accepts `{ name, settings, device? }` and returns the
+updated studio status with HTTP 201.
 
 The API preserves its routes, request validation, and same-origin protections.
 `POST /api/train` additionally accepts `device`; `GET /api/status` includes backend,
@@ -39,6 +50,33 @@ New life uses separate `.pt` files per preset and atomically saves weights, opti
 and replay lessons after each action. Existing JSON/V8 Transformer checkpoints are
 migrated without modifying the legacy file. New life retains its correction/replay
 behavior; generated replies are not added to lessons.
+
+## Training controls and progress
+
+Loading a model fills in architecture, context window, batch size, peak learning
+rate, session length, and active device. Refreshing the page also restores controls
+for the active model. Further polling does not overwrite manual edits. Checkpoints
+without session metadata use their actual architecture with default session settings.
+
+- **Train with new weights** resets the model and optimizer using the selected settings.
+- **Continue existing model** keeps weights, optimizer state, architecture, context
+  capacity, and device. Batch size, learning rate, session length, and corpus can change;
+  the learning-rate schedule restarts.
+- **Create new model** creates an untrained named model immediately, without starting
+  training or requiring a corpus. It always ignores the current model and selects the
+  new file after a successful save. It does not overwrite existing files.
+
+When idle architecture settings differ from the active model, the Training summary
+shows the **Selected** architecture, parameter estimate, and vocabulary, with
+**Current model steps** for the loaded model's lifetime updates. During training it
+shows the active model and separate session progress. The loss chart uses the available
+card width. **Model ready** is green; **Training in progress** is yellow with a text-only
+pulse that respects reduced-motion preferences.
+
+The Models panel exposes **Select model**, **Load model**, and **Create new model**.
+It has no manual Save or Delete buttons. Training still saves every 100 global
+updates, on completion, on stop, and during graceful shutdown; the API retains its
+explicit save/delete endpoints.
 
 ## Install
 
@@ -149,7 +187,7 @@ node scripts/convert-torch-checkpoint.ts \
 
 The legacy export retains learned weights, moments, and model step; it does not
 transfer Python's session metadata or loss history. Float32 GPU training cannot
-preserve the original Float64 trajectory. Studio **Load checkpoint** automatically
+preserve the original Float64 trajectory. Studio **Load model** automatically
 converts a corresponding legacy `.json` file when the default `.pt` is absent,
 retaining the source file. Legacy RNN checkpoints are not supported by PyTorch.
 
@@ -172,6 +210,6 @@ also cover tokenization, causal masking, loss reduction, native resumed updates,
 and binary Seed checkpoint round trips. MPS tests exercise Float32 parity and
 training/save/resume when the device is available; otherwise they explicitly skip.
 Node integration tests exercise the real worker, API training/stop/generation,
-checkpoint save/load/delete, legacy migration, New life replay/persistence, failed
+model creation from scratch, duplicate-name rejection, checkpoint save/load/delete, legacy migration, New life replay/persistence, failed
 saves, status responsiveness, and startup failures. CUDA hardware validation remains
 to be performed. No GPU speedup is claimed by this port.

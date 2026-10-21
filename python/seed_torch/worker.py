@@ -101,6 +101,41 @@ class Studio:
             self.job["finishedAt"] = time.time() * 1000
             self.save()
 
+    def create(self, body):
+        if self.training is not None:
+            raise ValueError("Stop training before creating a checkpoint")
+        if Path(body["path"]).exists():
+            raise ValueError("A checkpoint with this name already exists")
+        settings = body["settings"]
+        device = device_for(body.get("device", str(self.device)), "float32")
+        model = Model(
+            {
+                "hiddenSize": settings["hiddenSize"],
+                "layers": settings["layers"],
+                "heads": settings["heads"],
+                "contextSize": settings["sequenceLength"],
+            },
+            torch.float32,
+        ).to(device)
+        optimizer = model.optimizer(settings["learningRate"])
+        checkpoint.save(
+            body["path"],
+            model,
+            optimizer,
+            {
+                "studio": True,
+                "history": [],
+                "trainingSettings": settings,
+                "corpus_sha256": None,
+                "job": None,
+            },
+            exclusive=True,
+        )
+        self.model, self.optimizer, self.settings = model, optimizer, settings
+        self.device, self.checkpoint_path = device, body["path"]
+        self.saved_step, self.error = model.step, None
+        self.history, self.job, self.corpus_sha256 = [], None, None
+
     def start(self, body, path):
         if self.training is not None:
             raise ValueError("Training is already running")
@@ -367,6 +402,8 @@ class Studio:
             self.stop()
         elif action == "save":
             self.save()
+        elif action == "create":
+            self.create(body)
         elif action == "load":
             self.load(body["path"], body.get("interchange"))
         elif action == "delete":

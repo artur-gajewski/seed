@@ -125,6 +125,7 @@ export interface ApiResponses {
   chat: ChatResponse;
   'checkpoint/save': { message: string };
   'checkpoint/load': StudioStatus;
+  'checkpoint/create': StudioStatus;
   'checkpoint/delete': { message: string };
 }
 export interface ApiRequests {
@@ -139,6 +140,11 @@ export interface ApiRequests {
   chat: ChatRequest;
   'checkpoint/save': Record<string, never>;
   'checkpoint/load': { fileName?: string };
+  'checkpoint/create': {
+    name: string;
+    settings: TrainingSettings;
+    device?: TrainRequest['device'];
+  };
   'checkpoint/delete': Record<string, never>;
 }
 export type ApiRoute = keyof ApiResponses;
