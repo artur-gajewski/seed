@@ -1,8 +1,10 @@
 import { useRef } from 'react';
-import type { StudioStatus, TrainingSettings } from '../../shared/api.ts';
+import type { StudioStatus, TrainingSettings, TrainRequest } from '../../shared/api.ts';
 import { Icon } from './Icon.tsx';
 import { formatDuration } from '../lib/formatDuration.ts';
 interface TrainingControlsProps {
+  device: NonNullable<TrainRequest['device']>;
+  onDeviceChange: (device: NonNullable<TrainRequest['device']>) => void;
   hasCorpus: boolean;
   status: StudioStatus;
   settings: TrainingSettings;
@@ -22,6 +24,8 @@ export function TrainingControls({
   onSettingChange,
   onTrain,
   onStop,
+  device,
+  onDeviceChange,
 }: TrainingControlsProps) {
   const helpDialog = useRef<HTMLDialogElement>(null);
   const progress = status.job ? (status.job.completed / status.job.total) * 100 : 0;
@@ -93,6 +97,31 @@ export function TrainingControls({
       </dialog>
       <p className="card-description">Set the model size and training parameters.</p>
       <fieldset disabled={status.running || busy}>
+        <label>
+          Training device
+          <select
+            value={device}
+            onChange={(event) =>
+              onDeviceChange(event.target.value as NonNullable<TrainRequest['device']>)
+            }
+          >
+            <option value="auto">Automatic (prefer GPU)</option>
+            {(status.backend?.devices ?? ['cpu']).map((value) => (
+              <option key={value} value={value}>
+                {value === 'mps'
+                  ? 'Apple GPU (MPS)'
+                  : value === 'cuda'
+                    ? 'NVIDIA GPU (CUDA)'
+                    : 'CPU'}
+              </option>
+            ))}
+          </select>
+          <small className="device-status">
+            {status.backend
+              ? `PyTorch · ${status.backend.device.toUpperCase()} · Float32`
+              : 'Connecting to PyTorch…'}
+          </small>
+        </label>
         <label>
           Embedding width <span>Model size</span>
           <select

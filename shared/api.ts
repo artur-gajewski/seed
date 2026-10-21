@@ -15,6 +15,7 @@ export interface TrainingSettings {
 export interface TrainRequest extends TrainingSettings {
   text: string;
   resume: boolean;
+  device?: 'auto' | 'cpu' | 'mps' | 'cuda';
 }
 export interface TrainingJob {
   completed: number;
@@ -33,6 +34,14 @@ export interface TrainingJob {
   learningRate: number;
 }
 export interface StudioStatus {
+  backend?: {
+    engine: 'pytorch';
+    device: string;
+    precision: 'float32';
+    devices: ('cpu' | 'mps' | 'cuda')[];
+  };
+  checkpointFileName?: string;
+  checkpoints?: string[];
   trainingSettings?: Partial<TrainingSettings>;
   checkpoint?: { savedAt: string; sizeBytes: number } | null;
   running: boolean;
@@ -129,7 +138,7 @@ export interface ApiRequests {
   generate: GenerateRequest;
   chat: ChatRequest;
   'checkpoint/save': Record<string, never>;
-  'checkpoint/load': Record<string, never>;
+  'checkpoint/load': { fileName?: string };
   'checkpoint/delete': Record<string, never>;
 }
 export type ApiRoute = keyof ApiResponses;

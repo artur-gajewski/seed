@@ -12,3 +12,7 @@ data/reports
 .env.*
 *.log
 .DS_Store
+.venv
+**/__pycache__
+**/*.egg-info
+.ruff_cache

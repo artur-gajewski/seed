@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { SAMPLE } from './lib/sample.ts';
-import type { GenerateRequest, StudioStatus, TrainingSettings } from '../shared/api.ts';
+import type {
+  GenerateRequest,
+  StudioStatus,
+  TrainingSettings,
+  TrainRequest,
+} from '../shared/api.ts';
 import type { GenerationResult, StudioTab } from './types.ts';
 import { api } from './lib/api.ts';
 import { Sidebar } from './components/Sidebar.tsx';
@@ -26,6 +31,7 @@ export function App() {
     error: null,
   });
   const [text, setText] = useState('');
+  const [device, setDevice] = useState<NonNullable<TrainRequest['device']>>('auto');
   const [corpusFileName, setCorpusFileName] = useState<string>();
   const [tab, setTab] = useState<StudioTab>('train');
   const [settings, setSettings] = useState<TrainingSettings>({
@@ -95,13 +101,15 @@ export function App() {
 
   const train = (resume: boolean) =>
     act(async () => {
-      setStatus(await api('train', { text, ...settings, resume }));
+      setStatus(
+        await api('train', { text, ...settings, resume, device: resume ? undefined : device }),
+      );
     });
 
-  const checkpoint = (action: 'save' | 'load' | 'delete') =>
+  const checkpoint = (action: 'save' | 'load' | 'delete', fileName?: string) =>
     act(async () => {
       if (action === 'load') {
-        const loaded = await api('checkpoint/load', {});
+        const loaded = await api('checkpoint/load', { fileName });
         setStatus(loaded);
         setSettings((current) => ({ ...current, ...loaded.trainingSettings }));
         setResult(null);
@@ -141,6 +149,7 @@ export function App() {
         tab={tab}
         connected={connected}
         architecture={status.model?.architecture}
+        device={status.backend?.device}
         onTabChange={setTab}
       />
       <main>
@@ -206,6 +215,8 @@ export function App() {
                   onSettingChange={field}
                   onTrain={train}
                   onStop={stopTraining}
+                  device={device}
+                  onDeviceChange={setDevice}
                 />
                 <CheckpointControls
                   checkpoint={status.checkpoint}
@@ -213,6 +224,8 @@ export function App() {
                   hasModel={Boolean(status.model)}
                   running={status.running}
                   onCheckpoint={checkpoint}
+                  fileName={status.checkpointFileName}
+                  files={status.checkpoints}
                 />
                 <StudioNote tab={tab} onTabChange={setTab} />
               </div>

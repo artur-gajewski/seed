@@ -9,21 +9,22 @@ The interface has four sections:
 - **Chat:** Exchange messages with the trained model using a conversation interface.
 - **New life:** Grow a separate model from scratch through your messages and taught answers, with automatically saved learning.
 
-The frontend uses **React, TypeScript, and Vite**. A **Node.js 24** backend handles the API, training, generation, and checkpoint storage. The Transformer engine—including attention, gradients, and optimization—is implemented directly in TypeScript, without machine-learning libraries or external inference APIs.
+The frontend uses **React, TypeScript, and Vite**. A **Node.js 24** backend serves the API and delegates training, generation, and checkpoint storage to a persistent **Python/PyTorch** worker. Apple Silicon uses MPS/Metal GPU acceleration; NVIDIA hosts can use CUDA; CPU execution is also supported. No external inference API is used.
 
-The Training panel’s default model has roughly **3.36 million parameters** and runs on the CPU, with optional native acceleration on macOS. It starts with random weights, so its output depends entirely on the supplied training data. This makes Seed useful for learning and small experiments; broad assistant capabilities would require much more data and computing power.
+The Training panel’s default model has roughly **3.36 million parameters** and runs on your selected PyTorch device. It starts with random weights, so its output depends entirely on the supplied training data. This makes Seed useful for learning and small experiments; broad assistant capabilities would require much more data and computing power.
 
 You can run it locally or through Docker, and save checkpoints to continue training later.
 
 See the [release notes](RELEASE_NOTES.md) for changes recorded in the Git history.
+
+See the [PyTorch guide](docs/pytorch.md) for GPU setup, command-line experiments, and checkpoint compatibility. The original TypeScript engine remains available for numerical reference tests and legacy experiment scripts.
 
 ## Table of contents
 
 - [Screenshot](#screenshot)
 - [Run with Docker](#run-with-docker)
 - [Run locally](#run-locally)
-  - [Run on a MacBook with acceleration](#run-on-a-macbook-with-acceleration)
-  - [Raspberry Pi and Linux OpenBLAS acceleration](#raspberry-pi-and-linux-openblas-acceleration)
+  - [Run on a MacBook with GPU acceleration](#run-on-a-macbook-with-gpu-acceleration)
 - [Training](#training)
 - [Train from the command line](#train-from-the-command-line)
 - [Chat and text generation](#chat-and-text-generation)
@@ -50,14 +51,14 @@ See the [release notes](RELEASE_NOTES.md) for changes recorded in the Git histor
 docker compose up --build -d
 ```
 
-Open **http://localhost:3001**. The container runs as the `node` user and serves the React build and API from one port. The image build runs tests, type checking, and the frontend build.
+Open **http://localhost:3001**. The container runs as the `node` user and serves the React build and API from one port. The image includes Python and CPU PyTorch. Its build runs Node and Python tests, type checking, and the frontend build. Docker on macOS uses CPU; run natively for MPS GPU training.
 
 ```sh
 docker compose logs -f studio
 docker compose down
 ```
 
-Checkpoints are stored at `/app/data/models/checkpoint.json` in the Compose `checkpoints` volume, mounted at `/app/data/models`. The volume survives `docker compose down`; `docker compose down -v` deletes it. Host checkpoints are not imported automatically. Included corpora and reference evaluation datasets are available under `/app/data/inputs` and `/app/data/references`.
+Checkpoints are stored at `/app/data/models/checkpoint.pt` in the Compose `checkpoints` volume, mounted at `/app/data/models`. The volume survives `docker compose down`; `docker compose down -v` deletes it. Host checkpoints are not imported automatically. Included corpora and reference evaluation datasets are available under `/app/data/inputs` and `/app/data/references`.
 
 Without Compose:
 
@@ -68,10 +69,12 @@ docker run --rm --init -p 127.0.0.1:3001:3001 -v seed-checkpoints:/app/data/mode
 
 ## Run locally
 
-Use Node **24** (`nvm use` reads `.nvmrc`).
+Use Node **24** (`nvm use` reads `.nvmrc`) and Python **3.11+** (Python 3.12 recommended on macOS).
 
 ```sh
 npm ci
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -e ./python
 npm run dev
 ```
 
@@ -88,85 +91,21 @@ npm start
 
 Open **http://127.0.0.1:3001**.
 
-### Run on a MacBook with acceleration
+### Run on a MacBook with GPU acceleration
 
-On an Apple Silicon MacBook (M-series), run Seed directly on macOS to use Apple Accelerate CPU acceleration. The Linux Docker image uses the JavaScript backend.
-
-1. Install Node **24** and Xcode Command Line Tools. If the tools are not installed, run `xcode-select --install` and finish the installation before continuing.
-2. From the repository root, install dependencies, build the native addon, and start Seed:
-
-   ```sh
-   nvm use
-   npm ci
-   npm run native:build
-   npm run dev
-   ```
-
-   If you installed Node 24 without nvm, skip `nvm use`.
-
-3. Open **http://localhost:5173**. Seed automatically detects the built addon. Confirm the terminal shows `Tensor backend: accelerate (CPU, Float64)`.
-
-Build the addon once, then use `npm run dev` for subsequent launches. Restart the server if you build the addon while Seed is running.
-
-For a production build with acceleration:
+The API automatically uses the repository's `.venv/bin/python`. Set `SEED_PYTHON`
+to use another interpreter. By default PyTorch selects CUDA, then MPS, then CPU.
+On an Apple Silicon Mac, launch natively to use its integrated GPU:
 
 ```sh
-npm run build
-npm start
+SEED_DEVICE=mps npm run dev
 ```
 
-Open **http://127.0.0.1:3001**. Production launches also detect the addon automatically. Optionally, set `SEED_TENSOR_BACKEND=accelerate` to require acceleration and fail at startup if it is unavailable.
-
-If the native build reports missing Node headers, set `NODE_INCLUDE_DIR` to the directory containing `node_api.h`:
-
-```sh
-NODE_INCLUDE_DIR=/path/to/node/include/node npm run native:build
-```
-
-Run `npm run benchmark` to measure training speed on your MacBook; its output reports the selected backend. See [training performance](docs/training-performance.md) for benchmark settings and results.
-
-### Raspberry Pi and Linux OpenBLAS acceleration
-
-On Raspberry Pi 5, use a 64-bit OS and Node.js 24. Install the native build dependencies,
-then build the optional OpenBLAS addon:
-
-```bash
-sudo apt update
-sudo apt install g++ pkg-config libopenblas-dev
-nvm use
-npm ci
-npm run native:build
-npm run build
-OPENBLAS_NUM_THREADS=4 SEED_TENSOR_BACKEND=openblas npm start
-```
-
-The build locates Node headers from the active Node installation, node-gyp's cache,
-or system include directories. If needed, set `NODE_INCLUDE_DIR` to the matching
-Node 24 `include/node` directory. `CXX` can select the C++ compiler and
-`PKG_CONFIG_PATH` can locate a custom OpenBLAS installation.
-
-Linux automatically selects OpenBLAS when `native/openblas.node` is present;
-otherwise it uses JavaScript. Setting `SEED_TENSOR_BACKEND=openblas` requires the
-addon and fails clearly if unavailable. `SEED_TENSOR_BACKEND=javascript` forces
-the portable implementation. A broken installed addon surfaces its load error.
-The addon accelerates Float64 matrix multiplication in both forward and backward
-passes; model architecture and checkpoint formats stay compatible. Other operations
-still run in JavaScript. Rebuild native addons on the target machine after copying
-source to a different platform. The default Docker image remains JavaScript-only.
-
-Compare the backends on the Pi with the same bounded workload:
-
-```bash
-BENCH_WIDTH=128 BENCH_LAYERS=2 BENCH_HEADS=4 BENCH_BATCH=4 BENCH_CONTEXT=64 SEED_TENSOR_BACKEND=javascript npm run benchmark
-OPENBLAS_NUM_THREADS=4 BENCH_WIDTH=128 BENCH_LAYERS=2 BENCH_HEADS=4 BENCH_BATCH=4 BENCH_CONTEXT=64 SEED_TENSOR_BACKEND=openblas npm run benchmark
-```
-
-Try `OPENBLAS_NUM_THREADS=1`, `2`, and `4`; more threads can add overhead for small
-matrices. For OpenMP builds, use `OMP_NUM_THREADS` instead, as described in the
-[OpenBLAS runtime documentation](https://www.openmathlib.org/OpenBLAS/docs/runtime_variables/).
-Run `SEED_TENSOR_BACKEND=openblas npm test` after building to check numerical parity,
-gradients, optimizer state, and resumed training against JavaScript. Performance gains
-on Raspberry Pi have not yet been measured.
+The startup log reports `Training backend: PyTorch (mps, Float32)`. The Training
+panel shows the selected device and lets you choose Automatic, CPU, or an available
+GPU for a new model. Continuing training keeps the loaded model's current device.
+Set `SEED_CPU_THREADS` to change the worker's CPU thread count (default four).
+Optional native BLAS addons accelerate only the retained TypeScript reference engine.
 
 ## Training
 
@@ -183,82 +122,43 @@ See the [corpus examples guide](data/README.md) for corpus descriptions, suggest
 4. Compare training and validation loss. The last 10% of encoded tokens are withheld from training. Validation evaluates up to three fixed windows at the first update, every 100 updates, and the last update. The dashed line shows the most recent validation measurement. Increasing validation loss while training loss drops can indicate overfitting.
 5. Test prompts and questions you did not train on. Low loss is not evidence of factual accuracy, reasoning, or reliable instruction following.
 
-Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters. Supported CPU limits are width up to 512 and context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 13 million parameters, not a large production LLM. Larger settings cost substantially more CPU time.
+Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters. Supported model limits are width up to 512 and context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 13 million parameters, not a large production LLM. Larger settings cost substantially more CPU time.
 
-On macOS, run `npm run native:build` and restart the server to enable optional Apple Accelerate CPU acceleration. The portable JavaScript backend remains available. See [training performance](docs/training-performance.md) for setup requirements, benchmarks, correctness checks, and GPU trade-offs.
+Choose the training device in the Training panel. See the [PyTorch guide](docs/pytorch.md) for GPU setup. Earlier TypeScript CPU benchmarks are retained in [training performance](docs/training-performance.md).
 
 The split is contiguous and does not deduplicate repeated examples. Repeated or near-identical examples in both partitions can make validation too optimistic. Keep a separate set of genuinely unseen questions for evaluating usefulness. The last partition should be representative of the task you want to measure.
 
-**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It does not immediately write a checkpoint file or overwrite the saved checkpoint. Click **Save checkpoint** to write the current model to `data/models/checkpoint.json`, replacing any previous checkpoint. This checkpoint is a model snapshot, not a database of your training text.
+**Train a new model** creates a fresh model in memory with random weights and starts training it on your text using the selected settings. It replaces the current in-memory model and resets its training step count and loss history. It saves every 100 global updates, at completion, and when stopped. Click **Save checkpoint** to save immediately to the currently selected `.pt` file (initially `data/models/checkpoint.pt`). This checkpoint is a model snapshot, not a database of your training text.
 
 **Continue existing model** trains further without resetting the learned weights. It retains the loaded architecture, context limit, and optimizer state, and accepts a new corpus. The selected batch size and training length apply to the new session. A resumed session restarts its learning-rate schedule. Architecture controls only affect new models.
 
-There is no pretrained English knowledge. For domain-specific chat, supply many accurate, varied question/answer examples. For broader language ability, a much larger corpus and accelerator-backed training infrastructure would be required. The portable engine uses one CPU thread; the optional Accelerate and OpenBLAS backends use native CPU matrix operations. None of these backends uses GPU or distributed training. Individual updates and generation calls run synchronously on the API thread, yielding only between training blocks. Large settings can delay other API requests.
+There is no pretrained English knowledge. For domain-specific chat, supply many accurate, varied question/answer examples. For broader language ability, a much larger corpus and accelerator-backed training infrastructure would be required. PyTorch runs model operations in a separate process so training does not block HTTP status requests. Model updates, generation, and New life actions are serialized in the worker; a queued generation or learning operation can delay the next update or stop acknowledgment. Distributed training is not implemented.
 
 ## Train from the command line
 
-Use Node 24 (`nvm use`) and install dependencies with `npm ci`. Run training without
-starting the frontend or API:
+The same PyTorch model and optimizer power command-line experiments and the API:
 
 ```sh
-npm run train -- --corpus data/inputs/color_reasoning_01.txt --checkpoint data/models/checkpoint.json
-```
-
-Both `--corpus` (input text) and `--checkpoint` (output model) are required. Missing
-file arguments produce an error. Every omitted training setting uses the Training panel
-default, including when resuming. All settings can also be supplied explicitly:
-
-```sh
-npm run train -- \
+source .venv/bin/activate
+seed-torch train --device mps \
   --corpus data/inputs/color_reasoning_01.txt \
-  --embedding-width 256 \
-  --layers 4 \
-  --attention-heads 8 \
-  --batch-size 8 \
-  --steps 30000 \
-  --learning-rate 0.0003 \
-  --context-window 256 \
-  --checkpoint data/models/checkpoint.json
+  --checkpoint data/models/color-reasoning-torch.pt \
+  --embedding-width 128 --layers 3 --attention-heads 4 \
+  --batch-size 8 --steps 6000 --learning-rate 0.001 --context-window 256
 ```
 
-Embedding width supports up to 512, including 384; it must be divisible by the number
-of attention heads. Context is measured in UTF-8 byte tokens. Run `npm run train -- --help`
-for all options and supported ranges. Relative paths resolve from your working directory.
+Use `--device cpu` on CPU hosts or `--device cuda` on NVIDIA hosts. Interactive
+progress refreshes on one line; redirected output remains JSON lines. Ctrl+C saves
+and exits. `--resume` restores weights and optimizer state and runs additional
+updates with a new learning-rate schedule. Keep corpus files separately.
 
-The command prints the numerical backend, effective settings, training progress, and losses.
-In an interactive terminal, progress refreshes on the same line. Redirected or piped output
-uses separate lines for readable logs.
-Progress includes estimated time remaining after every 100 updates in the current session,
-as well as every five seconds and when training stops. Estimates use the last ten update
-durations and display `calculating` until ten updates are available.
-It uses the same training engine, validation split, and learning-rate schedule as the studio.
-It replaces the selected checkpoint every 100 total model updates and saves again when
-training finishes. Ctrl+C or SIGTERM stops training and saves progress before exiting.
-An interrupted run exits with code 130; other failures exit with code 1.
+CLI `.pt` checkpoints load directly in the studio: select the filename in Checkpoints
+and click **Load checkpoint**. Save/delete then apply to that selected file. Avoid
+training from CLI and the studio against the same checkpoint path at the same time.
 
-To continue a saved model for another 5,000 updates:
-
-```sh
-npm run train -- \
-  --corpus data/inputs/color_reasoning_01.txt \
-  --checkpoint data/models/checkpoint.json \
-  --resume --steps 5000
-```
-
-Resume restores the learned weights and optimizer state. Omitted settings use the defaults
-listed above; `--steps` means additional updates. Architecture settings must match the
-checkpoint, so supply them explicitly if the saved model differs from the defaults.
-Batch size and learning rate can change. Each session restarts the
-learning-rate schedule. Keep the corpus separately; studio checkpoints do not include it.
-
-Use `--checkpoint data/models/checkpoint.json` to save to the studio's checkpoint. Use a different
-path when running independent experiments or when the web studio is running, so they do
-not overwrite each other's checkpoints. In the studio, use **Load checkpoint** after CLI
-training to load the saved model. To evaluate it:
-
-```sh
-npm run evaluate -- --checkpoint data/models/checkpoint.json
-```
+See the [PyTorch guide](docs/pytorch.md) for complete commands and checkpoint
+conversion. `npm run train` and `npm run evaluate` retain the original TypeScript
+reference CLIs for historical experiments and `.json`/V8 checkpoints.
 
 ## Chat and text generation
 
@@ -366,12 +266,12 @@ the byte-level model has not yet learned to generate valid UTF-8 consistently.
 
 New Life offers 38K, 496K, 2.6M, and 13M parameter presets, each with its own learning.
 Weights, optimizer state, and replay lessons are saved atomically after each learning
-action to `data/models/new-life-checkpoint-38K.json`, `data/models/new-life-checkpoint-496K.json`,
-`data/models/new-life-checkpoint-2.6M.json`, or `data/models/new-life-checkpoint-13M.json`, independently
-of the studio's `data/models/checkpoint.json`. These files use binary serialization despite
-the `.json` extension; existing JSON contents remain readable. Legacy New Life
-filenames are migrated automatically when their preset is first loaded. An existing
-parameter-count checkpoint takes precedence. Saved learning reloads automatically
+action to `data/models/new-life-checkpoint-38K.pt`, `data/models/new-life-checkpoint-496K.pt`,
+`data/models/new-life-checkpoint-2.6M.pt`, or `data/models/new-life-checkpoint-13M.pt`, independently
+of the studio's `data/models/checkpoint.pt`. Existing Transformer New life JSON/V8
+checkpoints are converted to `.pt` when their preset is first loaded, preserving
+lessons, weights, and optimizer moments. Legacy files are retained. An existing `.pt`
+checkpoint takes precedence. Saved learning reloads automatically
 after a server restart.
 Conversation display is kept only for the current browser session; saved lessons
 include your messages and taught answers. Replies use the current message as context.
@@ -379,19 +279,23 @@ This experimental mode can memorize lessons and can still forget earlier skills.
 
 ## Checkpoints and storage
 
-The app **automatically saves a checkpoint every 100 training updates**, based on the model's total update count, including across resumed training sessions. Checkpoints are written to `data/models/checkpoint.json` locally, or `/app/data/models/checkpoint.json` inside Docker. Each save atomically replaces the single checkpoint file.
+The app saves every 100 global training updates, at completion, when stopped, and
+on graceful server shutdown. The default is `data/models/checkpoint.pt`; select
+another `.pt` file in Checkpoints and click **Load checkpoint** to switch the active
+model and save destination. `SEED_CHECKPOINT` changes the startup destination.
 
-Click **Save checkpoint** to save immediately, including updates since the last automatic save. After a restart, click **Load checkpoint** to restore the latest saved model. Updates since the last save are lost if the server stops.
+**Save checkpoint** saves immediately. **Delete checkpoint** requires confirmation
+and removes the selected file while retaining the in-memory model. Active training
+can create the file again at its next save. Files are replaced atomically.
 
-Click **Delete checkpoint** and confirm in the modal to permanently remove the saved checkpoint. Cancel or press Escape to keep it. Deleting keeps the currently loaded model and any training in progress available in memory; you can save the model again. Deleting an already missing checkpoint is harmless.
+Checkpoints contain model configuration, weights, AdamW state, global step, and
+studio loss history/settings when saved by the API. They do not contain the corpus,
+chat display, or drafts. After a restart, choose a file and click **Load checkpoint**.
 
-New studio checkpoints use Node’s binary serialization to avoid the JavaScript string-size
-limit for larger models. The filename remains `checkpoint.json` for compatibility; existing
-JSON checkpoints still load. New life continues to use its separate JSON checkpoint.
-
-Version 2 Transformer checkpoints include architecture, tokenizer identity, configuration, weights, optimizer moments, update count, and chart history. They do **not** include the corpus, validation token partition, chat history, or draft. Keep the corpus file separately for future training. Unsaved weights are lost on server shutdown. Click **Load** after restarting to restore the saved model.
-
-Version 1 RNN checkpoints still load as RNNs, including their original optimizer state and vocabulary restrictions. They are labeled as legacy in the interface. Loading one does not convert it into a Transformer. Start a new model to use the new architecture. Validation evaluation is only available for the Transformer.
+If the default `.pt` file does not exist, Load converts the corresponding legacy
+`checkpoint.json` (JSON or V8 binary) without modifying the source. Float64 values
+are converted to Float32 for GPU execution. Legacy RNN checkpoints are supported
+only by the retained TypeScript reference engine and cannot load into PyTorch.
 
 ## Source layout
 
@@ -402,7 +306,10 @@ Version 1 RNN checkpoints still load as RNNs, including their original optimizer
 - `server/index.ts`: HTTP routing and startup.
 - `server/http.ts`: request bodies, responses, origin checks, static files.
 - `server/validation.ts`: input validation and defaults.
-- `server/studio.ts`: model state, batches, data partitioning, validation, checkpoints.
+- `server/torch-studio.ts`: PyTorch process lifecycle, API validation, cached status, and migration.
+- `python/seed_torch/worker.py`: studio training, generation, New life learning, and checkpoint operations.
+- `python/seed_torch/model.py`: PyTorch Transformer and optimizer.
+- `server/studio.ts`: retained TypeScript reference studio for legacy scripts/tests.
 - `server/chat.ts`: conversation formatting and response extraction.
 - `server/new-life.ts`: independent chat learning, lesson replay, and New life checkpoint storage.
 - `server/model.ts`: decoder-only Transformer and version 2 checkpoints.
@@ -411,7 +318,7 @@ Version 1 RNN checkpoints still load as RNNs, including their original optimizer
 - `server/legacy-model.ts`: original RNN, retained for version 1 checkpoints.
 - `shared/api.ts`: request and response types shared with the React app.
 
-Each Transformer block uses pre-layer normalization, masked multi-head self-attention, residual connections, and a GELU feed-forward network with a 4× expansion. Learned token and position embeddings precede the blocks; final normalization and an output projection predict the next byte. Weights are row-major `Float64Array` buffers. Reverse-mode derivatives are recorded on a per-example tape and accumulated across a batch. AdamW uses global gradient clipping at norm 1 and matrix weight decay 0.01.
+Each Transformer block uses pre-layer normalization, masked multi-head self-attention, residual connections, and a GELU feed-forward network with a 4× expansion. Learned token and position embeddings precede the blocks; final normalization and an output projection predict the next byte. The API uses batched Float32 PyTorch tensors and automatic differentiation. The reference engine retains Float64 buffers and manual gradients for parity tests. AdamW uses global gradient clipping at norm 1 and matrix weight decay 0.01.
 
 Architecture reference: [Attention Is All You Need](https://arxiv.org/abs/1706.03762). This implementation uses decoder-only causal attention rather than the paper's complete encoder-decoder architecture. Assistant behavior additionally depends on training objectives and demonstrations; see [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155). No RLHF is implemented here.
 
@@ -423,7 +330,7 @@ JSON requests and responses. Errors return `{ "error": "..." }`. No Origin heade
 | ------ | ------------------------ | --------------------------------------------------------------- |
 | GET    | `/api/status`            | Model configuration, training job, training and validation loss |
 | POST   | `/api/train`             | Start or resume training                                        |
-| POST   | `/api/stop`              | Stop after the current synchronous training block               |
+| POST   | `/api/stop`              | Stop after the current worker operation and save                |
 | POST   | `/api/generate`          | Generate a text continuation                                    |
 | POST   | `/api/chat`              | Generate an assistant reply from recent turns                   |
 | GET    | `/api/new-life/status`   | Restore saved New life learning and return lesson/update counts |
@@ -439,7 +346,7 @@ curl http://127.0.0.1:3001/api/train \
   -d '{"text":"The sun rises in the morning. The moon is visible at night. Plants need light and water.\n","hiddenSize":64,"layers":2,"heads":4,"sequenceLength":64,"batchSize":2,"steps":1000,"learningRate":0.001,"resume":false}'
 ```
 
-Training returns HTTP 202; poll `/api/status`. A second training job is rejected while one is running.
+Training returns HTTP 202; poll `/api/status`. A second training job is rejected while one is running. Add `"device":"mps"`, `"cuda"`, `"cpu"`, or `"auto"` to a new training request. Status includes the active backend/device and available checkpoint filenames. POST `/api/checkpoint/load` with `{ "fileName": "color-reasoning-torch.pt" }` loads a CLI checkpoint from the model directory.
 
 ```sh
 curl http://127.0.0.1:3001/api/chat \
@@ -457,41 +364,24 @@ concurrent New life operations are rejected while it is busy.
 
 ## Evaluate a trained checkpoint
 
-Save the model using **Save checkpoint**, then evaluate it against the original
-color reasoning test from the repository root:
-
 ```sh
-npm run evaluate -- --checkpoint data/models/checkpoint.json \
+source .venv/bin/activate
+seed-torch evaluate --device mps --checkpoint data/models/checkpoint.pt \
+  --evaluation data/references/color_reasoning_01_reference.json \
   --output data/reports/color-reasoning.json
 ```
 
-The evaluator asks 2,306 questions about held-out color/object combinations, unseen
-objects, varied wording, and conversation continuations. It uses greedy decoding
-by default, normalizes case and final punctuation, and compares exact answers.
-The JSON report records every reply, pass/fail results, and scores by question family.
-Without `--output`, reports are written to `data/reports/<dataset>_report.json`.
-Existing report files are replaced, so use separate output filenames for comparisons.
-
-For the supplemental color test:
-
-```sh
-npm run evaluate -- --checkpoint data/models/checkpoint.json \
-  --evaluation data/references/color_reasoning_02_reference.json \
-  --output data/reports/color-reasoning-02.json
-```
-
-Keep both evaluation files separate from training material. Compare checkpoints
-using the same dataset and generation settings. Add `--temperature 0.8 --top-k 0`
-to test Chat's default sampling; sampled replies can vary. These controlled tests
-do not measure general reasoning or story quality. See the
-[color experiment guide](docs/color-reasoning.md) for training, resume commands,
-and recorded results. The evaluator loads a checkpoint in a separate process and
-does not modify it or require the API server to run.
+Use `color_reasoning_02_reference.json` to evaluate supplemental training. Reports
+record every reply and scores by question family. Keep both reference datasets
+separate from training. Greedy decoding is the default; use `--temperature 0.8
+--top-k 0` to check sampled replies. Evaluation does not modify the checkpoint.
+See the [PyTorch guide](docs/pytorch.md) and [color experiment guide](docs/color-reasoning.md).
 
 ## Checks and formatting
 
 ```sh
 npm test
+.venv/bin/python -m unittest discover -s python/tests -v
 npm run build
 npm run format:check
 npm run format

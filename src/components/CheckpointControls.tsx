@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Icon } from './Icon.tsx';
 import type { StudioStatus } from '../../shared/api.ts';
 interface CheckpointControlsProps {
@@ -6,7 +6,9 @@ interface CheckpointControlsProps {
   busy: boolean;
   hasModel: boolean;
   running: boolean;
-  onCheckpoint: (action: 'save' | 'load' | 'delete') => Promise<void>;
+  onCheckpoint: (action: 'save' | 'load' | 'delete', fileName?: string) => Promise<void>;
+  fileName?: string;
+  files?: string[];
 }
 
 export function CheckpointControls({
@@ -15,8 +17,11 @@ export function CheckpointControls({
   hasModel,
   running,
   onCheckpoint,
+  fileName,
+  files = [],
 }: CheckpointControlsProps) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [selectedFile, setSelectedFile] = useState('');
 
   return (
     <section className="card checkpoint">
@@ -27,6 +32,24 @@ export function CheckpointControls({
         </div>
       </div>
       <p>Save or load model weights and optimizer state.</p>
+      <label>
+        Load a checkpoint
+        <select
+          value={selectedFile}
+          disabled={busy || running}
+          onChange={(event) => setSelectedFile(event.target.value)}
+        >
+          <option value="">{fileName ?? 'checkpoint.pt'} (current)</option>
+          {files
+            .filter((name) => name !== fileName)
+            .map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+        </select>
+      </label>
+      <p>Save and delete apply to {fileName ?? 'checkpoint.pt'}.</p>
       <p className="checkpoint-metadata">
         {checkpoint ? (
           <>
@@ -55,7 +78,10 @@ export function CheckpointControls({
         <button
           className="secondary-button"
           disabled={busy || running}
-          onClick={() => onCheckpoint('load')}
+          onClick={async () => {
+            await onCheckpoint('load', selectedFile || undefined);
+            setSelectedFile('');
+          }}
         >
           Load checkpoint
         </button>

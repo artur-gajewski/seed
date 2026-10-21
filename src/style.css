@@ -472,6 +472,7 @@ i {
   margin: 0;
 }
 .config label,
+.checkpoint label,
 .generation-settings label {
   display: block;
   font-size: 0.9375rem;
@@ -485,6 +486,7 @@ i {
 }
 .config input,
 .config select,
+.checkpoint select,
 .generation-settings input {
   display: block;
   width: 100%;
@@ -496,6 +498,11 @@ i {
   color: var(--text-secondary);
   margin-top: 8px;
   min-height: 44px;
+}
+.device-status {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
 }
 .field-pair {
   display: grid;
