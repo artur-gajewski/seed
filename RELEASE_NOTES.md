@@ -4,10 +4,18 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Contents
 
+- [2026-10-21](#2026-10-21)
 - [2026-10-20](#2026-10-20)
 - [2026-10-19](#2026-10-19)
 - [2026-10-18](#2026-10-18)
 - [2026-10-17](#2026-10-17)
+
+## 2026-10-21
+
+- **Language model essay:** Added [How Seed works](docs/how_seed_works.md), explaining
+  tokenization, Transformers, training, and generation through Seed's implementation.
+  Covers the Training and New Life sections, including corpus validation, teaching
+  answers, lesson replay, saved learning, and model limitations.
 
 ## 2026-10-20
 
