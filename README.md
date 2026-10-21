@@ -522,5 +522,5 @@ Contributions are welcome. Open an issue to discuss a bug or idea, or submit a p
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
 
-Full text: [LICENSE](LICENSE). The license covers the code, documentation, 
+Full text: [LICENSE](LICENSE). The license covers the code, documentation,
 and included corpora. It does not cover your own training data or generated text.
