@@ -1,0 +1,1276 @@
+[
+  {
+    "family": "update",
+    "question": "The car was red. Now the car is orange. What color is it?",
+    "answer": "orange",
+    "generated": " orange",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green bag is beside a yellow book. What color is the book?",
+    "answer": "yellow",
+    "generated": " net: yellow",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was red. Now the chair is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow kite is beside a red boat. What color is the boat?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was purple. Now the box is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A white car is beside a blue chair. What color is the chair?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The box was yellow. Now the box is white. What color is it?",
+    "answer": "white",
+    "generated": " negreen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The car was green. Now the car is orange. What color is it?",
+    "answer": "orange",
+    "generated": " orange",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple ball is beside a orange car. What color is the car?",
+    "answer": "orange",
+    "generated": " te: A red c",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was green. Now the chair is white. What color is it?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The ball was white. Now the ball is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A red box is beside a green hat. What color is the hat?",
+    "answer": "green",
+    "generated": " nge",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The book was blue. Now the book is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The boat was purple. Now the boat is orange. What color is it?",
+    "answer": "orange",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was orange. Now the chair is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the red car?",
+    "answer": "red",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The car was purple. Now the car is orange. What color is it?",
+    "answer": "orange",
+    "generated": " orangen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The boat was red. Now the boat is orange. What color is it?",
+    "answer": "orange",
+    "generated": " orange",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The hat was orange. Now the hat is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The car was blue. Now the car is red. What color is it?",
+    "answer": "red",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A white kite is beside a red boat. What color is the boat?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue kite is beside a red boat. What color is the boat?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue box is beside a green hat. What color is the hat?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the orange boat?",
+    "answer": "orange",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A green boat is beside a white box. What color is the box?",
+    "answer": "white",
+    "generated": " net: net: g",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The boat was white. Now the boat is orange. What color is it?",
+    "answer": "orange",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red boat is beside a blue box. What color is the box?",
+    "answer": "blue",
+    "generated": " net: blue",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A white cup is beside a purple ball. What color is the ball?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the orange car?",
+    "answer": "orange",
+    "generated": " purple",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the white chair?",
+    "answer": "white",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A white kite is beside a orange boat. What color is the boat?",
+    "answer": "orange",
+    "generated": " ed",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red car is beside a blue chair. What color is the chair?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple boat is beside a white box. What color is the box?",
+    "answer": "white",
+    "generated": " net: net: g",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was white. Now the box is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The box was orange. Now the box is white. What color is it?",
+    "answer": "white",
+    "generated": " negreen",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A green boat is beside a blue box. What color is the box?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow car is beside a blue chair. What color is the chair?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The cup was purple. Now the cup is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The bag was blue. Now the bag is green. What color is it?",
+    "answer": "green",
+    "generated": " blue",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was orange. Now the chair is white. What color is it?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was blue. Now the chair is white. What color is it?",
+    "answer": "white",
+    "generated": " blue",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the red boat?",
+    "answer": "red",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The boat was green. Now the boat is red. What color is it?",
+    "answer": "red",
+    "generated": " negreen",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red chair is beside a green bag. What color is the bag?",
+    "answer": "green",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The cup was white. Now the cup is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green kite is beside a orange boat. What color is the boat?",
+    "answer": "orange",
+    "generated": " ed",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow ball is beside a orange car. What color is the car?",
+    "answer": "orange",
+    "generated": " tenet tonge",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The car was orange. Now the car is red. What color is it?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red kite is beside a orange boat. What color is the boat?",
+    "answer": "orange",
+    "generated": " e dred ite?",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the green bag?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A white book is beside a purple kite. What color is the kite?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The hat was white. Now the hat is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple hat is beside a yellow cup. What color is the cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A red bag is beside a yellow book. What color is the book?",
+    "answer": "yellow",
+    "generated": " net: yellow",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red hat is beside a yellow cup. What color is the cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The car was white. Now the car is orange. What color is it?",
+    "answer": "orange",
+    "generated": " orange",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A red ball is beside a orange car. What color is the car?",
+    "answer": "orange",
+    "generated": " et: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue chair is beside a green bag. What color is the bag?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The bag was orange. Now the bag is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The boat was blue. Now the boat is red. What color is it?",
+    "answer": "red",
+    "generated": " net: blue",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was green. Now the chair is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A orange ball is beside a red car. What color is the car?",
+    "answer": "red",
+    "generated": " purple",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A purple ball is beside a red car. What color is the car?",
+    "answer": "red",
+    "generated": " purple",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The hat was yellow. Now the hat is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow chair is beside a green bag. What color is the bag?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow box is beside a green hat. What color is the hat?",
+    "answer": "green",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue book is beside a purple kite. What color is the kite?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow ball is beside a red car. What color is the car?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue car is beside a white chair. What color is the chair?",
+    "answer": "white",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The bag was red. Now the bag is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple chair is beside a green bag. What color is the bag?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A orange box is beside a green hat. What color is the hat?",
+    "answer": "green",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The bag was yellow. Now the bag is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The kite was blue. Now the kite is purple. What color is it?",
+    "answer": "purple",
+    "generated": " blue",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange hat is beside a yellow cup. What color is the cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A blue kite is beside a orange boat. What color is the boat?",
+    "answer": "orange",
+    "generated": " e de  box i",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was yellow. Now the box is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple car is beside a blue chair. What color is the chair?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green car is beside a blue chair. What color is the chair?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The cup was orange. Now the cup is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The book was purple. Now the book is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the green hat?",
+    "answer": "green",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow kite is beside a orange boat. What color is the boat?",
+    "answer": "orange",
+    "generated": " ed",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange car is beside a blue chair. What color is the chair?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The car was purple. Now the car is red. What color is it?",
+    "answer": "red",
+    "generated": " red",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A white chair is beside a green bag. What color is the bag?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green car is beside a white chair. What color is the chair?",
+    "answer": "white",
+    "generated": " negen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The boat was blue. Now the boat is orange. What color is it?",
+    "answer": "orange",
+    "generated": " orangen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The kite was red. Now the kite is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The book was white. Now the book is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The box was green. Now the box is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The ball was yellow. Now the ball is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The ball was orange. Now the ball is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The box was red. Now the box is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green ball is beside a orange car. What color is the car?",
+    "answer": "orange",
+    "generated": " et nearpled",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange boat is beside a blue box. What color is the box?",
+    "answer": "blue",
+    "generated": " te: The boo",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was red. Now the box is white. What color is it?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue ball is beside a red car. What color is the car?",
+    "answer": "red",
+    "generated": " net: g purp",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was red. Now the chair is white. What color is it?",
+    "answer": "white",
+    "generated": " white",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow cup is beside a purple ball. What color is the ball?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The hat was blue. Now the hat is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The boat was white. Now the boat is red. What color is it?",
+    "answer": "red",
+    "generated": " negreen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was yellow. Now the chair is white. What color is it?",
+    "answer": "white",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was yellow. Now the chair is blue. What color is it?",
+    "answer": "blue",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A green hat is beside a yellow cup. What color is the cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A blue hat is beside a yellow cup. What color is the cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple kite is beside a orange boat. What color is the boat?",
+    "answer": "orange",
+    "generated": " ed",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange book is beside a purple kite. What color is the kite?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green book is beside a purple kite. What color is the kite?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A blue ball is beside a orange car. What color is the car?",
+    "answer": "orange",
+    "generated": " te: A blue",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was purple. Now the chair is blue. What color is it?",
+    "answer": "blue",
+    "generated": " purple",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was purple. Now the chair is white. What color is it?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the blue box?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The boat was yellow. Now the boat is red. What color is it?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A white bag is beside a yellow book. What color is the book?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the purple ball?",
+    "answer": "purple",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The book was green. Now the book is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The cup was blue. Now the cup is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The boat was yellow. Now the boat is orange. What color is it?",
+    "answer": "orange",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The hat was red. Now the hat is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The boat was green. Now the boat is orange. What color is it?",
+    "answer": "orange",
+    "generated": " yellow",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red boat is beside a white box. What color is the box?",
+    "answer": "white",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The kite was orange. Now the kite is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The cup was red. Now the cup is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The kite was yellow. Now the kite is purple. What color is it?",
+    "answer": "purple",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was orange. Now the box is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A orange boat is beside a white box. What color is the box?",
+    "answer": "white",
+    "generated": " net: net: g",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A white hat is beside a yellow cup. What color is the cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow boat is beside a blue box. What color is the box?",
+    "answer": "blue",
+    "generated": " te: The boo",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was green. Now the box is white. What color is it?",
+    "answer": "white",
+    "generated": " negreen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The boat was orange. Now the boat is red. What color is it?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A red book is beside a purple kite. What color is the kite?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A white ball is beside a orange car. What color is the car?",
+    "answer": "orange",
+    "generated": " te: A blue",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The cup was green. Now the cup is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A red cup is beside a purple ball. What color is the ball?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green kite is beside a red boat. What color is the boat?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The book was orange. Now the book is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The hat was purple. Now the hat is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The book was red. Now the book is yellow. What color is it?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the white box?",
+    "answer": "white",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The chair was white. Now the chair is blue. What color is it?",
+    "answer": "blue",
+    "generated": " blue",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The kite was green. Now the kite is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The bag was white. Now the bag is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the yellow cup?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The car was yellow. Now the car is red. What color is it?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A green cup is beside a purple ball. What color is the ball?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A purple car is beside a white chair. What color is the chair?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The ball was blue. Now the ball is purple. What color is it?",
+    "answer": "purple",
+    "generated": " blue",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The car was blue. Now the car is orange. What color is it?",
+    "answer": "orange",
+    "generated": " blue",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange chair is beside a green bag. What color is the bag?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A red car is beside a white chair. What color is the chair?",
+    "answer": "white",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A purple box is beside a green hat. What color is the hat?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow car is beside a white chair. What color is the chair?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A purple boat is beside a blue box. What color is the box?",
+    "answer": "blue",
+    "generated": " te: The boo",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A purple kite is beside a red boat. What color is the boat?",
+    "answer": "red",
+    "generated": " net: g reen",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The kite was white. Now the kite is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The box was purple. Now the box is white. What color is it?",
+    "answer": "white",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The car was white. Now the car is red. What color is it?",
+    "answer": "red",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The boat was purple. Now the boat is red. What color is it?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the blue chair?",
+    "answer": "blue",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange cup is beside a purple ball. What color is the ball?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow book is beside a purple kite. What color is the kite?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "direct",
+    "question": "What color is the yellow book?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The bag was purple. Now the bag is green. What color is it?",
+    "answer": "green",
+    "generated": " green",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The car was green. Now the car is red. What color is it?",
+    "answer": "red",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue boat is beside a white box. What color is the box?",
+    "answer": "white",
+    "generated": " net: net: g",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The box was blue. Now the box is white. What color is it?",
+    "answer": "white",
+    "generated": " blue",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange bag is beside a yellow book. What color is the book?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A white box is beside a green hat. What color is the hat?",
+    "answer": "green",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue cup is beside a purple ball. What color is the ball?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A orange car is beside a white chair. What color is the chair?",
+    "answer": "white",
+    "generated": " negne",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The ball was green. Now the ball is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "update",
+    "question": "The car was yellow. Now the car is orange. What color is it?",
+    "answer": "orange",
+    "generated": " ed",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A purple bag is beside a yellow book. What color is the book?",
+    "answer": "yellow",
+    "generated": " yellow",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A white ball is beside a red car. What color is the car?",
+    "answer": "red",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "update",
+    "question": "The ball was red. Now the ball is purple. What color is it?",
+    "answer": "purple",
+    "generated": " purple",
+    "correct": true
+  },
+  {
+    "family": "distractor",
+    "question": "A green ball is beside a red car. What color is the car?",
+    "answer": "red",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A blue bag is beside a yellow book. What color is the book?",
+    "answer": "yellow",
+    "generated": " et nek whit",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A white boat is beside a blue box. What color is the box?",
+    "answer": "blue",
+    "generated": " te: blue",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A orange kite is beside a red boat. What color is the boat?",
+    "answer": "red",
+    "generated": " net: green",
+    "correct": false
+  },
+  {
+    "family": "direct",
+    "question": "What color is the purple kite?",
+    "answer": "purple",
+    "generated": " green",
+    "correct": false
+  },
+  {
+    "family": "distractor",
+    "question": "A yellow boat is beside a white box. What color is the box?",
+    "answer": "white",
+    "generated": " net: green",
+    "correct": false
+  }
+]

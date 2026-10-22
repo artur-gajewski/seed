@@ -1,0 +1,50 @@
+[
+  {
+    "trained_on": "cpu",
+    "evaluated_on": "cpu",
+    "task_loss": 0.1705050077289343,
+    "prose_loss": 0.46267470344901085,
+    "accuracy": 0.13186813186813187,
+    "families": {
+      "direct": 0.14285714285714285,
+      "distractor": 0.11904761904761904,
+      "update": 0.14285714285714285
+    }
+  },
+  {
+    "trained_on": "cpu",
+    "evaluated_on": "mps",
+    "task_loss": 0.1705051325261593,
+    "prose_loss": 0.46267474070191383,
+    "accuracy": 0.13186813186813187,
+    "families": {
+      "direct": 0.14285714285714285,
+      "distractor": 0.11904761904761904,
+      "update": 0.14285714285714285
+    }
+  },
+  {
+    "trained_on": "mps",
+    "evaluated_on": "cpu",
+    "task_loss": 0.162070382386446,
+    "prose_loss": 0.45129451900720596,
+    "accuracy": 0.8846153846153846,
+    "families": {
+      "direct": 0.7857142857142857,
+      "distractor": 0.8928571428571429,
+      "update": 0.8928571428571429
+    }
+  },
+  {
+    "trained_on": "mps",
+    "evaluated_on": "mps",
+    "task_loss": 0.16207053884863853,
+    "prose_loss": 0.45129456371068954,
+    "accuracy": 0.8846153846153846,
+    "families": {
+      "direct": 0.7857142857142857,
+      "distractor": 0.8928571428571429,
+      "update": 0.8928571428571429
+    }
+  }
+]

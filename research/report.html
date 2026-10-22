@@ -1,0 +1,2574 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  /><title>Seed: learning efficiency pilot</title
+  ><style>
+    body {
+      margin: 0;
+      background: #f3f5f9;
+      color: #1f2938;
+      font:
+        16px/1.65 system-ui,
+        sans-serif;
+    }
+    main {
+      max-width: 1080px;
+      margin: auto;
+      padding: 36px 24px;
+    }
+    h1 {
+      font-size: 44px;
+      line-height: 1.1;
+      max-width: 850px;
+    }
+    h2 {
+      margin-top: 40px;
+    }
+    p {
+      max-width: 960px;
+    }
+    .lead {
+      font-size: 20px;
+    }
+    .tag {
+      color: #3867e8;
+      font-weight: 700;
+    }
+    figure,
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      margin: 20px 0;
+      box-shadow: 0 2px 12px #10204008;
+    }
+    figcaption {
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+    }
+    svg text {
+      font: 12px system-ui;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 14px;
+    }
+    th,
+    td {
+      padding: 10px;
+      text-align: right;
+      border-bottom: 1px solid #dce1ea;
+    }
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+    .scroll {
+      overflow: auto;
+    }
+    .muted {
+      color: #596579;
+    }
+    a {
+      color: #2855c3;
+    }
+    pre {
+      white-space: pre-wrap;
+      font-size: 12px;
+    }
+    details {
+      margin: 20px 0;
+    }
+    code {
+      font-size: 14px;
+    }
+    footer {
+      margin-top: 40px;
+      border-top: 1px solid #ccd4df;
+      padding-top: 16px;
+    }
+  </style>
+  <main>
+    <p class="tag">SEED RESEARCH · CPU + MPS STUDY · THREE PAIRED SEEDS</p>
+    <h1>Which small model learns more efficiently?</h1>
+    <h2>MPS replication and CPU comparison</h2>
+    <p>
+      All eight training jobs were repeated on MPS using exact copies of the CPU corpora, identical
+      initial seeds, model sizes, 800-update budgets, and optimizer settings. CPU results remain
+      preserved. No CPU fallback environment variable was enabled.
+    </p>
+    <div class="card">
+      <strong>Device result</strong>
+      <p>
+        At the original parameter scale, MPS completed the Transformer update budget 2.23× faster
+        and the GRU budget 1.96× faster than CPU. These single-seed scale results need replication.
+        The small-model device comparison below shows that GPU acceleration is workload-dependent.
+        The small models and original-scale GRU remain close to the 14.3% constant-color baseline.
+        The original-scale MPS-trained Transformer is an exception, examined below. Faster training
+        alone is not evidence of better reasoning or lower electrical energy.
+      </p>
+    </div>
+    <div class="card">
+      <strong>Recommendation for Seed</strong>
+      <p>
+        Use the Transformer on MPS as the default for training at roughly 3.3 million parameters. It
+        trained faster and produced the strongest task result in this experiment.
+      </p>
+      <ul>
+        <li><strong>Normal training:</strong> Transformer + MPS.</li>
+        <li>
+          <strong>Small, quick experiments:</strong> CPU—the GPU offered little benefit at that
+          scale.
+        </li>
+        <li>
+          <strong>GRU:</strong> Keep as a research baseline. Its lower prose loss did not translate
+          into reliable color retrieval. CPU was faster for GRU generation.
+        </li>
+        <li>
+          <strong>Quantization and pruning:</strong> Keep optional. Our int8 implementation reduced
+          storage but slowed decoding; pruning damaged quality.
+        </li>
+      </ul>
+      <p>
+        Before treating the 88.5% accuracy as dependable, repeat the larger Transformer experiment
+        with seeds 43 and 44 on both devices. That is the most useful next experiment.
+      </p>
+      <p>
+        These recommendations apply to the tested 128-byte context. Seed’s usual 256-byte context
+        still needs benchmarking.
+      </p>
+    </div>
+    <h3>Small models: three paired seeds</h3>
+    <div class="scroll">
+      <table>
+        <tr>
+          <th>Model / device</th>
+          <th>Train seconds</th>
+          <th>Task loss</th>
+          <th>Prose loss</th>
+          <th>Accuracy %</th>
+          <th>Decode tok/s</th>
+        </tr>
+        <tr>
+          <td>transformer / CPU</td>
+          <td>4.360 ± 0.005</td>
+          <td>0.249 ± 0.009</td>
+          <td>1.645 ± 0.007</td>
+          <td>16.667 ± 0.317</td>
+          <td>2940.518 ± 14.039</td>
+        </tr>
+        <tr>
+          <td>transformer / MPS</td>
+          <td>4.404 ± 0.235</td>
+          <td>0.249 ± 0.009</td>
+          <td>1.644 ± 0.006</td>
+          <td>16.484 ± 1.099</td>
+          <td>2764.246 ± 105.309</td>
+        </tr>
+        <tr>
+          <td>gru / CPU</td>
+          <td>10.172 ± 0.122</td>
+          <td>0.276 ± 0.018</td>
+          <td>1.074 ± 0.040</td>
+          <td>14.286 ± 0.000</td>
+          <td>22483.042 ± 669.779</td>
+        </tr>
+        <tr>
+          <td>gru / MPS</td>
+          <td>19.992 ± 0.166</td>
+          <td>0.276 ± 0.018</td>
+          <td>1.074 ± 0.040</td>
+          <td>14.286 ± 0.000</td>
+          <td>3987.350 ± 36.373</td>
+        </tr>
+      </table>
+    </div>
+    <p>
+      Mean ± sample standard deviation for three seeds; original-scale values are single
+      observations. Training timing synchronizes MPS at update boundaries and excludes batching/data
+      transfers, validation, saving and startup. Small GPU workloads can be dominated by dispatch
+      and synchronization overhead.
+    </p>
+    <figure>
+      <figcaption>Small models: three paired seeds: fixed-budget update time</figcaption>
+      <svg
+        viewBox="0 0 780 192"
+        role="img"
+        aria-label="Small models: three paired seeds: fixed-budget update time"
+      >
+        <text x="210" y="27" text-anchor="end">transformer / CPU</text>
+        <rect x="225" y="10" width="91.58815216731135" height="26" rx="4" fill="#3867e8" />
+        <text x="326.58815216731136" y="28">4.36 s</text>
+        <text x="210" y="69" text-anchor="end">transformer / MPS</text>
+        <rect x="225" y="52" width="92.52577811328155" height="26" rx="4" fill="#ce6419" />
+        <text x="327.52577811328155" y="70">4.40 s</text>
+        <text x="210" y="111" text-anchor="end">gru / CPU</text>
+        <rect x="225" y="94" width="213.7012925331689" height="26" rx="4" fill="#21856b" />
+        <text x="448.7012925331689" y="112">10.17 s</text>
+        <text x="210" y="153" text-anchor="end">gru / MPS</text>
+        <rect x="225" y="136" width="420.0" height="26" rx="4" fill="#a146a0" />
+        <text x="655.0" y="154">19.99 s</text>
+      </svg>
+    </figure>
+    <p>
+      TRANSFORMER CPU/MPS training-time ratio: <strong>0.99×</strong>. Above one means MPS was
+      faster; below one means CPU was faster under this protocol.
+    </p>
+    <p>
+      GRU CPU/MPS training-time ratio: <strong>0.51×</strong>. Above one means MPS was faster; below
+      one means CPU was faster under this protocol.
+    </p>
+    <figure>
+      <figcaption>Small models: three paired seeds: learning vs. update time</figcaption>
+      <svg
+        viewBox="0 0 780 300"
+        role="img"
+        aria-label="Small models: three paired seeds: learning vs. update time"
+      >
+        <line x1="70" y1="239.0" x2="750" y2="239.0" stroke="#d9dfe7" />
+        <text x="60" y="243.0" text-anchor="end">0.00</text>
+        <text x="70.0" y="259" text-anchor="middle">0.0</text>
+        <line x1="70" y1="185.25" x2="750" y2="185.25" stroke="#d9dfe7" />
+        <text x="60" y="189.25" text-anchor="end">1.51</text>
+        <text x="240.0" y="259" text-anchor="middle">5.0</text>
+        <line x1="70" y1="131.5" x2="750" y2="131.5" stroke="#d9dfe7" />
+        <text x="60" y="135.5" text-anchor="end">3.02</text>
+        <text x="410.0" y="259" text-anchor="middle">10.0</text>
+        <line x1="70" y1="77.75" x2="750" y2="77.75" stroke="#d9dfe7" />
+        <text x="60" y="81.75" text-anchor="end">4.53</text>
+        <text x="580.0" y="259" text-anchor="middle">15.0</text>
+        <line x1="70" y1="24.0" x2="750" y2="24.0" stroke="#d9dfe7" />
+        <text x="60" y="28.0" text-anchor="end">6.04</text>
+        <text x="750.0" y="259" text-anchor="middle">20.0</text>
+        <polyline
+          fill="none"
+          stroke="#3867e8"
+          stroke-width="2.5"
+          points="70.63900137472882,41.75632209645667 88.94373798203914,166.4109140059919 107.3793274562985,176.52849814537686 125.83271382263769,184.72564754755302 144.27560884887671,193.01292453217653 162.8907315530153,198.214986510192 181.36055962616274,201.77727742190854 199.82374267398194,203.9663772424402 218.28557969945646,205.42909431930482"
+        />
+        <text x="70" y="292" fill="#3867e8">transformer cpu</text>
+        <polyline
+          fill="none"
+          stroke="#ce6419"
+          stroke-width="2.5"
+          points="70.90028265867547,39.925925925925924 113.71617355525792,174.92868402147323 156.8503031281756,195.13040234870576 199.7860833718083,203.6891957720727 243.2894006135514,208.6514399417089 286.3871486017851,211.60786826808683 329.3230156226384,213.34737142663064 372.64681789435974,214.38718931269486 415.99256886322587,215.04759726094028"
+        />
+        <text x="280" y="292" fill="#ce6419">gru cpu</text>
+        <polyline
+          fill="none"
+          stroke="#21856b"
+          stroke-width="2.5"
+          points="81.33681171540897,41.756324571572414 98.42445570342262,166.41091285683103 115.06156376491542,176.52870472914333 132.24930794050357,184.47019385852485 149.25522613368335,192.79944938051494 166.7389086878711,198.27463925230907 184.33541645425038,201.77381738691153 201.19449612529468,203.9551001510887 219.80364075483678,205.44934553941627"
+        />
+        <text x="490" y="292" fill="#21856b">transformer mps</text>
+        <polyline
+          fill="none"
+          stroke="#a146a0"
+          stroke-width="2.5"
+          points="79.43386211798939,39.92593158333333 162.26499540509303,174.92868923689565 245.43482722336958,195.13040729893723 329.1415858860008,203.6891970096306 412.7633742316067,208.6514404499916 496.69289987540975,211.6078655719786 580.6171206702766,213.34737065315696 665.4052456897984,214.3871887823129 750.0,215.04759658691322"
+        />
+        <text x="700" y="292" fill="#a146a0">gru mps</text>
+        <text x="410.0" y="266" text-anchor="middle">Update seconds</text>
+        <text x="70" y="14">Mixed validation loss</text>
+      </svg>
+    </figure>
+    <h3>Original parameter scale: seed 42</h3>
+    <div class="scroll">
+      <table>
+        <tr>
+          <th>Model / device</th>
+          <th>Train seconds</th>
+          <th>Task loss</th>
+          <th>Prose loss</th>
+          <th>Accuracy %</th>
+          <th>Decode tok/s</th>
+        </tr>
+        <tr>
+          <td>transformer / CPU</td>
+          <td>23.217</td>
+          <td>0.171</td>
+          <td>0.463</td>
+          <td>13.187</td>
+          <td>741.913</td>
+        </tr>
+        <tr>
+          <td>transformer / MPS</td>
+          <td>10.399</td>
+          <td>0.162</td>
+          <td>0.451</td>
+          <td>88.462</td>
+          <td>2013.053</td>
+        </tr>
+        <tr>
+          <td>gru / CPU</td>
+          <td>62.130</td>
+          <td>0.184</td>
+          <td>0.204</td>
+          <td>16.484</td>
+          <td>8347.191</td>
+        </tr>
+        <tr>
+          <td>gru / MPS</td>
+          <td>31.686</td>
+          <td>0.183</td>
+          <td>0.203</td>
+          <td>16.484</td>
+          <td>3209.155</td>
+        </tr>
+      </table>
+    </div>
+    <p>
+      Mean ± sample standard deviation for three seeds; original-scale values are single
+      observations. Training timing synchronizes MPS at update boundaries and excludes batching/data
+      transfers, validation, saving and startup. Small GPU workloads can be dominated by dispatch
+      and synchronization overhead.
+    </p>
+    <figure>
+      <figcaption>Original parameter scale: seed 42: fixed-budget update time</figcaption>
+      <svg
+        viewBox="0 0 780 192"
+        role="img"
+        aria-label="Original parameter scale: seed 42: fixed-budget update time"
+      >
+        <text x="210" y="27" text-anchor="end">transformer / CPU</text>
+        <rect x="225" y="10" width="156.94664361316902" height="26" rx="4" fill="#3867e8" />
+        <text x="391.94664361316904" y="28">23.22 s</text>
+        <text x="210" y="69" text-anchor="end">transformer / MPS</text>
+        <rect x="225" y="52" width="70.30004683024555" height="26" rx="4" fill="#ce6419" />
+        <text x="305.30004683024555" y="70">10.40 s</text>
+        <text x="210" y="111" text-anchor="end">gru / CPU</text>
+        <rect x="225" y="94" width="420.0" height="26" rx="4" fill="#21856b" />
+        <text x="655.0" y="112">62.13 s</text>
+        <text x="210" y="153" text-anchor="end">gru / MPS</text>
+        <rect x="225" y="136" width="214.19776800299954" height="26" rx="4" fill="#a146a0" />
+        <text x="449.1977680029995" y="154">31.69 s</text>
+      </svg>
+    </figure>
+    <p>
+      TRANSFORMER CPU/MPS training-time ratio: <strong>2.23×</strong>. Above one means MPS was
+      faster; below one means CPU was faster under this protocol.
+    </p>
+    <p>
+      GRU CPU/MPS training-time ratio: <strong>1.96×</strong>. Above one means MPS was faster; below
+      one means CPU was faster under this protocol.
+    </p>
+    <figure>
+      <figcaption>Original parameter scale: seed 42: learning vs. update time</figcaption>
+      <svg
+        viewBox="0 0 780 300"
+        role="img"
+        aria-label="Original parameter scale: seed 42: learning vs. update time"
+      >
+        <line x1="70" y1="239.0" x2="750" y2="239.0" stroke="#d9dfe7" />
+        <text x="60" y="243.0" text-anchor="end">0.00</text>
+        <text x="70.0" y="259" text-anchor="middle">0.0</text>
+        <line x1="70" y1="185.25" x2="750" y2="185.25" stroke="#d9dfe7" />
+        <text x="60" y="189.25" text-anchor="end">1.50</text>
+        <text x="240.0" y="259" text-anchor="middle">15.5</text>
+        <line x1="70" y1="131.5" x2="750" y2="131.5" stroke="#d9dfe7" />
+        <text x="60" y="135.5" text-anchor="end">3.00</text>
+        <text x="410.0" y="259" text-anchor="middle">31.1</text>
+        <line x1="70" y1="77.75" x2="750" y2="77.75" stroke="#d9dfe7" />
+        <text x="60" y="81.75" text-anchor="end">4.50</text>
+        <text x="580.0" y="259" text-anchor="middle">46.6</text>
+        <line x1="70" y1="24.0" x2="750" y2="24.0" stroke="#d9dfe7" />
+        <text x="60" y="28.0" text-anchor="end">6.00</text>
+        <text x="750.0" y="259" text-anchor="middle">62.1</text>
+        <polyline
+          fill="none"
+          stroke="#3867e8"
+          stroke-width="2.5"
+          points="70.54186914768925,45.961170359743555 101.82935291094813,171.68745753441914 133.29727795020358,187.64888895695532 164.68883005253792,200.37723916187363 198.14563050521312,208.22554478653666 229.60613447253658,216.11206921758915 261.2933927345998,221.6837921630054 292.713435508929,225.86069057528854 324.10408965941645,228.27274787006107"
+        />
+        <text x="70" y="292" fill="#3867e8">transformer cpu</text>
+        <polyline
+          fill="none"
+          stroke="#ce6419"
+          stroke-width="2.5"
+          points="71.07055570394152,39.925925925925924 154.9587401538347,209.79226201856648 239.52368726859265,224.74617037596656 324.85415895674976,229.17427055109974 410.35444215635687,230.4949082082337 495.02228192039195,231.38171513201155 580.0176196632162,231.7314707769417 664.7641124503049,231.9444879002479 750.0,232.16736775279108"
+        />
+        <text x="280" y="292" fill="#ce6419">gru cpu</text>
+        <polyline
+          fill="none"
+          stroke="#21856b"
+          stroke-width="2.5"
+          points="73.61430589314868,45.96117249725883 87.34558445527878,171.6537398342038 101.11672352021927,187.8724303036766 114.90952068312069,200.7513450801481 128.6872431542788,207.9619203193282 142.46843419122723,216.36575470638314 156.2741329802069,221.77390149043146 170.04418363422633,225.97864661665844 183.81912343944518,228.4243148694776"
+        />
+        <text x="490" y="292" fill="#21856b">transformer mps</text>
+        <polyline
+          fill="none"
+          stroke="#a146a0"
+          stroke-width="2.5"
+          points="75.5797644309273,39.92593020095647 117.84278155736217,209.79111283692055 160.54112225539882,224.74854906307434 203.2766442890395,229.17376272423022 246.0124180999437,230.54275675469597 288.656513632779,231.37260744664428 331.3773208210281,231.7452696737473 374.06589420870785,231.94437454514136 416.7963862905707,232.19791785577138"
+        />
+        <text x="700" y="292" fill="#a146a0">gru mps</text>
+        <text x="410.0" y="266" text-anchor="middle">Update seconds</text>
+        <text x="70" y="14">Mixed validation loss</text>
+      </svg>
+    </figure>
+    <h3>Unexpected Transformer accuracy improvement: cross-device check</h3>
+    <p>
+      The original-scale MPS-trained Transformer achieved 88.5% exact-answer accuracy versus 13.2%
+      for the CPU-trained seed-42 model, despite similar prompt-inclusive losses. Each saved
+      checkpoint was then evaluated on both CPU and MPS. The accuracy follows the trained weights:
+      moving either checkpoint to the other device preserves its score. This rules out an
+      inference-device explanation for the observed score difference in these evaluations. Training
+      numerics can lead to different optimization trajectories, but this experiment does not isolate
+      the mechanism or establish that MPS generally learns better. This is one paired seed;
+      additional initializations are needed.
+    </p>
+    <div class="scroll">
+      <table>
+        <tr>
+          <th>Trained on</th>
+          <th>Evaluated on</th>
+          <th>Task loss</th>
+          <th>Prose loss</th>
+          <th>Accuracy %</th>
+        </tr>
+        <tr>
+          <td>CPU</td>
+          <td>CPU</td>
+          <td>0.170505</td>
+          <td>0.462675</td>
+          <td>13.2</td>
+        </tr>
+        <tr>
+          <td>CPU</td>
+          <td>MPS</td>
+          <td>0.170505</td>
+          <td>0.462675</td>
+          <td>13.2</td>
+        </tr>
+        <tr>
+          <td>MPS</td>
+          <td>CPU</td>
+          <td>0.162070</td>
+          <td>0.451295</td>
+          <td>88.5</td>
+        </tr>
+        <tr>
+          <td>MPS</td>
+          <td>MPS</td>
+          <td>0.162071</td>
+          <td>0.451295</td>
+          <td>88.5</td>
+        </tr>
+      </table>
+    </div>
+    <p>
+      The MPS-trained large Transformer scored 78.6% on direct questions, 89.3% on distractor
+      questions, and 89.3% on state updates. These use familiar templates with held-out color/object
+      combinations, not a broad reasoning benchmark. Raw cross-device metrics and every completion
+      are saved under <code>mps/cross-device.json</code> and <code>mps/cross-answers-*.json</code>.
+      Reproduce with <code>.venv/bin/python research/cross_device.py</code> outside the sandbox.
+    </p>
+    <h3>MPS-trained inference interventions</h3>
+    <p>
+      Pruning is timed on MPS against its MPS parent. Int8 GRU is CPU-only: the table includes a
+      fresh CPU float32 measurement of exactly the same MPS-trained weights, so its quantization
+      comparison does not mix devices. Serialized state sizes exclude optimizer state. These
+      interventions use seed 42 only.
+    </p>
+    <div class="scroll">
+      <table>
+        <tr>
+          <th>Scale / variant</th>
+          <th>Device</th>
+          <th>State KiB</th>
+          <th>Task loss</th>
+          <th>Prose loss</th>
+          <th>Accuracy %</th>
+          <th>Decode tok/s</th>
+        </tr>
+        <tr>
+          <td>pilot / transformer</td>
+          <td>MPS</td>
+          <td>820.1</td>
+          <td>0.239</td>
+          <td>1.638</td>
+          <td>16.5</td>
+          <td>2885</td>
+        </tr>
+        <tr>
+          <td>pilot / pruned-50pct-ffn</td>
+          <td>MPS</td>
+          <td>618.9</td>
+          <td>0.478</td>
+          <td>2.023</td>
+          <td>14.3</td>
+          <td>2846</td>
+        </tr>
+        <tr>
+          <td>pilot / gru</td>
+          <td>MPS</td>
+          <td>818.6</td>
+          <td>0.285</td>
+          <td>1.068</td>
+          <td>14.3</td>
+          <td>4028</td>
+        </tr>
+        <tr>
+          <td>pilot / gru-float32-cpu</td>
+          <td>CPU</td>
+          <td>818.6</td>
+          <td>0.285</td>
+          <td>1.068</td>
+          <td>14.3</td>
+          <td>22632</td>
+        </tr>
+        <tr>
+          <td>pilot / int8-gru</td>
+          <td>CPU</td>
+          <td>276.9</td>
+          <td>0.285</td>
+          <td>1.069</td>
+          <td>14.3</td>
+          <td>8046</td>
+        </tr>
+        <tr>
+          <td>full-scale / transformer</td>
+          <td>MPS</td>
+          <td>13003.6</td>
+          <td>0.162</td>
+          <td>0.451</td>
+          <td>88.5</td>
+          <td>2013</td>
+        </tr>
+        <tr>
+          <td>full-scale / pruned-50pct-ffn</td>
+          <td>MPS</td>
+          <td>8899.6</td>
+          <td>0.288</td>
+          <td>1.311</td>
+          <td>46.7</td>
+          <td>2058</td>
+        </tr>
+        <tr>
+          <td>full-scale / gru</td>
+          <td>MPS</td>
+          <td>13281.9</td>
+          <td>0.183</td>
+          <td>0.203</td>
+          <td>16.5</td>
+          <td>3209</td>
+        </tr>
+        <tr>
+          <td>full-scale / gru-float32-cpu</td>
+          <td>CPU</td>
+          <td>13281.9</td>
+          <td>0.183</td>
+          <td>0.203</td>
+          <td>16.5</td>
+          <td>7963</td>
+        </tr>
+        <tr>
+          <td>full-scale / int8-gru</td>
+          <td>CPU</td>
+          <td>3555.1</td>
+          <td>0.183</td>
+          <td>0.203</td>
+          <td>16.5</td>
+          <td>2245</td>
+        </tr>
+      </table>
+    </div>
+    <p>
+      Generation carries GRU state; the Transformer has no KV cache. Both include device execution
+      but benchmark decoding leaves predicted token tensors on device, whereas quality evaluation
+      copies token IDs to CPU to implement stopping. Numerical differences between CPU and MPS are
+      expected; identical seeds do not promise identical training trajectories. A low prose or
+      prompt-inclusive task loss still does not demonstrate reliable answer retrieval.
+    </p>
+    <h3>MPS memory and limitations</h3>
+    <p>
+      Peak RSS is process host memory, not peak GPU memory. The MPS runs additionally record live
+      tensor allocations and driver allocations after benchmarking; those are snapshots, not peaks.
+      Driver allocations can include cached buffers and framework allocations. No watts or joules
+      were measured. CPU and GPU runs were conducted sequentially; host activity and thermal state
+      were not fully controlled.
+    </p>
+    <div class="scroll">
+      <table>
+        <tr>
+          <th>Scale / model / seed</th>
+          <th>Host peak RSS MiB</th>
+          <th>MPS live MiB</th>
+          <th>MPS driver MiB</th>
+        </tr>
+        <tr>
+          <td>pilot / transformer / 42</td>
+          <td>779.4</td>
+          <td>3.2</td>
+          <td>63.8</td>
+        </tr>
+        <tr>
+          <td>pilot / gru / 42</td>
+          <td>511.6</td>
+          <td>3.2</td>
+          <td>58.7</td>
+        </tr>
+        <tr>
+          <td>pilot / transformer / 43</td>
+          <td>710.1</td>
+          <td>3.2</td>
+          <td>63.8</td>
+        </tr>
+        <tr>
+          <td>pilot / gru / 43</td>
+          <td>500.6</td>
+          <td>3.2</td>
+          <td>58.7</td>
+        </tr>
+        <tr>
+          <td>pilot / transformer / 44</td>
+          <td>710.1</td>
+          <td>3.2</td>
+          <td>71.8</td>
+        </tr>
+        <tr>
+          <td>pilot / gru / 44</td>
+          <td>499.1</td>
+          <td>3.2</td>
+          <td>58.7</td>
+        </tr>
+        <tr>
+          <td>full-scale / transformer / 42</td>
+          <td>787.8</td>
+          <td>50.7</td>
+          <td>186.8</td>
+        </tr>
+        <tr>
+          <td>full-scale / gru / 42</td>
+          <td>588.1</td>
+          <td>53.9</td>
+          <td>146.7</td>
+        </tr>
+      </table>
+    </div>
+    <p>
+      Reproduce with <code>.venv/bin/python research/mps_run.py</code> outside the GPU-restricting
+      sandbox, followed by <code>.venv/bin/python research/cross_device.py</code> and
+      <code>.venv/bin/python research/report.py</code>. Raw MPS metrics, answers, corpora and
+      checkpoints are under <code>research/mps/</code>. GPU progress and backend messages are in
+      <code>mps-progress.jsonl</code> and <code>mps-stderr.txt</code>.
+    </p>
+    <details>
+      <summary>Embedded measured data</summary>
+      <pre>
+{
+  &quot;runs&quot;: [
+    {
+      &quot;kind&quot;: &quot;transformer&quot;,
+      &quot;seed&quot;: 42,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 207618,
+      &quot;training_seconds&quot;: 4.654932409874164,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.6038449159823358,
+          &quot;task_loss&quot;: 5.527774214744568,
+          &quot;prose_loss&quot;: 5.531616568565369,
+          &quot;mixed_loss&quot;: 5.529695391654968
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 1.0829379120841622,
+          &quot;task_loss&quot;: 1.6183853894472122,
+          &quot;prose_loss&quot;: 2.4539574682712555,
+          &quot;mixed_loss&quot;: 2.036171428859234
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 1.5799807108705863,
+          &quot;task_loss&quot;: 1.251515731215477,
+          &quot;prose_loss&quot;: 2.257010906934738,
+          &quot;mixed_loss&quot;: 1.7542633190751076
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 2.0890935404459015,
+          &quot;task_loss&quot;: 0.889775462448597,
+          &quot;prose_loss&quot;: 2.1134332716464996,
+          &quot;mixed_loss&quot;: 1.5016043670475483
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 2.602687833365053,
+          &quot;task_loss&quot;: 0.5596660077571869,
+          &quot;prose_loss&quot;: 1.9856845289468765,
+          &quot;mixed_loss&quot;: 1.2726752683520317
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 3.1086663784226403,
+          &quot;task_loss&quot;: 0.38898442685604095,
+          &quot;prose_loss&quot;: 1.84344120323658,
+          &quot;mixed_loss&quot;: 1.1162128150463104
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 3.632053793175146,
+          &quot;task_loss&quot;: 0.3152768351137638,
+          &quot;prose_loss&quot;: 1.766504019498825,
+          &quot;mixed_loss&quot;: 1.0408904273062944
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 4.138351121684536,
+          &quot;task_loss&quot;: 0.2723999656736851,
+          &quot;prose_loss&quot;: 1.697562500834465,
+          &quot;mixed_loss&quot;: 0.984981233254075
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 4.654932409874164,
+          &quot;task_loss&quot;: 0.24456154741346836,
+          &quot;prose_loss&quot;: 1.618116334080696,
+          &quot;mixed_loss&quot;: 0.9313389407470822
+        }
+      ],
+      &quot;task_loss&quot;: 0.23891779407858849,
+      &quot;prose_loss&quot;: 1.6379306763410568,
+      &quot;accuracy&quot;: 0.16483516483516483,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.2857142857142857,
+        &quot;distractor&quot;: 0.11904761904761904,
+        &quot;update&quot;: 0.19047619047619047
+      },
+      &quot;forward_tokens_s&quot;: 365858.0145769335,
+      &quot;decode_tokens_s&quot;: 2885.493259142635,
+      &quot;forward_repeats&quot;: [
+        308906.6981209681,
+        362490.7050803186,
+        366556.4706695999,
+        365858.0145769335,
+        352006.9845438073,
+        376514.4410769863,
+        366764.33361685136
+      ],
+      &quot;decode_repeats&quot;: [
+        429.0172846851976,
+        2902.753929320121,
+        2912.5072879265126,
+        2873.5524725744117,
+        2885.493259142635,
+        2864.086474897765,
+        2886.440397166638
+      ],
+      &quot;state_bytes&quot;: 839817,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 3351808,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 66895872
+      },
+      &quot;variants&quot;: [
+        {
+          &quot;kind&quot;: &quot;pruned-50pct-ffn&quot;,
+          &quot;parent&quot;: &quot;transformer&quot;,
+          &quot;seed&quot;: 42,
+          &quot;device&quot;: &quot;mps&quot;,
+          &quot;state_bytes&quot;: 633737,
+          &quot;task_loss&quot;: 0.4782021641731262,
+          &quot;prose_loss&quot;: 2.023321568965912,
+          &quot;accuracy&quot;: 0.14285714285714285,
+          &quot;families&quot;: {
+            &quot;direct&quot;: 0.14285714285714285,
+            &quot;distractor&quot;: 0.14285714285714285,
+            &quot;update&quot;: 0.14285714285714285
+          },
+          &quot;forward_tokens_s&quot;: 370667.5724106363,
+          &quot;decode_tokens_s&quot;: 2845.8041042920054,
+          &quot;forward_repeats&quot;: [
+            377776.13658426504,
+            366462.50230882264,
+            360576.0773292558,
+            370667.5724106363,
+            374089.01069813507,
+            375114.4403462616,
+            362651.1785992485
+          ],
+          &quot;decode_repeats&quot;: [
+            1075.9522305617013,
+            2848.7668842671455,
+            2822.491733979908,
+            2857.5715722911737,
+            2905.752282604828,
+            2822.350000719762,
+            2845.8041042920054
+          ]
+        }
+      ],
+      &quot;wall_seconds&quot;: 9.908033499959856,
+      &quot;peak_rss_bytes&quot;: 817283072,
+      &quot;scale&quot;: &quot;pilot&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;gru&quot;,
+      &quot;seed&quot;: 42,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 208818,
+      &quot;training_seconds&quot;: 19.849615290528163,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.49940924998372793,
+          &quot;task_loss&quot;: 5.553312420845032,
+          &quot;prose_loss&quot;: 5.556203067302704,
+          &quot;mixed_loss&quot;: 5.554757744073868
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 2.8904536346672103,
+          &quot;task_loss&quot;: 1.2613604068756104,
+          &quot;prose_loss&quot;: 2.321157217025757,
+          &quot;mixed_loss&quot;: 1.7912588119506836
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 5.2929275506176054,
+          &quot;task_loss&quot;: 0.6112240701913834,
+          &quot;prose_loss&quot;: 1.8547881990671158,
+          &quot;mixed_loss&quot;: 1.2330061346292496
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 7.703232840518467,
+          &quot;task_loss&quot;: 0.4417945668101311,
+          &quot;prose_loss&quot;: 1.5592002123594284,
+          &quot;mixed_loss&quot;: 1.0004973895847797
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 10.135238922201097,
+          &quot;task_loss&quot;: 0.3617631830275059,
+          &quot;prose_loss&quot;: 1.3564530611038208,
+          &quot;mixed_loss&quot;: 0.8591081220656633
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 12.550632298458368,
+          &quot;task_loss&quot;: 0.32075653225183487,
+          &quot;prose_loss&quot;: 1.2183507531881332,
+          &quot;mixed_loss&quot;: 0.769553642719984
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 14.972195380716585,
+          &quot;task_loss&quot;: 0.30156082287430763,
+          &quot;prose_loss&quot;: 1.1436932533979416,
+          &quot;mixed_loss&quot;: 0.7226270381361246
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 17.41304237267468,
+          &quot;task_loss&quot;: 0.29362937808036804,
+          &quot;prose_loss&quot;: 1.092426210641861,
+          &quot;mixed_loss&quot;: 0.6930277943611145
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 19.849615290528163,
+          &quot;task_loss&quot;: 0.28611941263079643,
+          &quot;prose_loss&quot;: 1.0576348006725311,
+          &quot;mixed_loss&quot;: 0.6718771066516638
+        }
+      ],
+      &quot;task_loss&quot;: 0.28541581332683563,
+      &quot;prose_loss&quot;: 1.0684544295072556,
+      &quot;accuracy&quot;: 0.14285714285714285,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.14285714285714285,
+        &quot;distractor&quot;: 0.14285714285714285,
+        &quot;update&quot;: 0.14285714285714285
+      },
+      &quot;forward_tokens_s&quot;: 15326.385344757258,
+      &quot;decode_tokens_s&quot;: 4028.0775557569796,
+      &quot;forward_repeats&quot;: [
+        14764.276216950155,
+        15526.525875290008,
+        15410.538800111108,
+        15311.313847154513,
+        15450.66455684347,
+        15326.385344757258,
+        15250.724742471228
+      ],
+      &quot;decode_repeats&quot;: [
+        4028.0775557569796,
+        4121.527700336665,
+        4010.0669515302516,
+        4164.557812102108,
+        4004.9367439260836,
+        4256.427583291555,
+        4016.232263347968
+      ],
+      &quot;state_bytes&quot;: 838225,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 3361024,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 61571072
+      },
+      &quot;cpu_parent&quot;: {
+        &quot;kind&quot;: &quot;gru-float32-cpu&quot;,
+        &quot;device&quot;: &quot;cpu&quot;,
+        &quot;task_loss&quot;: 0.2854156605899334,
+        &quot;prose_loss&quot;: 1.0684543997049332,
+        &quot;accuracy&quot;: 0.14285714285714285,
+        &quot;families&quot;: {
+          &quot;direct&quot;: 0.14285714285714285,
+          &quot;distractor&quot;: 0.14285714285714285,
+          &quot;update&quot;: 0.14285714285714285
+        },
+        &quot;forward_tokens_s&quot;: 128287.04245687985,
+        &quot;decode_tokens_s&quot;: 22632.167740154917,
+        &quot;forward_repeats&quot;: [
+          127379.02758361064,
+          128287.04245687985,
+          128734.3193672202,
+          128804.75909936987,
+          127803.50235964965,
+          128189.61151834961,
+          128594.21446724466
+        ],
+        &quot;decode_repeats&quot;: [
+          22285.850499515316,
+          22304.402254345692,
+          22474.09870195448,
+          22756.450747944917,
+          22822.72397284921,
+          22632.167740154917,
+          22842.186414534994
+        ]
+      },
+      &quot;variants&quot;: [
+        {
+          &quot;kind&quot;: &quot;int8-gru&quot;,
+          &quot;parent&quot;: &quot;gru&quot;,
+          &quot;seed&quot;: 42,
+          &quot;device&quot;: &quot;cpu&quot;,
+          &quot;state_bytes&quot;: 283522,
+          &quot;task_loss&quot;: 0.2852708250284195,
+          &quot;prose_loss&quot;: 1.0687721520662308,
+          &quot;accuracy&quot;: 0.14285714285714285,
+          &quot;families&quot;: {
+            &quot;direct&quot;: 0.14285714285714285,
+            &quot;distractor&quot;: 0.14285714285714285,
+            &quot;update&quot;: 0.14285714285714285
+          },
+          &quot;forward_tokens_s&quot;: 52877.08449294591,
+          &quot;decode_tokens_s&quot;: 8045.90117791333,
+          &quot;forward_repeats&quot;: [
+            52582.75073390301,
+            52918.34653492142,
+            52923.17870914806,
+            53255.76075389966,
+            52877.08449294591,
+            52719.598023813225,
+            52577.216077039826
+          ],
+          &quot;decode_repeats&quot;: [
+            7852.573147398683,
+            8111.019608212659,
+            8174.183688898096,
+            8054.92992230866,
+            8027.3431787861045,
+            8029.609144640015,
+            8045.90117791333
+          ]
+        }
+      ],
+      &quot;wall_seconds&quot;: 26.489802042022347,
+      &quot;peak_rss_bytes&quot;: 536444928,
+      &quot;scale&quot;: &quot;pilot&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;transformer&quot;,
+      &quot;seed&quot;: 43,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 207618,
+      &quot;training_seconds&quot;: 4.189943998120725,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.20499162503983825,
+          &quot;task_loss&quot;: 5.549711644649506,
+          &quot;prose_loss&quot;: 5.550547003746033,
+          &quot;mixed_loss&quot;: 5.550129324197769
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 0.7137515849899501,
+          &quot;task_loss&quot;: 1.6466302573680878,
+          &quot;prose_loss&quot;: 2.4408432245254517,
+          &quot;mixed_loss&quot;: 2.0437367409467697
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 1.2073438783409074,
+          &quot;task_loss&quot;: 1.287441372871399,
+          &quot;prose_loss&quot;: 2.2617366313934326,
+          &quot;mixed_loss&quot;: 1.7745890021324158
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 1.7141465077875182,
+          &quot;task_loss&quot;: 0.9521574601531029,
+          &quot;prose_loss&quot;: 2.1496837437152863,
+          &quot;mixed_loss&quot;: 1.5509206019341946
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 2.2174428411526605,
+          &quot;task_loss&quot;: 0.639241099357605,
+          &quot;prose_loss&quot;: 2.006736934185028,
+          &quot;mixed_loss&quot;: 1.3229890167713165
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 2.7291261239442974,
+          &quot;task_loss&quot;: 0.47244367375969887,
+          &quot;prose_loss&quot;: 1.8789297193288803,
+          &quot;mixed_loss&quot;: 1.1756866965442896
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 3.2472521228482947,
+          &quot;task_loss&quot;: 0.3332529515028,
+          &quot;prose_loss&quot;: 1.7737767100334167,
+          &quot;mixed_loss&quot;: 1.0535148307681084
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 3.712671458837576,
+          &quot;task_loss&quot;: 0.2838296890258789,
+          &quot;prose_loss&quot;: 1.6864521950483322,
+          &quot;mixed_loss&quot;: 0.9851409420371056
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 4.189943998120725,
+          &quot;task_loss&quot;: 0.2616691365838051,
+          &quot;prose_loss&quot;: 1.637029692530632,
+          &quot;mixed_loss&quot;: 0.9493494145572186
+        }
+      ],
+      &quot;task_loss&quot;: 0.2555512897670269,
+      &quot;prose_loss&quot;: 1.6505493223667145,
+      &quot;accuracy&quot;: 0.15384615384615385,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.21428571428571427,
+        &quot;distractor&quot;: 0.09523809523809523,
+        &quot;update&quot;: 0.20238095238095238
+      },
+      &quot;forward_tokens_s&quot;: 367736.8362477995,
+      &quot;decode_tokens_s&quot;: 2711.6378293627677,
+      &quot;forward_repeats&quot;: [
+        206288.72797045662,
+        370104.89165811415,
+        373184.64611939504,
+        369026.720952681,
+        367736.8362477995,
+        359098.70990898815,
+        363612.65835411835
+      ],
+      &quot;decode_repeats&quot;: [
+        505.52756202937974,
+        2711.6378293627677,
+        2710.3745438254114,
+        2712.547678598862,
+        2765.5909307727115,
+        2705.543217223457,
+        2757.4552645571657
+      ],
+      &quot;state_bytes&quot;: 839817,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 3351808,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 66895872
+      },
+      &quot;variants&quot;: [],
+      &quot;wall_seconds&quot;: 7.454929874977097,
+      &quot;peak_rss_bytes&quot;: 744603648,
+      &quot;scale&quot;: &quot;pilot&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;gru&quot;,
+      &quot;seed&quot;: 43,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 208818,
+      &quot;training_seconds&quot;: 19.95173820189666,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.16205600008834153,
+          &quot;task_loss&quot;: 5.594233453273773,
+          &quot;prose_loss&quot;: 5.621747076511383,
+          &quot;mixed_loss&quot;: 5.607990264892578
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 2.603373418445699,
+          &quot;task_loss&quot;: 1.2225385010242462,
+          &quot;prose_loss&quot;: 2.3018688559532166,
+          &quot;mixed_loss&quot;: 1.7622036784887314
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 5.072631207760423,
+          &quot;task_loss&quot;: 0.5733875334262848,
+          &quot;prose_loss&quot;: 1.8340827971696854,
+          &quot;mixed_loss&quot;: 1.203735165297985
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 7.548175286268815,
+          &quot;task_loss&quot;: 0.395649928599596,
+          &quot;prose_loss&quot;: 1.5225443840026855,
+          &quot;mixed_loss&quot;: 0.9590971563011408
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 10.018900700379163,
+          &quot;task_loss&quot;: 0.32636360824108124,
+          &quot;prose_loss&quot;: 1.3254588693380356,
+          &quot;mixed_loss&quot;: 0.8259112387895584
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 12.504821535781957,
+          &quot;task_loss&quot;: 0.2960561104118824,
+          &quot;prose_loss&quot;: 1.1999036222696304,
+          &quot;mixed_loss&quot;: 0.7479798663407564
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 14.982090455363505,
+          &quot;task_loss&quot;: 0.27492739632725716,
+          &quot;prose_loss&quot;: 1.122399166226387,
+          &quot;mixed_loss&quot;: 0.6986632812768221
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 17.46019990881905,
+          &quot;task_loss&quot;: 0.26398686692118645,
+          &quot;prose_loss&quot;: 1.0710880607366562,
+          &quot;mixed_loss&quot;: 0.6675374638289213
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 19.95173820189666,
+          &quot;task_loss&quot;: 0.25855893827974796,
+          &quot;prose_loss&quot;: 1.0393371880054474,
+          &quot;mixed_loss&quot;: 0.6489480631425977
+        }
+      ],
+      &quot;task_loss&quot;: 0.2542728502303362,
+      &quot;prose_loss&quot;: 1.0378206968307495,
+      &quot;accuracy&quot;: 0.14285714285714285,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.14285714285714285,
+        &quot;distractor&quot;: 0.14285714285714285,
+        &quot;update&quot;: 0.14285714285714285
+      },
+      &quot;forward_tokens_s&quot;: 15346.786384199304,
+      &quot;decode_tokens_s&quot;: 3975.868635034909,
+      &quot;forward_repeats&quot;: [
+        13994.640825531249,
+        15500.01156992084,
+        15272.803766555005,
+        15355.976671298911,
+        15354.219197914153,
+        15232.39062105176,
+        15346.786384199304
+      ],
+      &quot;decode_repeats&quot;: [
+        4103.426342958679,
+        3975.868635034909,
+        4011.8545250696066,
+        3920.4275734236917,
+        3920.167418968768,
+        3994.8192366718363,
+        3970.811715434107
+      ],
+      &quot;state_bytes&quot;: 838225,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 3361024,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 61571072
+      },
+      &quot;variants&quot;: [],
+      &quot;wall_seconds&quot;: 25.22735195804853,
+      &quot;peak_rss_bytes&quot;: 524894208,
+      &quot;scale&quot;: &quot;pilot&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;transformer&quot;,
+      &quot;seed&quot;: 44,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 207618,
+      &quot;training_seconds&quot;: 4.367559677339159,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.19105170900002122,
+          &quot;task_loss&quot;: 5.538378894329071,
+          &quot;prose_loss&quot;: 5.551517724990845,
+          &quot;mixed_loss&quot;: 5.544948309659958
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 0.7103010029532015,
+          &quot;task_loss&quot;: 1.6402024030685425,
+          &quot;prose_loss&quot;: 2.4363898038864136,
+          &quot;mixed_loss&quot;: 2.038296103477478
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 1.1870316290296614,
+          &quot;task_loss&quot;: 1.2306097447872162,
+          &quot;prose_loss&quot;: 2.2425287663936615,
+          &quot;mixed_loss&quot;: 1.7365692555904388
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 1.6870470928261057,
+          &quot;task_loss&quot;: 0.9417349472641945,
+          &quot;prose_loss&quot;: 2.145354211330414,
+          &quot;mixed_loss&quot;: 1.5435445792973042
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 2.170050635118969,
+          &quot;task_loss&quot;: 0.6063148528337479,
+          &quot;prose_loss&quot;: 1.990425482392311,
+          &quot;mixed_loss&quot;: 1.2983701676130295
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 2.6944210110232234,
+          &quot;task_loss&quot;: 0.42564626038074493,
+          &quot;prose_loss&quot;: 1.8556658774614334,
+          &quot;mixed_loss&quot;: 1.1406560689210892
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 3.204890800290741,
+          &quot;task_loss&quot;: 0.3319658376276493,
+          &quot;prose_loss&quot;: 1.75447516143322,
+          &quot;mixed_loss&quot;: 1.0432204995304346
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 3.7201173868961632,
+          &quot;task_loss&quot;: 0.2906506024301052,
+          &quot;prose_loss&quot;: 1.6766557395458221,
+          &quot;mixed_loss&quot;: 0.9836531709879637
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 4.367559677339159,
+          &quot;task_loss&quot;: 0.26092463731765747,
+          &quot;prose_loss&quot;: 1.633363038301468,
+          &quot;mixed_loss&quot;: 0.9471438378095627
+        }
+      ],
+      &quot;task_loss&quot;: 0.2531463894993067,
+      &quot;prose_loss&quot;: 1.6441917568445206,
+      &quot;accuracy&quot;: 0.17582417582417584,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.2857142857142857,
+        &quot;distractor&quot;: 0.08333333333333333,
+        &quot;update&quot;: 0.25
+      },
+      &quot;forward_tokens_s&quot;: 348271.6959215757,
+      &quot;decode_tokens_s&quot;: 2695.606999368941,
+      &quot;forward_repeats&quot;: [
+        200593.55319863107,
+        346466.8164402138,
+        351551.7697993653,
+        348271.6959215757,
+        363636.36680940277,
+        350947.3228136536,
+        342116.4151743999
+      ],
+      &quot;decode_repeats&quot;: [
+        468.4686441594276,
+        2711.155978366373,
+        2664.905460566462,
+        2698.6790729703685,
+        2717.724707241156,
+        2695.606999368941,
+        2683.6538310782803
+      ],
+      &quot;state_bytes&quot;: 839817,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 3351808,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 75284480
+      },
+      &quot;variants&quot;: [],
+      &quot;wall_seconds&quot;: 7.510005958960392,
+      &quot;peak_rss_bytes&quot;: 744587264,
+      &quot;scale&quot;: &quot;pilot&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;gru&quot;,
+      &quot;seed&quot;: 44,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 208818,
+      &quot;training_seconds&quot;: 20.173534252331592,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.17058595805428922,
+          &quot;task_loss&quot;: 5.613994240760803,
+          &quot;prose_loss&quot;: 5.618606805801392,
+          &quot;mixed_loss&quot;: 5.616300523281097
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 2.64379462657962,
+          &quot;task_loss&quot;: 1.3411969542503357,
+          &quot;prose_loss&quot;: 2.352437287569046,
+          &quot;mixed_loss&quot;: 1.8468171209096909
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 5.107506049331278,
+          &quot;task_loss&quot;: 0.6297380179166794,
+          &quot;prose_loss&quot;: 1.8919165879487991,
+          &quot;mixed_loss&quot;: 1.2608273029327393
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 7.604455878376029,
+          &quot;task_loss&quot;: 0.4398945979773998,
+          &quot;prose_loss&quot;: 1.593290537595749,
+          &quot;mixed_loss&quot;: 1.0165925677865744
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 10.077029337058775,
+          &quot;task_loss&quot;: 0.36434345692396164,
+          &quot;prose_loss&quot;: 1.3815021514892578,
+          &quot;mixed_loss&quot;: 0.8729228042066097
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 12.578162006218918,
+          &quot;task_loss&quot;: 0.3256482668220997,
+          &quot;prose_loss&quot;: 1.2568017691373825,
+          &quot;mixed_loss&quot;: 0.7912250179797411
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 15.081309006200172,
+          &quot;task_loss&quot;: 0.3035065419971943,
+          &quot;prose_loss&quot;: 1.1781999170780182,
+          &quot;mixed_loss&quot;: 0.7408532295376062
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 17.640526502160355,
+          &quot;task_loss&quot;: 0.29258589446544647,
+          &quot;prose_loss&quot;: 1.1352875977754593,
+          &quot;mixed_loss&quot;: 0.7139367461204529
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 20.173534252331592,
+          &quot;task_loss&quot;: 0.28773920983076096,
+          &quot;prose_loss&quot;: 1.1082889139652252,
+          &quot;mixed_loss&quot;: 0.6980140618979931
+        }
+      ],
+      &quot;task_loss&quot;: 0.28707796335220337,
+      &quot;prose_loss&quot;: 1.116958200931549,
+      &quot;accuracy&quot;: 0.14285714285714285,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.14285714285714285,
+        &quot;distractor&quot;: 0.14285714285714285,
+        &quot;update&quot;: 0.14285714285714285
+      },
+      &quot;forward_tokens_s&quot;: 15207.26955917977,
+      &quot;decode_tokens_s&quot;: 3958.1031363948755,
+      &quot;forward_repeats&quot;: [
+        14844.437796858825,
+        15247.087661475412,
+        15237.282765361713,
+        15120.90444914307,
+        15207.26955917977,
+        15293.324900659518,
+        15107.727424479976
+      ],
+      &quot;decode_repeats&quot;: [
+        4032.61106024477,
+        3950.1837379798803,
+        3887.8135881024755,
+        4093.3512622927865,
+        3941.587963435146,
+        3986.593762161188,
+        3958.1031363948755
+      ],
+      &quot;state_bytes&quot;: 838225,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 3361024,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 61571072
+      },
+      &quot;variants&quot;: [],
+      &quot;wall_seconds&quot;: 25.66965858300682,
+      &quot;peak_rss_bytes&quot;: 523354112,
+      &quot;scale&quot;: &quot;pilot&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;transformer&quot;,
+      &quot;seed&quot;: 42,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 3324674,
+      &quot;training_seconds&quot;: 10.399364485754631,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.33022995793726295,
+          &quot;task_loss&quot;: 5.356294333934784,
+          &quot;prose_loss&quot;: 5.409486770629883,
+          &quot;mixed_loss&quot;: 5.382890552282333
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 1.5848220362095162,
+          &quot;task_loss&quot;: 1.3670833706855774,
+          &quot;prose_loss&quot;: 2.388819545507431,
+          &quot;mixed_loss&quot;: 1.8779514580965042
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 2.8430560674751177,
+          &quot;task_loss&quot;: 0.7552374303340912,
+          &quot;prose_loss&quot;: 2.0961486399173737,
+          &quot;mixed_loss&quot;: 1.4256930351257324
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 4.103268944192678,
+          &quot;task_loss&quot;: 0.37194739282131195,
+          &quot;prose_loss&quot;: 1.7611812204122543,
+          &quot;mixed_loss&quot;: 1.0665643066167831
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 5.362104484578595,
+          &quot;task_loss&quot;: 0.2521243020892143,
+          &quot;prose_loss&quot;: 1.4788703173398972,
+          &quot;mixed_loss&quot;: 0.8654973097145557
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 6.6212569390190765,
+          &quot;task_loss&quot;: 0.1974751017987728,
+          &quot;prose_loss&quot;: 1.0648374259471893,
+          &quot;mixed_loss&quot;: 0.6311562638729811
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 7.882648604572751,
+          &quot;task_loss&quot;: 0.19463187642395496,
+          &quot;prose_loss&quot;: 0.7660681456327438,
+          &quot;mixed_loss&quot;: 0.4803500110283494
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 9.140783190494403,
+          &quot;task_loss&quot;: 0.1718355342745781,
+          &quot;prose_loss&quot;: 0.5543657280504704,
+          &quot;mixed_loss&quot;: 0.3631006311625242
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 10.399364485754631,
+          &quot;task_loss&quot;: 0.1588661875575781,
+          &quot;prose_loss&quot;: 0.43094008415937424,
+          &quot;mixed_loss&quot;: 0.29490313585847616
+        }
+      ],
+      &quot;task_loss&quot;: 0.16207053884863853,
+      &quot;prose_loss&quot;: 0.45129456371068954,
+      &quot;accuracy&quot;: 0.8846153846153846,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.7857142857142857,
+        &quot;distractor&quot;: 0.8928571428571429,
+        &quot;update&quot;: 0.8928571428571429
+      },
+      &quot;forward_tokens_s&quot;: 261640.55310394565,
+      &quot;decode_tokens_s&quot;: 2013.0533895293536,
+      &quot;forward_repeats&quot;: [
+        266456.16677037627,
+        252301.66101563963,
+        261640.55310394565,
+        255968.00500728187,
+        267185.03525347146,
+        260629.43268932667,
+        262943.902133769
+      ],
+      &quot;decode_repeats&quot;: [
+        488.49119819314035,
+        2013.0533895293536,
+        1990.0617561958138,
+        2051.110383821654,
+        2090.5866447499534,
+        2034.40475123769,
+        1973.2261552237885
+      ],
+      &quot;state_bytes&quot;: 13315713,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 53212416,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 195870720
+      },
+      &quot;variants&quot;: [
+        {
+          &quot;kind&quot;: &quot;pruned-50pct-ffn&quot;,
+          &quot;parent&quot;: &quot;transformer&quot;,
+          &quot;seed&quot;: 42,
+          &quot;device&quot;: &quot;mps&quot;,
+          &quot;state_bytes&quot;: 9113217,
+          &quot;task_loss&quot;: 0.2878371514379978,
+          &quot;prose_loss&quot;: 1.3114919066429138,
+          &quot;accuracy&quot;: 0.46703296703296704,
+          &quot;families&quot;: {
+            &quot;direct&quot;: 0.2857142857142857,
+            &quot;distractor&quot;: 0.4166666666666667,
+            &quot;update&quot;: 0.5476190476190477
+          },
+          &quot;forward_tokens_s&quot;: 267378.0300716732,
+          &quot;decode_tokens_s&quot;: 2057.591119562332,
+          &quot;forward_repeats&quot;: [
+            265845.12111081707,
+            264061.5909944878,
+            264859.55137361586,
+            269801.47747959354,
+            267378.0300716732,
+            272877.4728889667,
+            268386.0149190534
+          ],
+          &quot;decode_repeats&quot;: [
+            949.6781856177191,
+            2044.1950755926482,
+            2084.072028012604,
+            2101.307861923177,
+            2055.0584434422644,
+            2057.591119562332,
+            2074.899910005463
+          ]
+        }
+      ],
+      &quot;wall_seconds&quot;: 20.607342957984656,
+      &quot;peak_rss_bytes&quot;: 826048512,
+      &quot;scale&quot;: &quot;full-scale&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;gru&quot;,
+      &quot;seed&quot;: 42,
+      &quot;device&quot;: &quot;mps&quot;,
+      &quot;parameters&quot;: 3399426,
+      &quot;training_seconds&quot;: 31.685905798571184,
+      &quot;tokens_seen&quot;: 819200,
+      &quot;history&quot;: [
+        {
+          &quot;step&quot;: 1,
+          &quot;train_seconds&quot;: 0.5098089170642197,
+          &quot;task_loss&quot;: 5.543699145317078,
+          &quot;prose_loss&quot;: 5.558667600154877,
+          &quot;mixed_loss&quot;: 5.551183372735977
+        },
+        {
+          &quot;step&quot;: 100,
+          &quot;train_seconds&quot;: 4.371273546945304,
+          &quot;task_loss&quot;: 0.3097882829606533,
+          &quot;prose_loss&quot;: 1.3191922158002853,
+          &quot;mixed_loss&quot;: 0.8144902493804693
+        },
+        {
+          &quot;step&quot;: 200,
+          &quot;train_seconds&quot;: 8.272512586903758,
+          &quot;task_loss&quot;: 0.22428296878933907,
+          &quot;prose_loss&quot;: 0.5705208703875542,
+          &quot;mixed_loss&quot;: 0.3974019195884466
+        },
+        {
+          &quot;step&quot;: 300,
+          &quot;train_seconds&quot;: 12.177148791146465,
+          &quot;task_loss&quot;: 0.201165234670043,
+          &quot;prose_loss&quot;: 0.34684430807828903,
+          &quot;mixed_loss&quot;: 0.274004771374166
+        },
+        {
+          &quot;step&quot;: 400,
+          &quot;train_seconds&quot;: 16.08180799963884,
+          &quot;task_loss&quot;: 0.19777285493910313,
+          &quot;prose_loss&quot;: 0.27388785034418106,
+          &quot;mixed_loss&quot;: 0.2358303526416421
+        },
+        {
+          &quot;step&quot;: 500,
+          &quot;train_seconds&quot;: 19.97809079650324,
+          &quot;task_loss&quot;: 0.18548780493438244,
+          &quot;prose_loss&quot;: 0.23989210277795792,
+          &quot;mixed_loss&quot;: 0.21268995385617018
+        },
+        {
+          &quot;step&quot;: 600,
+          &quot;train_seconds&quot;: 23.881382542662323,
+          &quot;task_loss&quot;: 0.18500698544085026,
+          &quot;prose_loss&quot;: 0.21958953887224197,
+          &quot;mixed_loss&quot;: 0.20229826215654612
+        },
+        {
+          &quot;step&quot;: 700,
+          &quot;train_seconds&quot;: 27.781729168258607,
+          &quot;task_loss&quot;: 0.18418900482356548,
+          &quot;prose_loss&quot;: 0.20930343493819237,
+          &quot;mixed_loss&quot;: 0.19674621988087893
+        },
+        {
+          &quot;step&quot;: 800,
+          &quot;train_seconds&quot;: 31.685905798571184,
+          &quot;task_loss&quot;: 0.17968651466071606,
+          &quot;prose_loss&quot;: 0.19966580718755722,
+          &quot;mixed_loss&quot;: 0.18967616092413664
+        }
+      ],
+      &quot;task_loss&quot;: 0.18301990628242493,
+      &quot;prose_loss&quot;: 0.20275122858583927,
+      &quot;accuracy&quot;: 0.16483516483516483,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0,
+        &quot;distractor&quot;: 0,
+        &quot;update&quot;: 0.35714285714285715
+      },
+      &quot;forward_tokens_s&quot;: 12138.451881531168,
+      &quot;decode_tokens_s&quot;: 3209.1549751708308,
+      &quot;forward_repeats&quot;: [
+        12007.124540390467,
+        12075.144185838983,
+        12245.273792647664,
+        12290.268784296222,
+        12138.451881531168,
+        12344.570224259987,
+        12126.176215015628
+      ],
+      &quot;decode_repeats&quot;: [
+        3204.8250801049144,
+        3187.330355160451,
+        3310.4113814081675,
+        3157.3494679162873,
+        3209.1549751708308,
+        3303.3252599135185,
+        3302.804405371606
+      ],
+      &quot;state_bytes&quot;: 13600657,
+      &quot;mps_memory&quot;: {
+        &quot;allocated_bytes_after_benchmark&quot;: 56505600,
+        &quot;driver_allocated_bytes_after_benchmark&quot;: 153845760
+      },
+      &quot;cpu_parent&quot;: {
+        &quot;kind&quot;: &quot;gru-float32-cpu&quot;,
+        &quot;device&quot;: &quot;cpu&quot;,
+        &quot;task_loss&quot;: 0.18301974050700665,
+        &quot;prose_loss&quot;: 0.20275096595287323,
+        &quot;accuracy&quot;: 0.16483516483516483,
+        &quot;families&quot;: {
+          &quot;direct&quot;: 0,
+          &quot;distractor&quot;: 0,
+          &quot;update&quot;: 0.35714285714285715
+        },
+        &quot;forward_tokens_s&quot;: 35103.074939888975,
+        &quot;decode_tokens_s&quot;: 7962.977443051131,
+        &quot;forward_repeats&quot;: [
+          35099.806490093404,
+          35164.55357149225,
+          35103.074939888975,
+          35121.576788731094,
+          34699.21981155225,
+          35255.476122799126,
+          34960.896445012055
+        ],
+        &quot;decode_repeats&quot;: [
+          7842.416450719766,
+          7962.977443051131,
+          7899.338086600295,
+          8071.409742112267,
+          7850.219153448745,
+          8069.769916272661,
+          8018.961558081002
+        ]
+      },
+      &quot;variants&quot;: [
+        {
+          &quot;kind&quot;: &quot;int8-gru&quot;,
+          &quot;parent&quot;: &quot;gru&quot;,
+          &quot;seed&quot;: 42,
+          &quot;device&quot;: &quot;cpu&quot;,
+          &quot;state_bytes&quot;: 3640450,
+          &quot;task_loss&quot;: 0.18288994394242764,
+          &quot;prose_loss&quot;: 0.20290139131247997,
+          &quot;accuracy&quot;: 0.16483516483516483,
+          &quot;families&quot;: {
+            &quot;direct&quot;: 0,
+            &quot;distractor&quot;: 0,
+            &quot;update&quot;: 0.35714285714285715
+          },
+          &quot;forward_tokens_s&quot;: 8652.273250770857,
+          &quot;decode_tokens_s&quot;: 2245.182911002547,
+          &quot;forward_repeats&quot;: [
+            8663.888515531818,
+            8607.418097318818,
+            8534.918209167985,
+            8656.678973305427,
+            8652.273250770857,
+            8671.50045278437,
+            8606.33780118997
+          ],
+          &quot;decode_repeats&quot;: [
+            2248.0966148468056,
+            2205.153971700426,
+            2242.861844399921,
+            2252.2897151191796,
+            2243.4340486443125,
+            2253.7856552622306,
+            2245.182911002547
+          ]
+        }
+      ],
+      &quot;wall_seconds&quot;: 44.82766100007575,
+      &quot;peak_rss_bytes&quot;: 616677376,
+      &quot;scale&quot;: &quot;full-scale&quot;
+    }
+  ],
+  &quot;cross_device&quot;: [
+    {
+      &quot;trained_on&quot;: &quot;cpu&quot;,
+      &quot;evaluated_on&quot;: &quot;cpu&quot;,
+      &quot;task_loss&quot;: 0.1705050077289343,
+      &quot;prose_loss&quot;: 0.46267470344901085,
+      &quot;accuracy&quot;: 0.13186813186813187,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.14285714285714285,
+        &quot;distractor&quot;: 0.11904761904761904,
+        &quot;update&quot;: 0.14285714285714285
+      }
+    },
+    {
+      &quot;trained_on&quot;: &quot;cpu&quot;,
+      &quot;evaluated_on&quot;: &quot;mps&quot;,
+      &quot;task_loss&quot;: 0.1705051325261593,
+      &quot;prose_loss&quot;: 0.46267474070191383,
+      &quot;accuracy&quot;: 0.13186813186813187,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.14285714285714285,
+        &quot;distractor&quot;: 0.11904761904761904,
+        &quot;update&quot;: 0.14285714285714285
+      }
+    },
+    {
+      &quot;trained_on&quot;: &quot;mps&quot;,
+      &quot;evaluated_on&quot;: &quot;cpu&quot;,
+      &quot;task_loss&quot;: 0.162070382386446,
+      &quot;prose_loss&quot;: 0.45129451900720596,
+      &quot;accuracy&quot;: 0.8846153846153846,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.7857142857142857,
+        &quot;distractor&quot;: 0.8928571428571429,
+        &quot;update&quot;: 0.8928571428571429
+      }
+    },
+    {
+      &quot;trained_on&quot;: &quot;mps&quot;,
+      &quot;evaluated_on&quot;: &quot;mps&quot;,
+      &quot;task_loss&quot;: 0.16207053884863853,
+      &quot;prose_loss&quot;: 0.45129456371068954,
+      &quot;accuracy&quot;: 0.8846153846153846,
+      &quot;families&quot;: {
+        &quot;direct&quot;: 0.7857142857142857,
+        &quot;distractor&quot;: 0.8928571428571429,
+        &quot;update&quot;: 0.8928571428571429
+      }
+    }
+  ],
+  &quot;environment&quot;: {
+    &quot;platform&quot;: &quot;macOS-26.7.1-arm64-arm-64bit&quot;,
+    &quot;python&quot;: &quot;3.12.15 (main, Sep 30 2026, 22:04:19) [Clang 21.0.0 (clang-2100.3.34.2)]&quot;,
+    &quot;torch&quot;: &quot;2.14.1&quot;,
+    &quot;mps_available&quot;: true,
+    &quot;mps_built&quot;: true,
+    &quot;device&quot;: &quot;mps&quot;,
+    &quot;threads&quot;: 4,
+    &quot;batch&quot;: 8,
+    &quot;context&quot;: 128,
+    &quot;steps&quot;: 800,
+    &quot;quantized_engines&quot;: [
+      &quot;qnnpack&quot;
+    ],
+    &quot;command&quot;: &quot;.venv/bin/python research/mps_run.py&quot;,
+    &quot;execution&quot;: &quot;outside sandbox&quot;,
+    &quot;cpu_corpus_manifest&quot;: {
+      &quot;source&quot;: &quot;data/inputs/short_stories.txt&quot;,
+      &quot;source_sha256&quot;: &quot;9a8f474356165438e3f23f3233ef2ade05812467570bd07302b12cb123a86cc4&quot;,
+      &quot;pairs&quot;: {
+        &quot;train&quot;: [
+          [
+            &quot;red&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;bag&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;chair&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;bag&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;boat&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;boat&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;chair&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;boat&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;bag&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;chair&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;bag&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;chair&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;bag&quot;
+          ]
+        ],
+        &quot;validation&quot;: [
+          [
+            &quot;red&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;boat&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;chair&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;bag&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;boat&quot;
+          ]
+        ],
+        &quot;test&quot;: [
+          [
+            &quot;red&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;red&quot;,
+            &quot;boat&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;blue&quot;,
+            &quot;chair&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;hat&quot;
+          ],
+          [
+            &quot;green&quot;,
+            &quot;bag&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;cup&quot;
+          ],
+          [
+            &quot;yellow&quot;,
+            &quot;book&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;ball&quot;
+          ],
+          [
+            &quot;purple&quot;,
+            &quot;kite&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;car&quot;
+          ],
+          [
+            &quot;orange&quot;,
+            &quot;boat&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;box&quot;
+          ],
+          [
+            &quot;white&quot;,
+            &quot;chair&quot;
+          ]
+        ]
+      },
+      &quot;task_counts&quot;: {
+        &quot;train&quot;: 546,
+        &quot;validation&quot;: 182,
+        &quot;test&quot;: 182
+      },
+      &quot;story_counts&quot;: {
+        &quot;train&quot;: 17992,
+        &quot;validation&quot;: 991,
+        &quot;test&quot;: 1017
+      },
+      &quot;files&quot;: {
+        &quot;tasks-validation.txt&quot;: {
+          &quot;bytes&quot;: 14881,
+          &quot;sha256&quot;: &quot;c1c07bce3967c34fea66537ede0868f75cb4dd9236c3ae5553c41c9ffd505552&quot;
+        },
+        &quot;tasks-train.json&quot;: {
+          &quot;bytes&quot;: 72861,
+          &quot;sha256&quot;: &quot;57fe7bbde7086a386ecc5c3486799f8d7435fc297c837130b8b3c76597f9457c&quot;
+        },
+        &quot;tasks-train.txt&quot;: {
+          &quot;bytes&quot;: 44550,
+          &quot;sha256&quot;: &quot;a9339e14f321d398dbfb36d2e90249ca9054a6c0e8ae69cb832395c7f313395a&quot;
+        },
+        &quot;tasks-test.txt&quot;: {
+          &quot;bytes&quot;: 14881,
+          &quot;sha256&quot;: &quot;1cbf1cf4e022866f9dcf9a8a1fbdf616c74474bb25241eb733292f2df532288c&quot;
+        },
+        &quot;tasks-test.json&quot;: {
+          &quot;bytes&quot;: 24320,
+          &quot;sha256&quot;: &quot;0066463e28c16cd6b84d8a4b6622b9fbd400d60a81c27a2e9cf1451f450772a0&quot;
+        },
+        &quot;tasks-validation.json&quot;: {
+          &quot;bytes&quot;: 24320,
+          &quot;sha256&quot;: &quot;bf1062c311bd89ef8018dd2aaeee8fd0334ceb6edd607ac19b409ae02c28fad6&quot;
+        },
+        &quot;prose-test.txt&quot;: {
+          &quot;bytes&quot;: 152705,
+          &quot;sha256&quot;: &quot;3c690573823c6a42c91f042d1e35d28e25361d48014e780abe669bbf66671540&quot;
+        },
+        &quot;prose-train.txt&quot;: {
+          &quot;bytes&quot;: 2703031,
+          &quot;sha256&quot;: &quot;6ec54429c4cb62e35f75fb0fd572fde229bdf7d9b3af1fcf7aba38bceed50781&quot;
+        },
+        &quot;prose-validation.txt&quot;: {
+          &quot;bytes&quot;: 148926,
+          &quot;sha256&quot;: &quot;28a28954d5926a5f6c5e062d46500dce37ca1a8abd7f953ed33a5a24d2639aac&quot;
+        }
+      }
+    }
+  },
+  &quot;summary&quot;: {
+    &quot;pilot&quot;: {
+      &quot;transformer-cpu&quot;: {
+        &quot;training_seconds&quot;: 4.359515194431879,
+        &quot;task_loss&quot;: 0.2491035864998897,
+        &quot;prose_loss&quot;: 1.6454192847013474,
+        &quot;accuracy&quot;: 0.16666666666666666,
+        &quot;decode_tokens_s&quot;: 2940.517866343398
+      },
+      &quot;transformer-mps&quot;: {
+        &quot;training_seconds&quot;: 4.404145361778016,
+        &quot;task_loss&quot;: 0.24920515778164068,
+        &quot;prose_loss&quot;: 1.6442239185174305,
+        &quot;accuracy&quot;: 0.16483516483516483,
+        &quot;decode_tokens_s&quot;: 2764.246029291448
+      },
+      &quot;gru-cpu&quot;: {
+        &quot;training_seconds&quot;: 10.171992881417586,
+        &quot;task_loss&quot;: 0.2755887471139431,
+        &quot;prose_loss&quot;: 1.07441142698129,
+        &quot;accuracy&quot;: 0.14285714285714285,
+        &quot;decode_tokens_s&quot;: 22483.04248982848
+      },
+      &quot;gru-mps&quot;: {
+        &quot;training_seconds&quot;: 19.99162924825214,
+        &quot;task_loss&quot;: 0.2755888756364584,
+        &quot;prose_loss&quot;: 1.0744111090898514,
+        &quot;accuracy&quot;: 0.14285714285714285,
+        &quot;decode_tokens_s&quot;: 3987.3497757289215
+      }
+    },
+    &quot;full-scale&quot;: {
+      &quot;transformer-cpu&quot;: {
+        &quot;training_seconds&quot;: 23.2168458676897,
+        &quot;task_loss&quot;: 0.1705050077289343,
+        &quot;prose_loss&quot;: 0.46267470344901085,
+        &quot;accuracy&quot;: 0.13186813186813187,
+        &quot;decode_tokens_s&quot;: 741.9128600264515
+      },
+      &quot;transformer-mps&quot;: {
+        &quot;training_seconds&quot;: 10.399364485754631,
+        &quot;task_loss&quot;: 0.16207053884863853,
+        &quot;prose_loss&quot;: 0.45129456371068954,
+        &quot;accuracy&quot;: 0.8846153846153846,
+        &quot;decode_tokens_s&quot;: 2013.0533895293536
+      },
+      &quot;gru-cpu&quot;: {
+        &quot;training_seconds&quot;: 62.12987445888575,
+        &quot;task_loss&quot;: 0.18425347656011581,
+        &quot;prose_loss&quot;: 0.20360174216330051,
+        &quot;accuracy&quot;: 0.16483516483516483,
+        &quot;decode_tokens_s&quot;: 8347.190974664649
+      },
+      &quot;gru-mps&quot;: {
+        &quot;training_seconds&quot;: 31.685905798571184,
+        &quot;task_loss&quot;: 0.18301990628242493,
+        &quot;prose_loss&quot;: 0.20275122858583927,
+        &quot;accuracy&quot;: 0.16483516483516483,
+        &quot;decode_tokens_s&quot;: 3209.1549751708308
+      }
+    }
+  },
+  &quot;corpora&quot;: {
+    &quot;source&quot;: &quot;data/inputs/short_stories.txt&quot;,
+    &quot;source_sha256&quot;: &quot;9a8f474356165438e3f23f3233ef2ade05812467570bd07302b12cb123a86cc4&quot;,
+    &quot;pairs&quot;: {
+      &quot;train&quot;: [
+        [
+          &quot;red&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;bag&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;chair&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;bag&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;boat&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;boat&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;chair&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;boat&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;bag&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;chair&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;bag&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;chair&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;bag&quot;
+        ]
+      ],
+      &quot;validation&quot;: [
+        [
+          &quot;red&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;boat&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;chair&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;bag&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;boat&quot;
+        ]
+      ],
+      &quot;test&quot;: [
+        [
+          &quot;red&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;red&quot;,
+          &quot;boat&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;blue&quot;,
+          &quot;chair&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;hat&quot;
+        ],
+        [
+          &quot;green&quot;,
+          &quot;bag&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;cup&quot;
+        ],
+        [
+          &quot;yellow&quot;,
+          &quot;book&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;ball&quot;
+        ],
+        [
+          &quot;purple&quot;,
+          &quot;kite&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;car&quot;
+        ],
+        [
+          &quot;orange&quot;,
+          &quot;boat&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;box&quot;
+        ],
+        [
+          &quot;white&quot;,
+          &quot;chair&quot;
+        ]
+      ]
+    },
+    &quot;task_counts&quot;: {
+      &quot;train&quot;: 546,
+      &quot;validation&quot;: 182,
+      &quot;test&quot;: 182
+    },
+    &quot;story_counts&quot;: {
+      &quot;train&quot;: 17992,
+      &quot;validation&quot;: 991,
+      &quot;test&quot;: 1017
+    },
+    &quot;files&quot;: {
+      &quot;tasks-validation.txt&quot;: {
+        &quot;bytes&quot;: 14881,
+        &quot;sha256&quot;: &quot;c1c07bce3967c34fea66537ede0868f75cb4dd9236c3ae5553c41c9ffd505552&quot;
+      },
+      &quot;tasks-train.json&quot;: {
+        &quot;bytes&quot;: 72861,
+        &quot;sha256&quot;: &quot;57fe7bbde7086a386ecc5c3486799f8d7435fc297c837130b8b3c76597f9457c&quot;
+      },
+      &quot;tasks-train.txt&quot;: {
+        &quot;bytes&quot;: 44550,
+        &quot;sha256&quot;: &quot;a9339e14f321d398dbfb36d2e90249ca9054a6c0e8ae69cb832395c7f313395a&quot;
+      },
+      &quot;tasks-test.txt&quot;: {
+        &quot;bytes&quot;: 14881,
+        &quot;sha256&quot;: &quot;1cbf1cf4e022866f9dcf9a8a1fbdf616c74474bb25241eb733292f2df532288c&quot;
+      },
+      &quot;tasks-test.json&quot;: {
+        &quot;bytes&quot;: 24320,
+        &quot;sha256&quot;: &quot;0066463e28c16cd6b84d8a4b6622b9fbd400d60a81c27a2e9cf1451f450772a0&quot;
+      },
+      &quot;tasks-validation.json&quot;: {
+        &quot;bytes&quot;: 24320,
+        &quot;sha256&quot;: &quot;bf1062c311bd89ef8018dd2aaeee8fd0334ceb6edd607ac19b409ae02c28fad6&quot;
+      },
+      &quot;prose-test.txt&quot;: {
+        &quot;bytes&quot;: 152705,
+        &quot;sha256&quot;: &quot;3c690573823c6a42c91f042d1e35d28e25361d48014e780abe669bbf66671540&quot;
+      },
+      &quot;prose-train.txt&quot;: {
+        &quot;bytes&quot;: 2703031,
+        &quot;sha256&quot;: &quot;6ec54429c4cb62e35f75fb0fd572fde229bdf7d9b3af1fcf7aba38bceed50781&quot;
+      },
+      &quot;prose-validation.txt&quot;: {
+        &quot;bytes&quot;: 148926,
+        &quot;sha256&quot;: &quot;28a28954d5926a5f6c5e062d46500dce37ca1a8abd7f953ed33a5a24d2639aac&quot;
+      }
+    }
+  }
+}</pre
+      >
+    </details>
+    <footer>
+      Local Seed experiment · No network dependencies, external fonts, or chart libraries. Report
+      generated from recorded results.
+    </footer>
+  </main>
+</html>

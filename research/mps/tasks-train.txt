@@ -1,0 +1,1638 @@
+User: The car was orange. Now the car is green. What color is it?
+Assistant: green
+
+User: A green hat is beside a red cup. What color is the cup?
+Assistant: red
+
+User: A white chair is beside a blue bag. What color is the bag?
+Assistant: blue
+
+User: A purple book is beside a green kite. What color is the kite?
+Assistant: green
+
+User: A blue chair is beside a red bag. What color is the bag?
+Assistant: red
+
+User: A white cup is beside a green ball. What color is the ball?
+Assistant: green
+
+User: A red bag is beside a blue book. What color is the book?
+Assistant: blue
+
+User: A orange box is beside a white hat. What color is the hat?
+Assistant: white
+
+User: A purple book is beside a blue kite. What color is the kite?
+Assistant: blue
+
+User: A white boat is beside a orange box. What color is the box?
+Assistant: orange
+
+User: The chair was green. Now the chair is purple. What color is it?
+Assistant: purple
+
+User: A white bag is beside a orange book. What color is the book?
+Assistant: orange
+
+User: The book was red. Now the book is green. What color is it?
+Assistant: green
+
+User: A green chair is beside a orange bag. What color is the bag?
+Assistant: orange
+
+User: The hat was yellow. Now the hat is blue. What color is it?
+Assistant: blue
+
+User: A green boat is beside a orange box. What color is the box?
+Assistant: orange
+
+User: A blue cup is beside a green ball. What color is the ball?
+Assistant: green
+
+User: The box was white. Now the box is orange. What color is it?
+Assistant: orange
+
+User: The book was purple. Now the book is blue. What color is it?
+Assistant: blue
+
+User: The car was purple. Now the car is green. What color is it?
+Assistant: green
+
+User: The car was blue. Now the car is green. What color is it?
+Assistant: green
+
+User: A green hat is beside a white cup. What color is the cup?
+Assistant: white
+
+User: A purple kite is beside a yellow boat. What color is the boat?
+Assistant: yellow
+
+User: The hat was purple. Now the hat is white. What color is it?
+Assistant: white
+
+User: The ball was white. Now the ball is yellow. What color is it?
+Assistant: yellow
+
+User: The hat was green. Now the hat is orange. What color is it?
+Assistant: orange
+
+User: The boat was orange. Now the boat is green. What color is it?
+Assistant: green
+
+User: A yellow cup is beside a blue ball. What color is the ball?
+Assistant: blue
+
+User: What color is the purple box?
+Assistant: purple
+
+User: The cup was purple. Now the cup is orange. What color is it?
+Assistant: orange
+
+User: A red bag is beside a orange book. What color is the book?
+Assistant: orange
+
+User: A green box is beside a red hat. What color is the hat?
+Assistant: red
+
+User: A green car is beside a red chair. What color is the chair?
+Assistant: red
+
+User: A white ball is beside a green car. What color is the car?
+Assistant: green
+
+User: A purple cup is beside a green ball. What color is the ball?
+Assistant: green
+
+User: The kite was red. Now the kite is blue. What color is it?
+Assistant: blue
+
+User: A white bag is beside a blue book. What color is the book?
+Assistant: blue
+
+User: A purple cup is beside a white ball. What color is the ball?
+Assistant: white
+
+User: A orange boat is beside a purple box. What color is the box?
+Assistant: purple
+
+User: The ball was red. Now the ball is yellow. What color is it?
+Assistant: yellow
+
+User: A yellow boat is beside a red box. What color is the box?
+Assistant: red
+
+User: What color is the green kite?
+Assistant: green
+
+User: A purple box is beside a orange hat. What color is the hat?
+Assistant: orange
+
+User: A orange boat is beside a yellow box. What color is the box?
+Assistant: yellow
+
+User: The kite was blue. Now the kite is white. What color is it?
+Assistant: white
+
+User: The book was green. Now the book is blue. What color is it?
+Assistant: blue
+
+User: The bag was orange. Now the bag is blue. What color is it?
+Assistant: blue
+
+User: The box was white. Now the box is yellow. What color is it?
+Assistant: yellow
+
+User: A green boat is beside a purple box. What color is the box?
+Assistant: purple
+
+User: The chair was orange. Now the chair is purple. What color is it?
+Assistant: purple
+
+User: A purple bag is beside a white book. What color is the book?
+Assistant: white
+
+User: The chair was red. Now the chair is purple. What color is it?
+Assistant: purple
+
+User: What color is the blue bag?
+Assistant: blue
+
+User: A orange car is beside a purple chair. What color is the chair?
+Assistant: purple
+
+User: What color is the white cup?
+Assistant: white
+
+User: The chair was blue. Now the chair is red. What color is it?
+Assistant: red
+
+User: A purple hat is beside a red cup. What color is the cup?
+Assistant: red
+
+User: A red kite is beside a green boat. What color is the boat?
+Assistant: green
+
+User: The kite was white. Now the kite is yellow. What color is it?
+Assistant: yellow
+
+User: What color is the white kite?
+Assistant: white
+
+User: The box was white. Now the box is red. What color is it?
+Assistant: red
+
+User: The hat was white. Now the hat is blue. What color is it?
+Assistant: blue
+
+User: The box was red. Now the box is orange. What color is it?
+Assistant: orange
+
+User: A red chair is beside a blue bag. What color is the bag?
+Assistant: blue
+
+User: What color is the white book?
+Assistant: white
+
+User: A red kite is beside a yellow boat. What color is the boat?
+Assistant: yellow
+
+User: The bag was blue. Now the bag is orange. What color is it?
+Assistant: orange
+
+User: The cup was green. Now the cup is red. What color is it?
+Assistant: red
+
+User: A purple book is beside a white kite. What color is the kite?
+Assistant: white
+
+User: The chair was purple. Now the chair is orange. What color is it?
+Assistant: orange
+
+User: A blue car is beside a purple chair. What color is the chair?
+Assistant: purple
+
+User: A orange ball is beside a green car. What color is the car?
+Assistant: green
+
+User: A purple book is beside a yellow kite. What color is the kite?
+Assistant: yellow
+
+User: A red book is beside a white kite. What color is the kite?
+Assistant: white
+
+User: A green kite is beside a yellow boat. What color is the boat?
+Assistant: yellow
+
+User: The cup was green. Now the cup is orange. What color is it?
+Assistant: orange
+
+User: A orange bag is beside a blue book. What color is the book?
+Assistant: blue
+
+User: A red bag is beside a green book. What color is the book?
+Assistant: green
+
+User: A purple chair is beside a white bag. What color is the bag?
+Assistant: white
+
+User: The box was purple. Now the box is orange. What color is it?
+Assistant: orange
+
+User: The ball was blue. Now the ball is green. What color is it?
+Assistant: green
+
+User: A orange kite is beside a purple boat. What color is the boat?
+Assistant: purple
+
+User: The cup was purple. Now the cup is blue. What color is it?
+Assistant: blue
+
+User: The box was white. Now the box is purple. What color is it?
+Assistant: purple
+
+User: A red car is beside a orange chair. What color is the chair?
+Assistant: orange
+
+User: A green box is beside a blue hat. What color is the hat?
+Assistant: blue
+
+User: The chair was orange. Now the chair is yellow. What color is it?
+Assistant: yellow
+
+User: The chair was white. Now the chair is yellow. What color is it?
+Assistant: yellow
+
+User: The box was yellow. Now the box is purple. What color is it?
+Assistant: purple
+
+User: The hat was orange. Now the hat is purple. What color is it?
+Assistant: purple
+
+User: The cup was white. Now the cup is green. What color is it?
+Assistant: green
+
+User: A red box is beside a purple hat. What color is the hat?
+Assistant: purple
+
+User: A red kite is beside a purple boat. What color is the boat?
+Assistant: purple
+
+User: A green cup is beside a white ball. What color is the ball?
+Assistant: white
+
+User: The ball was yellow. Now the ball is green. What color is it?
+Assistant: green
+
+User: A green book is beside a white kite. What color is the kite?
+Assistant: white
+
+User: A yellow cup is beside a white ball. What color is the ball?
+Assistant: white
+
+User: A blue book is beside a yellow kite. What color is the kite?
+Assistant: yellow
+
+User: A orange cup is beside a blue ball. What color is the ball?
+Assistant: blue
+
+User: A yellow cup is beside a green ball. What color is the ball?
+Assistant: green
+
+User: What color is the orange cup?
+Assistant: orange
+
+User: A blue boat is beside a orange box. What color is the box?
+Assistant: orange
+
+User: The book was white. Now the book is green. What color is it?
+Assistant: green
+
+User: A yellow ball is beside a purple car. What color is the car?
+Assistant: purple
+
+User: The box was blue. Now the box is red. What color is it?
+Assistant: red
+
+User: A green boat is beside a yellow box. What color is the box?
+Assistant: yellow
+
+User: A yellow bag is beside a orange book. What color is the book?
+Assistant: orange
+
+User: A red ball is beside a yellow car. What color is the car?
+Assistant: yellow
+
+User: The box was blue. Now the box is yellow. What color is it?
+Assistant: yellow
+
+User: A red bag is beside a white book. What color is the book?
+Assistant: white
+
+User: A orange book is beside a yellow kite. What color is the kite?
+Assistant: yellow
+
+User: A white bag is beside a green book. What color is the book?
+Assistant: green
+
+User: The bag was purple. Now the bag is white. What color is it?
+Assistant: white
+
+User: The book was blue. Now the book is green. What color is it?
+Assistant: green
+
+User: A orange box is beside a purple hat. What color is the hat?
+Assistant: purple
+
+User: A red box is beside a orange hat. What color is the hat?
+Assistant: orange
+
+User: The cup was purple. Now the cup is red. What color is it?
+Assistant: red
+
+User: The book was orange. Now the book is green. What color is it?
+Assistant: green
+
+User: A purple car is beside a yellow chair. What color is the chair?
+Assistant: yellow
+
+User: The cup was yellow. Now the cup is orange. What color is it?
+Assistant: orange
+
+User: The cup was yellow. Now the cup is blue. What color is it?
+Assistant: blue
+
+User: A yellow box is beside a white hat. What color is the hat?
+Assistant: white
+
+User: A blue chair is beside a white bag. What color is the bag?
+Assistant: white
+
+User: What color is the green car?
+Assistant: green
+
+User: The bag was purple. Now the bag is orange. What color is it?
+Assistant: orange
+
+User: The box was green. Now the box is purple. What color is it?
+Assistant: purple
+
+User: The cup was yellow. Now the cup is green. What color is it?
+Assistant: green
+
+User: A blue kite is beside a green boat. What color is the boat?
+Assistant: green
+
+User: The hat was purple. Now the hat is orange. What color is it?
+Assistant: orange
+
+User: The book was red. Now the book is orange. What color is it?
+Assistant: orange
+
+User: The bag was blue. Now the bag is purple. What color is it?
+Assistant: purple
+
+User: A white ball is beside a purple car. What color is the car?
+Assistant: purple
+
+User: The chair was green. Now the chair is yellow. What color is it?
+Assistant: yellow
+
+User: The cup was orange. Now the cup is blue. What color is it?
+Assistant: blue
+
+User: The car was white. Now the car is green. What color is it?
+Assistant: green
+
+User: The car was red. Now the car is yellow. What color is it?
+Assistant: yellow
+
+User: A red hat is beside a white cup. What color is the cup?
+Assistant: white
+
+User: A orange box is beside a blue hat. What color is the hat?
+Assistant: blue
+
+User: A purple cup is beside a yellow ball. What color is the ball?
+Assistant: yellow
+
+User: What color is the yellow kite?
+Assistant: yellow
+
+User: The box was orange. Now the box is yellow. What color is it?
+Assistant: yellow
+
+User: The chair was green. Now the chair is red. What color is it?
+Assistant: red
+
+User: What color is the green book?
+Assistant: green
+
+User: A white box is beside a purple hat. What color is the hat?
+Assistant: purple
+
+User: A blue boat is beside a red box. What color is the box?
+Assistant: red
+
+User: A orange chair is beside a white bag. What color is the bag?
+Assistant: white
+
+User: The chair was white. Now the chair is orange. What color is it?
+Assistant: orange
+
+User: The ball was red. Now the ball is blue. What color is it?
+Assistant: blue
+
+User: A green bag is beside a white book. What color is the book?
+Assistant: white
+
+User: A purple box is beside a red hat. What color is the hat?
+Assistant: red
+
+User: The book was yellow. Now the book is blue. What color is it?
+Assistant: blue
+
+User: The hat was orange. Now the hat is red. What color is it?
+Assistant: red
+
+User: What color is the red chair?
+Assistant: red
+
+User: What color is the yellow boat?
+Assistant: yellow
+
+User: The box was green. Now the box is orange. What color is it?
+Assistant: orange
+
+User: A purple boat is beside a yellow box. What color is the box?
+Assistant: yellow
+
+User: The box was purple. Now the box is red. What color is it?
+Assistant: red
+
+User: The box was red. Now the box is purple. What color is it?
+Assistant: purple
+
+User: A red ball is beside a green car. What color is the car?
+Assistant: green
+
+User: A white hat is beside a green cup. What color is the cup?
+Assistant: green
+
+User: A orange hat is beside a red cup. What color is the cup?
+Assistant: red
+
+User: A white car is beside a purple chair. What color is the chair?
+Assistant: purple
+
+User: The ball was orange. Now the ball is green. What color is it?
+Assistant: green
+
+User: The ball was purple. Now the ball is green. What color is it?
+Assistant: green
+
+User: A orange car is beside a red chair. What color is the chair?
+Assistant: red
+
+User: The book was green. Now the book is white. What color is it?
+Assistant: white
+
+User: A green car is beside a orange chair. What color is the chair?
+Assistant: orange
+
+User: The book was blue. Now the book is red. What color is it?
+Assistant: red
+
+User: A red chair is beside a white bag. What color is the bag?
+Assistant: white
+
+User: The ball was blue. Now the ball is white. What color is it?
+Assistant: white
+
+User: A yellow ball is beside a green car. What color is the car?
+Assistant: green
+
+User: A red cup is beside a blue ball. What color is the ball?
+Assistant: blue
+
+User: A white kite is beside a green boat. What color is the boat?
+Assistant: green
+
+User: A blue kite is beside a yellow boat. What color is the boat?
+Assistant: yellow
+
+User: The kite was yellow. Now the kite is green. What color is it?
+Assistant: green
+
+User: A yellow kite is beside a purple boat. What color is the boat?
+Assistant: purple
+
+User: The chair was blue. Now the chair is yellow. What color is it?
+Assistant: yellow
+
+User: A green chair is beside a white bag. What color is the bag?
+Assistant: white
+
+User: A blue box is beside a purple hat. What color is the hat?
+Assistant: purple
+
+User: The chair was blue. Now the chair is purple. What color is it?
+Assistant: purple
+
+User: A orange cup is beside a yellow ball. What color is the ball?
+Assistant: yellow
+
+User: A green chair is beside a blue bag. What color is the bag?
+Assistant: blue
+
+User: A green book is beside a yellow kite. What color is the kite?
+Assistant: yellow
+
+User: The car was red. Now the car is green. What color is it?
+Assistant: green
+
+User: The cup was white. Now the cup is blue. What color is it?
+Assistant: blue
+
+User: A white boat is beside a red box. What color is the box?
+Assistant: red
+
+User: What color is the orange hat?
+Assistant: orange
+
+User: A blue chair is beside a orange bag. What color is the bag?
+Assistant: orange
+
+User: The hat was green. Now the hat is white. What color is it?
+Assistant: white
+
+User: The box was purple. Now the box is yellow. What color is it?
+Assistant: yellow
+
+User: A yellow chair is beside a purple bag. What color is the bag?
+Assistant: purple
+
+User: A green ball is beside a yellow car. What color is the car?
+Assistant: yellow
+
+User: The boat was red. Now the boat is green. What color is it?
+Assistant: green
+
+User: The hat was orange. Now the hat is white. What color is it?
+Assistant: white
+
+User: A orange box is beside a red hat. What color is the hat?
+Assistant: red
+
+User: A white car is beside a red chair. What color is the chair?
+Assistant: red
+
+User: A yellow car is beside a orange chair. What color is the chair?
+Assistant: orange
+
+User: A orange hat is beside a blue cup. What color is the cup?
+Assistant: blue
+
+User: A blue hat is beside a red cup. What color is the cup?
+Assistant: red
+
+User: The boat was green. Now the boat is purple. What color is it?
+Assistant: purple
+
+User: The boat was white. Now the boat is yellow. What color is it?
+Assistant: yellow
+
+User: A white box is beside a red hat. What color is the hat?
+Assistant: red
+
+User: The chair was yellow. Now the chair is purple. What color is it?
+Assistant: purple
+
+User: A orange kite is beside a green boat. What color is the boat?
+Assistant: green
+
+User: The car was white. Now the car is purple. What color is it?
+Assistant: purple
+
+User: A green box is beside a white hat. What color is the hat?
+Assistant: white
+
+User: A blue car is beside a yellow chair. What color is the chair?
+Assistant: yellow
+
+User: What color is the white hat?
+Assistant: white
+
+User: A green bag is beside a red book. What color is the book?
+Assistant: red
+
+User: The box was orange. Now the box is red. What color is it?
+Assistant: red
+
+User: The chair was yellow. Now the chair is orange. What color is it?
+Assistant: orange
+
+User: What color is the red cup?
+Assistant: red
+
+User: The kite was orange. Now the kite is white. What color is it?
+Assistant: white
+
+User: A white bag is beside a red book. What color is the book?
+Assistant: red
+
+User: The box was orange. Now the box is purple. What color is it?
+Assistant: purple
+
+User: A orange kite is beside a yellow boat. What color is the boat?
+Assistant: yellow
+
+User: A red car is beside a purple chair. What color is the chair?
+Assistant: purple
+
+User: A red boat is beside a yellow box. What color is the box?
+Assistant: yellow
+
+User: The ball was red. Now the ball is white. What color is it?
+Assistant: white
+
+User: A yellow car is beside a red chair. What color is the chair?
+Assistant: red
+
+User: A blue cup is beside a yellow ball. What color is the ball?
+Assistant: yellow
+
+User: The cup was white. Now the cup is red. What color is it?
+Assistant: red
+
+User: What color is the red book?
+Assistant: red
+
+User: The boat was purple. Now the boat is yellow. What color is it?
+Assistant: yellow
+
+User: The car was purple. Now the car is yellow. What color is it?
+Assistant: yellow
+
+User: The chair was purple. Now the chair is yellow. What color is it?
+Assistant: yellow
+
+User: The hat was yellow. Now the hat is red. What color is it?
+Assistant: red
+
+User: The book was purple. Now the book is orange. What color is it?
+Assistant: orange
+
+User: The box was yellow. Now the box is red. What color is it?
+Assistant: red
+
+User: The kite was purple. Now the kite is white. What color is it?
+Assistant: white
+
+User: The kite was green. Now the kite is white. What color is it?
+Assistant: white
+
+User: A orange book is beside a blue kite. What color is the kite?
+Assistant: blue
+
+User: The book was purple. Now the book is white. What color is it?
+Assistant: white
+
+User: The bag was red. Now the bag is blue. What color is it?
+Assistant: blue
+
+User: The kite was white. Now the kite is blue. What color is it?
+Assistant: blue
+
+User: The kite was red. Now the kite is yellow. What color is it?
+Assistant: yellow
+
+User: A purple hat is beside a green cup. What color is the cup?
+Assistant: green
+
+User: A red book is beside a green kite. What color is the kite?
+Assistant: green
+
+User: A yellow box is beside a red hat. What color is the hat?
+Assistant: red
+
+User: What color is the purple bag?
+Assistant: purple
+
+User: A yellow hat is beside a red cup. What color is the cup?
+Assistant: red
+
+User: A red boat is beside a orange box. What color is the box?
+Assistant: orange
+
+User: The bag was green. Now the bag is purple. What color is it?
+Assistant: purple
+
+User: A purple kite is beside a green boat. What color is the boat?
+Assistant: green
+
+User: A purple ball is beside a green car. What color is the car?
+Assistant: green
+
+User: The bag was purple. Now the bag is red. What color is it?
+Assistant: red
+
+User: The cup was blue. Now the cup is white. What color is it?
+Assistant: white
+
+User: A orange hat is beside a white cup. What color is the cup?
+Assistant: white
+
+User: The bag was blue. Now the bag is red. What color is it?
+Assistant: red
+
+User: The kite was orange. Now the kite is blue. What color is it?
+Assistant: blue
+
+User: The boat was red. Now the boat is purple. What color is it?
+Assistant: purple
+
+User: The bag was orange. Now the bag is purple. What color is it?
+Assistant: purple
+
+User: A red chair is beside a purple bag. What color is the bag?
+Assistant: purple
+
+User: A red cup is beside a green ball. What color is the ball?
+Assistant: green
+
+User: A red car is beside a yellow chair. What color is the chair?
+Assistant: yellow
+
+User: A purple car is beside a orange chair. What color is the chair?
+Assistant: orange
+
+User: A green ball is beside a purple car. What color is the car?
+Assistant: purple
+
+User: The book was yellow. Now the book is red. What color is it?
+Assistant: red
+
+User: A green cup is beside a yellow ball. What color is the ball?
+Assistant: yellow
+
+User: A red hat is beside a orange cup. What color is the cup?
+Assistant: orange
+
+User: A green chair is beside a purple bag. What color is the bag?
+Assistant: purple
+
+User: The car was yellow. Now the car is green. What color is it?
+Assistant: green
+
+User: The boat was white. Now the boat is green. What color is it?
+Assistant: green
+
+User: The hat was blue. Now the hat is white. What color is it?
+Assistant: white
+
+User: The boat was orange. Now the boat is purple. What color is it?
+Assistant: purple
+
+User: The box was green. Now the box is yellow. What color is it?
+Assistant: yellow
+
+User: A white kite is beside a purple boat. What color is the boat?
+Assistant: purple
+
+User: A purple chair is beside a red bag. What color is the bag?
+Assistant: red
+
+User: A blue hat is beside a orange cup. What color is the cup?
+Assistant: orange
+
+User: The boat was white. Now the boat is purple. What color is it?
+Assistant: purple
+
+User: What color is the red bag?
+Assistant: red
+
+User: The chair was yellow. Now the chair is red. What color is it?
+Assistant: red
+
+User: The ball was orange. Now the ball is yellow. What color is it?
+Assistant: yellow
+
+User: What color is the orange chair?
+Assistant: orange
+
+User: A orange chair is beside a red bag. What color is the bag?
+Assistant: red
+
+User: The bag was orange. Now the bag is red. What color is it?
+Assistant: red
+
+User: A yellow box is beside a blue hat. What color is the hat?
+Assistant: blue
+
+User: A purple ball is beside a yellow car. What color is the car?
+Assistant: yellow
+
+User: The cup was red. Now the cup is white. What color is it?
+Assistant: white
+
+User: The kite was orange. Now the kite is green. What color is it?
+Assistant: green
+
+User: The bag was green. Now the bag is orange. What color is it?
+Assistant: orange
+
+User: A red book is beside a blue kite. What color is the kite?
+Assistant: blue
+
+User: A white book is beside a yellow kite. What color is the kite?
+Assistant: yellow
+
+User: The bag was white. Now the bag is blue. What color is it?
+Assistant: blue
+
+User: A blue hat is beside a green cup. What color is the cup?
+Assistant: green
+
+User: The kite was yellow. Now the kite is white. What color is it?
+Assistant: white
+
+User: A green hat is beside a orange cup. What color is the cup?
+Assistant: orange
+
+User: A blue box is beside a white hat. What color is the hat?
+Assistant: white
+
+User: A red cup is beside a yellow ball. What color is the ball?
+Assistant: yellow
+
+User: The cup was purple. Now the cup is white. What color is it?
+Assistant: white
+
+User: The book was red. Now the book is white. What color is it?
+Assistant: white
+
+User: The boat was yellow. Now the boat is green. What color is it?
+Assistant: green
+
+User: The cup was orange. Now the cup is red. What color is it?
+Assistant: red
+
+User: A blue car is beside a red chair. What color is the chair?
+Assistant: red
+
+User: A orange ball is beside a purple car. What color is the car?
+Assistant: purple
+
+User: The bag was red. Now the bag is white. What color is it?
+Assistant: white
+
+User: A white hat is beside a red cup. What color is the cup?
+Assistant: red
+
+User: A purple box is beside a blue hat. What color is the hat?
+Assistant: blue
+
+User: The book was orange. Now the book is white. What color is it?
+Assistant: white
+
+User: The cup was orange. Now the cup is white. What color is it?
+Assistant: white
+
+User: A green boat is beside a red box. What color is the box?
+Assistant: red
+
+User: The hat was yellow. Now the hat is orange. What color is it?
+Assistant: orange
+
+User: A blue car is beside a orange chair. What color is the chair?
+Assistant: orange
+
+User: A yellow bag is beside a blue book. What color is the book?
+Assistant: blue
+
+User: What color is the red box?
+Assistant: red
+
+User: The box was blue. Now the box is orange. What color is it?
+Assistant: orange
+
+User: What color is the yellow box?
+Assistant: yellow
+
+User: The cup was red. Now the cup is blue. What color is it?
+Assistant: blue
+
+User: The book was green. Now the book is red. What color is it?
+Assistant: red
+
+User: A blue hat is beside a white cup. What color is the cup?
+Assistant: white
+
+User: The kite was blue. Now the kite is green. What color is it?
+Assistant: green
+
+User: A green box is beside a purple hat. What color is the hat?
+Assistant: purple
+
+User: The box was green. Now the box is red. What color is it?
+Assistant: red
+
+User: The bag was red. Now the bag is orange. What color is it?
+Assistant: orange
+
+User: What color is the purple car?
+Assistant: purple
+
+User: What color is the white bag?
+Assistant: white
+
+User: The boat was green. Now the boat is yellow. What color is it?
+Assistant: yellow
+
+User: A orange chair is beside a blue bag. What color is the bag?
+Assistant: blue
+
+User: A yellow chair is beside a white bag. What color is the bag?
+Assistant: white
+
+User: The boat was blue. Now the boat is green. What color is it?
+Assistant: green
+
+User: The cup was blue. Now the cup is red. What color is it?
+Assistant: red
+
+User: The chair was purple. Now the chair is red. What color is it?
+Assistant: red
+
+User: The bag was red. Now the bag is purple. What color is it?
+Assistant: purple
+
+User: The chair was white. Now the chair is red. What color is it?
+Assistant: red
+
+User: The bag was yellow. Now the bag is red. What color is it?
+Assistant: red
+
+User: A green hat is beside a blue cup. What color is the cup?
+Assistant: blue
+
+User: The kite was purple. Now the kite is yellow. What color is it?
+Assistant: yellow
+
+User: The book was white. Now the book is blue. What color is it?
+Assistant: blue
+
+User: The boat was blue. Now the boat is yellow. What color is it?
+Assistant: yellow
+
+User: A yellow kite is beside a green boat. What color is the boat?
+Assistant: green
+
+User: A blue boat is beside a purple box. What color is the box?
+Assistant: purple
+
+User: A yellow book is beside a green kite. What color is the kite?
+Assistant: green
+
+User: What color is the blue kite?
+Assistant: blue
+
+User: The book was white. Now the book is orange. What color is it?
+Assistant: orange
+
+User: The cup was orange. Now the cup is green. What color is it?
+Assistant: green
+
+User: A purple chair is beside a orange bag. What color is the bag?
+Assistant: orange
+
+User: The bag was purple. Now the bag is blue. What color is it?
+Assistant: blue
+
+User: The chair was green. Now the chair is orange. What color is it?
+Assistant: orange
+
+User: The ball was blue. Now the ball is yellow. What color is it?
+Assistant: yellow
+
+User: A yellow book is beside a blue kite. What color is the kite?
+Assistant: blue
+
+User: The boat was red. Now the boat is yellow. What color is it?
+Assistant: yellow
+
+User: The kite was white. Now the kite is green. What color is it?
+Assistant: green
+
+User: The cup was green. Now the cup is blue. What color is it?
+Assistant: blue
+
+User: The hat was orange. Now the hat is blue. What color is it?
+Assistant: blue
+
+User: The bag was green. Now the bag is red. What color is it?
+Assistant: red
+
+User: A orange bag is beside a white book. What color is the book?
+Assistant: white
+
+User: A blue box is beside a orange hat. What color is the hat?
+Assistant: orange
+
+User: The cup was red. Now the cup is green. What color is it?
+Assistant: green
+
+User: The boat was yellow. Now the boat is purple. What color is it?
+Assistant: purple
+
+User: A blue box is beside a red hat. What color is the hat?
+Assistant: red
+
+User: A orange car is beside a yellow chair. What color is the chair?
+Assistant: yellow
+
+User: The car was green. Now the car is purple. What color is it?
+Assistant: purple
+
+User: A yellow bag is beside a white book. What color is the book?
+Assistant: white
+
+User: A white book is beside a blue kite. What color is the kite?
+Assistant: blue
+
+User: What color is the orange bag?
+Assistant: orange
+
+User: A white chair is beside a purple bag. What color is the bag?
+Assistant: purple
+
+User: The hat was red. Now the hat is purple. What color is it?
+Assistant: purple
+
+User: A purple bag is beside a green book. What color is the book?
+Assistant: green
+
+User: A red box is beside a white hat. What color is the hat?
+Assistant: white
+
+User: A red book is beside a yellow kite. What color is the kite?
+Assistant: yellow
+
+User: The car was orange. Now the car is purple. What color is it?
+Assistant: purple
+
+User: A purple hat is beside a blue cup. What color is the cup?
+Assistant: blue
+
+User: The hat was green. Now the hat is blue. What color is it?
+Assistant: blue
+
+User: A white car is beside a orange chair. What color is the chair?
+Assistant: orange
+
+User: A orange ball is beside a yellow car. What color is the car?
+Assistant: yellow
+
+User: A blue cup is beside a white ball. What color is the ball?
+Assistant: white
+
+User: A yellow car is beside a purple chair. What color is the chair?
+Assistant: purple
+
+User: The boat was blue. Now the boat is purple. What color is it?
+Assistant: purple
+
+User: A yellow hat is beside a blue cup. What color is the cup?
+Assistant: blue
+
+User: A blue bag is beside a red book. What color is the book?
+Assistant: red
+
+User: A red hat is beside a blue cup. What color is the cup?
+Assistant: blue
+
+User: The hat was red. Now the hat is orange. What color is it?
+Assistant: orange
+
+User: The hat was white. Now the hat is orange. What color is it?
+Assistant: orange
+
+User: A white ball is beside a yellow car. What color is the car?
+Assistant: yellow
+
+User: The ball was white. Now the ball is blue. What color is it?
+Assistant: blue
+
+User: A yellow bag is beside a red book. What color is the book?
+Assistant: red
+
+User: The book was blue. Now the book is white. What color is it?
+Assistant: white
+
+User: The ball was green. Now the ball is blue. What color is it?
+Assistant: blue
+
+User: A red box is beside a blue hat. What color is the hat?
+Assistant: blue
+
+User: A purple bag is beside a blue book. What color is the book?
+Assistant: blue
+
+User: A white cup is beside a yellow ball. What color is the ball?
+Assistant: yellow
+
+User: The car was green. Now the car is yellow. What color is it?
+Assistant: yellow
+
+User: A blue boat is beside a yellow box. What color is the box?
+Assistant: yellow
+
+User: What color is the purple boat?
+Assistant: purple
+
+User: A purple cup is beside a blue ball. What color is the ball?
+Assistant: blue
+
+User: A green chair is beside a red bag. What color is the bag?
+Assistant: red
+
+User: The book was purple. Now the book is green. What color is it?
+Assistant: green
+
+User: The ball was green. Now the ball is yellow. What color is it?
+Assistant: yellow
+
+User: The chair was orange. Now the chair is red. What color is it?
+Assistant: red
+
+User: The box was red. Now the box is yellow. What color is it?
+Assistant: yellow
+
+User: The book was red. Now the book is blue. What color is it?
+Assistant: blue
+
+User: The bag was yellow. Now the bag is purple. What color is it?
+Assistant: purple
+
+User: The kite was green. Now the kite is blue. What color is it?
+Assistant: blue
+
+User: A yellow bag is beside a green book. What color is the book?
+Assistant: green
+
+User: The chair was red. Now the chair is yellow. What color is it?
+Assistant: yellow
+
+User: The kite was purple. Now the kite is blue. What color is it?
+Assistant: blue
+
+User: A yellow boat is beside a purple box. What color is the box?
+Assistant: purple
+
+User: A purple car is beside a red chair. What color is the chair?
+Assistant: red
+
+User: A yellow chair is beside a red bag. What color is the bag?
+Assistant: red
+
+User: What color is the yellow car?
+Assistant: yellow
+
+User: A red boat is beside a purple box. What color is the box?
+Assistant: purple
+
+User: A yellow chair is beside a orange bag. What color is the bag?
+Assistant: orange
+
+User: A orange bag is beside a green book. What color is the book?
+Assistant: green
+
+User: The hat was yellow. Now the hat is white. What color is it?
+Assistant: white
+
+User: The cup was yellow. Now the cup is white. What color is it?
+Assistant: white
+
+User: The cup was blue. Now the cup is orange. What color is it?
+Assistant: orange
+
+User: The hat was purple. Now the hat is red. What color is it?
+Assistant: red
+
+User: The hat was purple. Now the hat is blue. What color is it?
+Assistant: blue
+
+User: A white boat is beside a yellow box. What color is the box?
+Assistant: yellow
+
+User: The boat was orange. Now the boat is yellow. What color is it?
+Assistant: yellow
+
+User: The kite was blue. Now the kite is yellow. What color is it?
+Assistant: yellow
+
+User: A green car is beside a purple chair. What color is the chair?
+Assistant: purple
+
+User: The car was orange. Now the car is yellow. What color is it?
+Assistant: yellow
+
+User: A blue kite is beside a purple boat. What color is the boat?
+Assistant: purple
+
+User: The car was white. Now the car is yellow. What color is it?
+Assistant: yellow
+
+User: A purple hat is beside a white cup. What color is the cup?
+Assistant: white
+
+User: The car was blue. Now the car is purple. What color is it?
+Assistant: purple
+
+User: A white kite is beside a yellow boat. What color is the boat?
+Assistant: yellow
+
+User: A orange bag is beside a red book. What color is the book?
+Assistant: red
+
+User: A green bag is beside a orange book. What color is the book?
+Assistant: orange
+
+User: The bag was yellow. Now the bag is blue. What color is it?
+Assistant: blue
+
+User: What color is the blue book?
+Assistant: blue
+
+User: A yellow hat is beside a green cup. What color is the cup?
+Assistant: green
+
+User: The ball was red. Now the ball is green. What color is it?
+Assistant: green
+
+User: The kite was purple. Now the kite is green. What color is it?
+Assistant: green
+
+User: The bag was yellow. Now the bag is orange. What color is it?
+Assistant: orange
+
+User: The kite was red. Now the kite is green. What color is it?
+Assistant: green
+
+User: The hat was green. Now the hat is purple. What color is it?
+Assistant: purple
+
+User: What color is the green boat?
+Assistant: green
+
+User: A orange boat is beside a red box. What color is the box?
+Assistant: red
+
+User: A green car is beside a yellow chair. What color is the chair?
+Assistant: yellow
+
+User: A orange chair is beside a purple bag. What color is the bag?
+Assistant: purple
+
+User: The bag was green. Now the bag is white. What color is it?
+Assistant: white
+
+User: A purple boat is beside a orange box. What color is the box?
+Assistant: orange
+
+User: A red hat is beside a green cup. What color is the cup?
+Assistant: green
+
+User: A yellow box is beside a orange hat. What color is the hat?
+Assistant: orange
+
+User: A yellow hat is beside a orange cup. What color is the cup?
+Assistant: orange
+
+User: A orange book is beside a green kite. What color is the kite?
+Assistant: green
+
+User: The chair was red. Now the chair is orange. What color is it?
+Assistant: orange
+
+User: The kite was yellow. Now the kite is blue. What color is it?
+Assistant: blue
+
+User: What color is the blue hat?
+Assistant: blue
+
+User: The bag was blue. Now the bag is white. What color is it?
+Assistant: white
+
+User: A white box is beside a blue hat. What color is the hat?
+Assistant: blue
+
+User: The bag was white. Now the bag is red. What color is it?
+Assistant: red
+
+User: The book was orange. Now the book is blue. What color is it?
+Assistant: blue
+
+User: The ball was yellow. Now the ball is blue. What color is it?
+Assistant: blue
+
+User: The cup was yellow. Now the cup is red. What color is it?
+Assistant: red
+
+User: The cup was purple. Now the cup is green. What color is it?
+Assistant: green
+
+User: The hat was blue. Now the hat is orange. What color is it?
+Assistant: orange
+
+User: A white box is beside a orange hat. What color is the hat?
+Assistant: orange
+
+User: A white cup is beside a blue ball. What color is the ball?
+Assistant: blue
+
+User: A blue bag is beside a green book. What color is the book?
+Assistant: green
+
+User: The book was yellow. Now the book is orange. What color is it?
+Assistant: orange
+
+User: The kite was red. Now the kite is white. What color is it?
+Assistant: white
+
+User: The bag was white. Now the bag is purple. What color is it?
+Assistant: purple
+
+User: The book was green. Now the book is orange. What color is it?
+Assistant: orange
+
+User: A blue bag is beside a orange book. What color is the book?
+Assistant: orange
+
+User: The ball was white. Now the ball is green. What color is it?
+Assistant: green
+
+User: The hat was yellow. Now the hat is purple. What color is it?
+Assistant: purple
+
+User: What color is the purple hat?
+Assistant: purple
+
+User: What color is the red hat?
+Assistant: red
+
+User: A purple box is beside a white hat. What color is the hat?
+Assistant: white
+
+User: The ball was yellow. Now the ball is white. What color is it?
+Assistant: white
+
+User: The hat was white. Now the hat is purple. What color is it?
+Assistant: purple
+
+User: A orange hat is beside a green cup. What color is the cup?
+Assistant: green
+
+User: What color is the blue cup?
+Assistant: blue
+
+User: The hat was red. Now the hat is blue. What color is it?
+Assistant: blue
+
+User: What color is the blue ball?
+Assistant: blue
+
+User: A green box is beside a orange hat. What color is the hat?
+Assistant: orange
+
+User: What color is the orange box?
+Assistant: orange
+
+User: The chair was white. Now the chair is purple. What color is it?
+Assistant: purple
+
+User: The hat was blue. Now the hat is purple. What color is it?
+Assistant: purple
+
+User: The cup was green. Now the cup is white. What color is it?
+Assistant: white
+
+User: A white book is beside a green kite. What color is the kite?
+Assistant: green
+
+User: The kite was orange. Now the kite is yellow. What color is it?
+Assistant: yellow
+
+User: The book was white. Now the book is red. What color is it?
+Assistant: red
+
+User: A green kite is beside a purple boat. What color is the boat?
+Assistant: purple
+
+User: The car was yellow. Now the car is purple. What color is it?
+Assistant: purple
+
+User: A orange cup is beside a white ball. What color is the ball?
+Assistant: white
+
+User: The bag was green. Now the bag is blue. What color is it?
+Assistant: blue
+
+User: A white hat is beside a orange cup. What color is the cup?
+Assistant: orange
+
+User: A orange cup is beside a green ball. What color is the ball?
+Assistant: green
+
+User: A white chair is beside a red bag. What color is the bag?
+Assistant: red
+
+User: What color is the green cup?
+Assistant: green
+
+User: A blue ball is beside a purple car. What color is the car?
+Assistant: purple
+
+User: A yellow boat is beside a orange box. What color is the box?
+Assistant: orange
+
+User: The book was purple. Now the book is red. What color is it?
+Assistant: red
+
+User: A blue ball is beside a yellow car. What color is the car?
+Assistant: yellow
+
+User: A blue book is beside a white kite. What color is the kite?
+Assistant: white
+
+User: A yellow book is beside a white kite. What color is the kite?
+Assistant: white
+
+User: A purple hat is beside a orange cup. What color is the cup?
+Assistant: orange
+
+User: A yellow hat is beside a white cup. What color is the cup?
+Assistant: white
+
+User: What color is the green ball?
+Assistant: green
+
+User: A blue book is beside a green kite. What color is the kite?
+Assistant: green
+
+User: A purple boat is beside a red box. What color is the box?
+Assistant: red
+
+User: The boat was purple. Now the boat is green. What color is it?
+Assistant: green
+
+User: The box was blue. Now the box is purple. What color is it?
+Assistant: purple
+
+User: A red ball is beside a purple car. What color is the car?
+Assistant: purple
+
+User: A green book is beside a blue kite. What color is the kite?
+Assistant: blue
+
+User: The ball was green. Now the ball is white. What color is it?
+Assistant: white
+
+User: The book was yellow. Now the book is white. What color is it?
+Assistant: white
+
+User: The cup was blue. Now the cup is green. What color is it?
+Assistant: green
+
+User: The chair was blue. Now the chair is orange. What color is it?
+Assistant: orange
+
+User: The ball was orange. Now the ball is white. What color is it?
+Assistant: white
+
+User: The ball was purple. Now the ball is white. What color is it?
+Assistant: white
+
+User: The book was yellow. Now the book is green. What color is it?
+Assistant: green
+
+User: A yellow box is beside a purple hat. What color is the hat?
+Assistant: purple
+
+User: A white boat is beside a purple box. What color is the box?
+Assistant: purple
+
+User: A blue bag is beside a white book. What color is the book?
+Assistant: white
+
+User: A white hat is beside a blue cup. What color is the cup?
+Assistant: blue
+
+User: What color is the yellow ball?
+Assistant: yellow
+
+User: A white car is beside a yellow chair. What color is the chair?
+Assistant: yellow
+
+User: The car was red. Now the car is purple. What color is it?
+Assistant: purple
+
+User: The hat was white. Now the hat is red. What color is it?
+Assistant: red
+
+User: A purple bag is beside a orange book. What color is the book?
+Assistant: orange
+
+User: A purple chair is beside a blue bag. What color is the bag?
+Assistant: blue
+
+User: The book was blue. Now the book is orange. What color is it?
+Assistant: orange
+
+User: What color is the yellow chair?
+Assistant: yellow
+
+User: A red cup is beside a white ball. What color is the ball?
+Assistant: white
+
+User: The car was blue. Now the car is yellow. What color is it?
+Assistant: yellow
+
+User: The bag was yellow. Now the bag is white. What color is it?
+Assistant: white
+
+User: A green bag is beside a blue book. What color is the book?
+Assistant: blue
+
+User: A green cup is beside a blue ball. What color is the ball?
+Assistant: blue
+
+User: A orange book is beside a white kite. What color is the kite?
+Assistant: white
+
+User: A white chair is beside a orange bag. What color is the bag?
+Assistant: orange
+
+User: The book was orange. Now the book is red. What color is it?
+Assistant: red
+
+User: The ball was purple. Now the ball is blue. What color is it?
+Assistant: blue
+
+User: A blue ball is beside a green car. What color is the car?
+Assistant: green
+
+User: The bag was white. Now the bag is orange. What color is it?
+Assistant: orange
+
+User: The hat was red. Now the hat is white. What color is it?
+Assistant: white
+
+User: A blue chair is beside a purple bag. What color is the bag?
+Assistant: purple
+
+User: The kite was green. Now the kite is yellow. What color is it?
+Assistant: yellow
+
+User: The hat was green. Now the hat is red. What color is it?
+Assistant: red
+
+User: The cup was white. Now the cup is orange. What color is it?
+Assistant: orange
+
+User: The ball was purple. Now the ball is yellow. What color is it?
+Assistant: yellow
+
+User: What color is the orange book?
+Assistant: orange
+
+User: The bag was orange. Now the bag is white. What color is it?
+Assistant: white
+
+User: A red chair is beside a orange bag. What color is the bag?
+Assistant: orange
+
+User: The cup was red. Now the cup is orange. What color is it?
+Assistant: orange
+
+User: A purple bag is beside a red book. What color is the book?
+Assistant: red
+
+User: The box was yellow. Now the box is orange. What color is it?
+Assistant: orange
+
+User: The hat was blue. Now the hat is red. What color is it?
+Assistant: red
+
+User: What color is the purple chair?
+Assistant: purple
+
+User: A yellow chair is beside a blue bag. What color is the bag?
+Assistant: blue
+
+User: The ball was orange. Now the ball is blue. What color is it?
+Assistant: blue
+
+User: What color is the white ball?
+Assistant: white
+

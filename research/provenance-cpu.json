@@ -1,0 +1,11 @@
+{
+  "repository_revision": "ac3ff9b17bb441ba0cc3324e54ea9035a78b3c6f",
+  "scripts_sha256": {
+    "experiment.py": "881c141645b8c5a148ab521147a953c6e5f9ef40cfcc27ed0840d6897ac6ac9f",
+    "report.py": "51f2adb7da656350cf6649a01afedd8bf25a2180ebfbe5d0221ed7d2322d2f8f",
+    "scale_check.py": "c67a130c9bc6570da026079734255cc547060c7c1addf2461dbe11b04b37be34",
+    "test_experiment.py": "f42bb61466a8bc23c637f626656feac55f660f65749b2ec257b15a5f0fe4ae1c"
+  },
+  "retained_training_runs": 8,
+  "inference_variants": 4
+}
