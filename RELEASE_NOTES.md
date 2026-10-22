@@ -4,14 +4,14 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Contents
 
-- [Unreleased](#unreleased)
+- [2026-10-22](#2026-10-22)
 - [2026-10-21](#2026-10-21)
 - [2026-10-20](#2026-10-20)
 - [2026-10-19](#2026-10-19)
 - [2026-10-18](#2026-10-18)
 - [2026-10-17](#2026-10-17)
 
-## Unreleased
+## 2026-10-22
 
 - **Efficiency research:** Added [research/](research/README.md) with the experiment plan,
   reproducible corpus/training/analysis scripts, raw CPU/MPS results, and a
