@@ -66,6 +66,7 @@ does not train the model; use **New life** to experiment with teaching through c
 | [Models and storage](docs/models.md)        | Creating and loading models, autosaves, and legacy checkpoints           |
 | [PyTorch guide](docs/pytorch.md)            | Backend setup, CLI options, checkpoint conversion, and Python validation |
 | [HTTP API](docs/api.md)                     | Routes, request examples, and limits                                     |
+| [Efficiency research](research/RESULTS.md)  | Transformer/GRU results, CPU/MPS comparisons, and recommendations        |
 | [Development](docs/development.md)          | Source layout, architecture, checks, and contributing                    |
 
 Explore the [full documentation index](docs/README.md) for explanations, corpora, and

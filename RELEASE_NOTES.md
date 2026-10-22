@@ -13,6 +13,10 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Unreleased
 
+- **Efficiency research:** Added [research/](research/README.md) with the experiment plan,
+  reproducible corpus/training/analysis scripts, raw CPU/MPS results, and a
+  [standalone HTML report](research/report.html) with charts and recommendations.
+
 - **Expanded architectures:** Added embedding widths 768 and 1024 to the studio,
   layers up to twelve, and attention heads up to sixteen. API, CLI, and checkpoint
   validation support the expanded limits. Defaults and the 256-token context cap
@@ -28,7 +32,7 @@ A summary of new features, improvements, and changes in Seed.
   terminal progress, CPU Float64 parity tests, and conversion between native `.pt`
   files and the retained TypeScript engine's Transformer checkpoints. Docker now
   includes Python and CPU PyTorch. MPS execution was validated on an M4 Max;
-  CUDA hardware validation and matched speed comparisons remain outstanding.
+  CUDA hardware validation and CUDA speed comparisons remain outstanding.
 - **Models panel:** Added **Select model**, **Load model**, and **Create new model**.
   Creation asks for a name, always initializes fresh weights and optimizer state
   from the selected settings, resets updates/history, saves without overwriting an

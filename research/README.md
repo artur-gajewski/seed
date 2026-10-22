@@ -1,5 +1,7 @@
 # Seed learning-efficiency research
 
+Read the [results and recommendations](RESULTS.md) for a concise summary.
+
 Open `report.html` directly in a browser. It contains inline charts, measured results, methodology, limitations, and embedded raw run data; it requires no server or network connection.
 
 - `PLAN.md`: experiment protocol and the explicitly exploratory scale-check addition.
