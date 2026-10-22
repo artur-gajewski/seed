@@ -78,6 +78,14 @@ This screenshot predates the PyTorch backend and the Models panel.
 
 <img width="1896" height="1283" alt="Seed training studio" src="https://github.com/user-attachments/assets/df17f4be-9d47-4991-873b-192fbb95d0c7" />
 
+## Future plans
+
+A [new branch](https://github.com/artur-gajewski/seed/tree/feat/pytorch-gpu-training) has been created to migrate Seed's training backend to Python and PyTorch, 
+enabling GPU-accelerated model training and significantly improving training performance. has been created for porting Seed's backend to use PyTotch. This branch 
+brings a PyTorch backend for local training and generation on CPU, Apple Silicon MPS, and CUDA, alongside larger Transformer configurations, improved model creation 
+and checkpoint handling, clearer training controls, and fixes to color-corpus conversation boundaries. It also adds reproducible Transformer-versus-GRU efficiency 
+research, CPU/MPS comparisons, pruning and quantization experiments, and a standalone HTML report with results and recommendations.
+
 ## License
 
 Seed is licensed under the [MIT License](LICENSE).
