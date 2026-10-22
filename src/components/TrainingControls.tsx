@@ -128,7 +128,7 @@ export function TrainingControls({
             value={settings.hiddenSize}
             onChange={(e) => onSettingChange('hiddenSize', e.target.value)}
           >
-            {[...new Set([16, 32, 48, 64, 128, 256, 384, 512, settings.hiddenSize])]
+            {[...new Set([16, 32, 48, 64, 128, 256, 384, 512, 768, 1024, settings.hiddenSize])]
               .sort((a, b) => a - b)
               .map((value) => (
                 <option key={value} value={value}>
@@ -144,7 +144,7 @@ export function TrainingControls({
               value={settings.layers}
               onChange={(event) => onSettingChange('layers', event.target.value)}
             >
-              {[1, 2, 3, 4].map((value) => (
+              {Array.from({ length: 12 }, (_, index) => index + 1).map((value) => (
                 <option key={value} value={value}>
                   {value}
                 </option>
@@ -157,7 +157,7 @@ export function TrainingControls({
               value={settings.heads}
               onChange={(event) => onSettingChange('heads', event.target.value)}
             >
-              {[...new Set([1, 2, 4, 8, settings.heads])]
+              {[...new Set([1, 2, 4, 8, 16, settings.heads])]
                 .sort((a, b) => a - b)
                 .map((value) => (
                   <option key={value} value={value}>

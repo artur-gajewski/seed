@@ -125,7 +125,22 @@ See the [corpus examples guide](data/README.md) for corpus descriptions, suggest
 4. Compare training and validation loss. The last 10% of encoded tokens are withheld from training. Validation evaluates up to three fixed windows at the first update, every 100 updates, and the last update. The dashed line shows the most recent validation measurement. Increasing validation loss while training loss drops can indicate overfitting.
 5. Test prompts and questions you did not train on. Low loss is not evidence of factual accuracy, reasoning, or reliable instruction following.
 
-Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters. Supported model limits are width up to 512 and context up to 256, up to four layers and eight heads, and batch size up to eight. Even the maximum configuration is only about 13 million parameters, not a large production LLM. Larger settings require more memory and training time.
+Training panel defaults: width 256, four layers, eight attention heads, a 256-token context, batch size 8, 30,000 updates, and peak learning rate 0.0003. This is about 3.36 million trainable parameters.
+
+| Setting                   | Supported values                              |
+| ------------------------- | --------------------------------------------- |
+| Embedding width in the UI | 16, 32, 48, 64, 128, 256, 384, 512, 768, 1024 |
+| Layers                    | 1–12                                          |
+| Attention heads in the UI | 1, 2, 4, 8, 16                                |
+| Context length            | 8–256 tokens                                  |
+| Batch size                | 1–8                                           |
+
+The API and PyTorch CLI also accept intermediate integer widths and head counts within
+their limits; width must be divisible by the number of heads. Width 1024 with twelve
+layers and context 256 has about 152 million parameters. Larger settings require more
+memory and training time. Create a new model to change architecture; continuing training
+retains the loaded checkpoint's architecture. See the [PyTorch guide](docs/pytorch.md)
+for CLI options.
 
 Choose the training device in the Training panel. See the [PyTorch guide](docs/pytorch.md) for GPU setup. Earlier TypeScript CPU benchmarks are retained in [training performance](docs/training-performance.md).
 

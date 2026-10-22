@@ -13,6 +13,13 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Unreleased
 
+- **Expanded architectures:** Added embedding widths 768 and 1024 to the studio,
+  layers up to twelve, and attention heads up to sixteen. API, CLI, and checkpoint
+  validation support the expanded limits. Defaults and the 256-token context cap
+  remain unchanged; changing architecture requires a new model.
+- **Color corpus boundaries:** Separated conversation turns so every assistant answer
+  receives a learned stop token. Generators preserve complete sessions for replay;
+  regression tests check answer termination and the 256-token session limit.
 - **PyTorch backend:** Studio training, generation, Chat, and New Life now run in a
   persistent Python worker. Automatic device selection prefers CUDA, then Apple
   Silicon MPS, then CPU. The API retains request validation and origin checks;

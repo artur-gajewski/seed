@@ -120,10 +120,16 @@ for (const width of [384, 512]) {
 
 test('Transformer width expansion preserves width and context limits', () => {
   const text = 'abc'.repeat(30);
-  assert.throws(() => parseTrainingRequest({ text, hiddenSize: 513 }), /Hidden size/);
+  const expanded = parseTrainingRequest({ text, hiddenSize: 1024, layers: 12, heads: 16 });
+  assert.equal(expanded.hiddenSize, 1024);
+  assert.equal(expanded.layers, 12);
+  assert.equal(expanded.heads, 16);
+  assert.throws(() => parseTrainingRequest({ text, hiddenSize: 1025 }), /Hidden size/);
+  assert.throws(() => parseTrainingRequest({ text, layers: 13 }), /Layers/);
+  assert.throws(() => parseTrainingRequest({ text, heads: 17 }), /Attention heads/);
   assert.throws(() => parseTrainingRequest({ text, hiddenSize: 384, heads: 5 }), /divisible/);
   assert.throws(() => parseTrainingRequest({ text, sequenceLength: 384 }), /Sequence length/);
-  assert.throws(() => new LanguageModel('', 520), /Invalid Transformer configuration/);
+  assert.throws(() => new LanguageModel('', 1025), /Invalid Transformer configuration/);
   assert.throws(
     () => new LanguageModel('', 512, 42, { contextSize: 384 }),
     /Invalid Transformer configuration/,

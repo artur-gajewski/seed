@@ -32,9 +32,9 @@ class Model(nn.Module):
         )
         if (
             any(type(v) is not int for v in (w, layers, heads, context))
-            or not 4 <= w <= 512
-            or not 1 <= layers <= 4
-            or not 1 <= heads <= 8
+            or not 4 <= w <= 1024
+            or not 1 <= layers <= 12
+            or not 1 <= heads <= 16
             or w % heads
             or not 2 <= context <= 256
         ):

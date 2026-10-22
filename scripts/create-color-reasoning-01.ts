@@ -187,9 +187,9 @@ await writeFile(
   training
     .map(
       ({ question, answer, history }) =>
-        `${history?.map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n`).join('') ?? ''}User: ${question}\nAssistant: ${answer}.\n\n`,
+        `${history?.map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}${m.role === 'assistant' ? '\n\n' : '\n'}`).join('') ?? ''}User: ${question}\nAssistant: ${answer}.`,
     )
-    .join(''),
+    .join('\n\n\n') + '\n',
 );
 await writeFile(
   new URL('../data/references/color_reasoning_01_reference.json', import.meta.url),

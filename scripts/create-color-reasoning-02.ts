@@ -256,9 +256,9 @@ for (let i = 0; i < 1000; i++) {
 }
 // Replay a deterministic sample of old lessons. Keep all old evaluation holdouts intact.
 let replay = 0;
-for (const [i, block] of base.trim().split('\n\n').entries()) {
+for (const [i, block] of base.trim().split('\n\n\n').entries()) {
   if (i % 3 !== 0) continue;
-  const normalized = block.replace(/\nUser:/g, '\n\nUser:');
+  const normalized = block;
   if (model.encodeTrainingText(normalized).length > 256) continue;
   blocks.add(normalized);
   replay++;

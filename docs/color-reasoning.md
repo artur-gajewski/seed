@@ -11,6 +11,9 @@ including submarines, berries, vehicles, animals, and multiword names. It covers
 articles and missing articles, British spelling, lowercase questions, missing
 punctuation, statements, instructions, object identification, and distractors.
 Half the examples include a preceding conversation turn with an accurate answer.
+Turns are separated by a blank line so PyTorch learns a stop token after every
+answer; complete sessions are separated by two blank lines. All sessions fit a
+256-token context. The supplemental generator samples complete sessions for replay.
 
 The separate evaluation contains 2,306 examples covering held-out color/object
 pairs, six objects absent from training, and conversation continuations. Reports

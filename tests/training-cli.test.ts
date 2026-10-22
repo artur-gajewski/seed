@@ -75,7 +75,7 @@ test('training CLI saves a new model, resumes it, and rejects invalid settings w
     const saved = await readFile(checkpoint);
     for (const args of [
       ['--resume', '--embedding-width', '32'],
-      ['--embedding-width', '513'],
+      ['--embedding-width', '1025'],
       ['--learning-rate', 'oops'],
       ['--context-window', '512'],
     ]) {

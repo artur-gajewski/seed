@@ -112,8 +112,21 @@ seed-torch train \
 
 `--device auto` chooses CUDA, then MPS, then CPU. An explicit unavailable device
 fails. MPS requires Float32; CPU Float64 is available for numerical comparisons.
-No mixed precision or distributed training is enabled. Architecture limits remain
-width 512, four layers, eight heads, context 256, and batch eight.
+No mixed precision or distributed training is enabled. Architecture limits are
+width 1024, twelve layers, sixteen heads, context 256, and batch eight.
+
+For larger experiments, `--embedding-width 1024 --layers 8 --attention-heads 16`
+is a valid architecture. Width 768 is also available in the studio. Width must be
+divisible by the head count. The CLI accepts integer widths from 4 to 1024 and
+head counts from 1 to 16; the studio/API require widths of at least 16.
+The training context range is 2–256 in the CLI and 8–256 in the studio/API.
+
+Choose a new checkpoint path when changing architecture. `--resume` retains the
+saved architecture; it does not expand a model's width, layers, or heads. The
+maximum configuration (width 1024, twelve layers, context 256) has about 152 million
+parameters. Weights, gradients, optimizer state, and activations all consume memory,
+so increase size gradually and reduce batch size if necessary. These limits are
+configuration bounds, not a guarantee that every device can train the largest model.
 
 Training preserves the UTF-8 byte tokenizer, special tokens, contiguous 90/10 split,
 three fixed validation windows, AdamW groups, clipping, and warmup/cosine schedule.

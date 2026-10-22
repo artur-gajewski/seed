@@ -34,6 +34,10 @@ uses the original TypeScript engine and legacy JSON/V8 checkpoints.
 ## Color reasoning
 
 `color_reasoning_01.txt` contains the original six-color experiment.
+It has 12,610 sessions. One empty line separates turns within a conversation;
+two empty lines separate independent sessions. These turn boundaries let the
+PyTorch tokenizer insert a stop token after each assistant answer. Session
+separators organize replay sampling; they do not reset the training context.
 `color_reasoning_02.txt` is a supplemental corpus for continuing that model:
 31,173 sessions covering 22 color spellings, varied questions, distractors, explicit
 color changes, and conversations of up to five turns. It includes a sample of the
@@ -47,6 +51,10 @@ The generator preserves the original evaluation holdouts and creates a separate
 Use the [experiment guide](../docs/color-reasoning.md#supplemental-training-add2)
 for PyTorch training, resume commands, and before/after evaluation. Suggested
 settings are starting points; evaluate both references to check new skills and retention.
+The [studio and CLI support larger architectures](../docs/pytorch.md#train-on-an-m4-max),
+including width 1024, up to twelve layers, and sixteen attention heads. The included
+small synthetic corpora do not require the maximum model size; compare held-out
+results before increasing capacity.
 
 ## Short stories
 

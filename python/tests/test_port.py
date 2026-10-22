@@ -17,6 +17,30 @@ torch.set_num_threads(1)
 
 
 class PortTests(unittest.TestCase):
+    def test_expanded_architectures_and_limits(self):
+        # Exercise each expanded dimension without allocating the maximum model.
+        for width, layers, heads in [(1024, 1, 16), (16, 12, 16)]:
+            config = {"hiddenSize": width, "layers": layers, "heads": heads, "contextSize": 2}
+            model = Model(config, torch.float32)
+            inputs, targets = torch.tensor([[256, 72]]), torch.tensor([[72, 257]])
+            logits = model(inputs)
+            self.assertEqual(tuple(logits.shape), (1, 2, 258))
+            loss = F.cross_entropy(logits.reshape(-1, 258), targets.reshape(-1))
+            loss.backward()
+            self.assertTrue(all(torch.isfinite(p.grad).all() for p in model.parameters()))
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "expanded.pt"
+                optimizer = model.optimizer(0.001)
+                checkpoint.save(path, model, optimizer, {})
+                restored, _, _ = checkpoint.load(path, "cpu", torch.float32)
+                self.assertEqual(restored.config, config)
+                torch.testing.assert_close(restored(inputs), logits, atol=0, rtol=0)
+        for field, value in [("hiddenSize", 1025), ("layers", 13), ("heads", 17)]:
+            config = {"hiddenSize": 16, "layers": 1, "heads": 4, "contextSize": 2}
+            config[field] = value
+            with self.assertRaisesRegex(ValueError, "configuration"):
+                Model(config)
+
     @classmethod
     def setUpClass(cls):
         cls.fixture = json.loads(

@@ -30,9 +30,9 @@ try {
 Usage: npm run train -- --corpus PATH --checkpoint PATH [options]
   --corpus PATH          Required UTF-8 training text file
   --checkpoint PATH      Required output checkpoint; also loaded when using --resume
-  --embedding-width N    Default: 256; range: 16–512, divisible by attention heads
-  --layers N             Default: 4; range: 1–4
-  --attention-heads N    Default: 8; range: 1–8
+  --embedding-width N    Default: 256; range: 16–1024, divisible by attention heads
+  --layers N             Default: 4; range: 1–12
+  --attention-heads N    Default: 8; range: 1–16
   --batch-size N         Default: 8; range: 1–8
   --steps N              Default: 30000; range: 1–1000000 (additional updates on resume)
   --learning-rate N      Default: 0.0003; range: 0.00001–0.05

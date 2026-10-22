@@ -120,6 +120,9 @@ The default Training model has width 256, four layers, eight heads, and a 256-to
 with roughly 3.36 million parameters. It shares important mechanisms with LLMs while being
 far smaller than models normally described as large. Increasing its size raises capacity and
 computational cost; it does not supply missing knowledge or better examples.
+The supported limits are width 1024, twelve layers, and sixteen attention heads,
+with context still capped at 256 tokens. Changing architecture requires a new model;
+continuing training preserves the loaded model's architecture.
 
 The training worker in [python/seed_torch/worker.py](../python/seed_torch/worker.py) encodes the corpus and reserves
 its final 10% of tokens for validation. Training samples windows from the remaining portion
