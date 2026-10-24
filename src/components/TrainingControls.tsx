@@ -211,7 +211,25 @@ export function TrainingControls({
             value={settings.sequenceLength}
             onChange={(e) => onSettingChange('sequenceLength', e.target.value)}
           >
-            {[...new Set([16, 32, 48, 64, 128, 256, settings.sequenceLength])]
+            {[
+              ...new Set([
+                16,
+                32,
+                48,
+                64,
+                128,
+                256,
+                384,
+                512,
+                768,
+                1024,
+                1280,
+                1536,
+                1792,
+                2048,
+                settings.sequenceLength,
+              ]),
+            ]
               .sort((a, b) => a - b)
               .map((n) => (
                 <option key={n} value={n}>

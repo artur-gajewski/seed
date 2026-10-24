@@ -63,8 +63,8 @@ def validation(model, tokens):
 
 
 def train(args, device, dtype):
-    if args.steps < 1 or not 1 <= args.batch_size <= 8 or not 2 <= args.context_window <= 256:
-        raise ValueError("Require positive steps, batch size 1–8, and context 2–256")
+    if args.steps < 1 or not 1 <= args.batch_size <= 8 or not 2 <= args.context_window <= 2048:
+        raise ValueError("Require positive steps, batch size 1–8, and context 2–2048")
     if not math.isfinite(args.learning_rate) or args.learning_rate <= 0:
         raise ValueError("Learning rate must be finite and positive")
     if not args.resume and Path(args.checkpoint).exists():

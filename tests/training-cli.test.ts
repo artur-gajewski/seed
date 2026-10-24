@@ -77,7 +77,7 @@ test('training CLI saves a new model, resumes it, and rejects invalid settings w
       ['--resume', '--embedding-width', '32'],
       ['--embedding-width', '1025'],
       ['--learning-rate', 'oops'],
-      ['--context-window', '512'],
+      ['--context-window', '2049'],
     ]) {
       const invalid = run('--corpus', corpus, '--checkpoint', checkpoint, ...args);
       assert.equal(invalid.status, 1);

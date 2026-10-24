@@ -116,19 +116,19 @@ separate projections; context controls how much preceding text is available. Wid
 divisible by the number of heads. Batch size, update count, and learning rate control how
 training proceeds.
 
-The default Training model has width 256, four layers, eight heads, and a 256-token context,
-with roughly 3.36 million parameters. It shares important mechanisms with LLMs while being
+The default Training model has width 1024, twelve layers, sixteen heads, and a 2048-token context,
+with roughly 153.8 million parameters. It shares important mechanisms with LLMs while being
 far smaller than models normally described as large. Increasing its size raises capacity and
 computational cost; it does not supply missing knowledge or better examples.
 The supported limits are width 1024, twelve layers, and sixteen attention heads,
-with context still capped at 256 tokens. Changing architecture requires a new model;
+with context capped at 2048 tokens. Changing architecture requires a new model;
 continuing training preserves the loaded model's architecture.
 
 The training worker in [python/seed_torch/worker.py](../python/seed_torch/worker.py) encodes the corpus and reserves
 its final 10% of tokens for validation. Training samples windows from the remaining portion
 and predicts the token following each input token. Its learning rate warms up, then follows
-a cosine decay toward a lower rate. The default run uses batches of eight for 30,000 updates
-with a peak learning rate of 0.0003. An update is not a complete pass through the corpus.
+a cosine decay toward a lower rate. The default run uses batches of eight for 1,000,000 updates
+with a peak learning rate of 0.05. An update is not a complete pass through the corpus.
 
 The loss chart helps distinguish fitting from generalization. Training loss measures
 prediction on sampled training text. Validation loss measures prediction on held-out text
@@ -229,8 +229,9 @@ Replacing a lesson changes future training data rather than instantly erasing th
 answer's influence on the weights. Generated replies are never automatically used as lessons,
 which avoids treating the model's own guesses as correct answers.
 
-Messages and answers are each limited to 100 UTF-8 bytes on one line, allowing a complete
-formatted lesson to fit within the 256-token context. New Life retains up to 1,000 distinct
+Messages allow the context size minus 48 UTF-8 bytes, from 208 bytes for the
+smallest preset to 2000 for 153M. Teaching answers use the remaining context after
+the original message and role labels, capped at the message limit. New Life retains up to 1,000 distinct
 lessons per model size. It saves weights, optimizer state, and replay lessons after every
 successful learning action. Unlike the studio checkpoint, these saved lessons include the
 text used for learning. The visible conversation is temporary, and reply generation uses

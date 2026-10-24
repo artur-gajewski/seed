@@ -1191,6 +1191,15 @@ footer i {
   margin-bottom: 12px;
 }
 
+.new-life-settings label {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.new-life-settings select {
+  max-width: 100%;
+}
+
 .new-life-model-details {
   color: var(--text-muted);
 }
@@ -1414,6 +1423,7 @@ footer i {
 }
 
 .chat-composer-area {
+  max-width: none;
   flex-shrink: 0;
   padding: 16px 0 8px;
   background: var(--page-background);
@@ -1431,12 +1441,9 @@ footer i {
   border-color: var(--accent);
 }
 
-.chat-composer textarea,
-.new-life-page .chat-composer input {
+.chat-composer input {
   width: 100%;
-  min-height: 70px;
-  max-height: 220px;
-  resize: vertical;
+  min-height: 44px;
   background: transparent;
   border: 0;
   color: var(--text-primary);
@@ -1446,7 +1453,6 @@ footer i {
   outline: none;
 }
 
-.new-life-page .chat-composer-area,
 .new-life-page .chat-messages {
   max-width: none;
 }
@@ -1455,13 +1461,7 @@ footer i {
   margin-left: 0;
 }
 
-.new-life-page .chat-composer input {
-  min-height: 44px;
-  max-height: none;
-}
-
-.chat-composer textarea::placeholder,
-.new-life-page .chat-composer input::placeholder {
+.chat-composer input::placeholder {
   color: var(--text-muted);
 }
 

@@ -36,7 +36,7 @@ class Model(nn.Module):
             or not 1 <= layers <= 12
             or not 1 <= heads <= 16
             or w % heads
-            or not 2 <= context <= 256
+            or not 2 <= context <= 2048
         ):
             raise ValueError("Invalid Seed Transformer configuration")
         self.weights = nn.ParameterDict()

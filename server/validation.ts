@@ -29,7 +29,7 @@ export function parseTrainingRequest(body: JsonObject): TrainRequest {
 
   const hiddenSize = requireInteger(body.hiddenSize ?? 64, 16, 1024, 'Hidden size');
   const steps = requireInteger(body.steps ?? 1000, 1, 1000000, 'Steps');
-  const sequenceLength = requireInteger(body.sequenceLength ?? 64, 8, 256, 'Sequence length');
+  const sequenceLength = requireInteger(body.sequenceLength ?? 64, 8, 2048, 'Sequence length');
   const learningRate = requireNumber(body.learningRate ?? 0.001, 0.00001, 0.05, 'Learning rate');
   const layers = requireInteger(body.layers ?? 2, 1, 12, 'Layers');
   const heads = requireInteger(body.heads ?? 4, 1, 16, 'Attention heads');

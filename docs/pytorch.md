@@ -54,8 +54,11 @@ behavior; generated replies are not added to lessons.
 ## Training controls and progress
 
 Loading a model fills in architecture, context window, batch size, peak learning
-rate, session length, and active device. Refreshing the page also restores controls
-for the active model. Further polling does not overwrite manual edits. Checkpoints
+rate, session length, and active device. Training settings, device selection, and
+Text generation settings (including the prompt) are saved in browser storage between
+visits. Polling does not overwrite these preferences. Without saved preferences,
+Training uses the supported maximum settings; Text generation defaults to 1000 new
+tokens, temperature 2, and Top K 512. Checkpoints
 without session metadata use their actual architecture with default session settings.
 
 - **Train with new weights** resets the model and optimizer using the selected settings.
@@ -113,17 +116,17 @@ seed-torch train \
 `--device auto` chooses CUDA, then MPS, then CPU. An explicit unavailable device
 fails. MPS requires Float32; CPU Float64 is available for numerical comparisons.
 No mixed precision or distributed training is enabled. Architecture limits are
-width 1024, twelve layers, sixteen heads, context 256, and batch eight.
+width 1024, twelve layers, sixteen heads, context 2048, and batch eight.
 
 For larger experiments, `--embedding-width 1024 --layers 8 --attention-heads 16`
 is a valid architecture. Width 768 is also available in the studio. Width must be
 divisible by the head count. The CLI accepts integer widths from 4 to 1024 and
 head counts from 1 to 16; the studio/API require widths of at least 16.
-The training context range is 2–256 in the CLI and 8–256 in the studio/API.
+The training context range is 2–2048 in the CLI and 8–2048 in the studio/API.
 
 Choose a new checkpoint path when changing architecture. `--resume` retains the
 saved architecture; it does not expand a model's width, layers, or heads. The
-maximum configuration (width 1024, twelve layers, context 256) has about 152 million
+configuration (width 1024, twelve layers, context 256) has about 152 million
 parameters. Weights, gradients, optimizer state, and activations all consume memory,
 so increase size gradually and reduce batch size if necessary. These limits are
 configuration bounds, not a guarantee that every device can train the largest model.

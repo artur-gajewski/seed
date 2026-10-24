@@ -36,7 +36,7 @@ Usage: npm run train -- --corpus PATH --checkpoint PATH [options]
   --batch-size N         Default: 8; range: 1–8
   --steps N              Default: 30000; range: 1–1000000 (additional updates on resume)
   --learning-rate N      Default: 0.0003; range: 0.00001–0.05
-  --context-window N     Default: 256 byte tokens; range: 8–256
+  --context-window N     Default: 256 byte tokens; range: 8–2048
   --resume               Load the checkpoint and continue its learned weights and optimizer
 
 Omitted training settings always use the defaults listed above, including on resume.

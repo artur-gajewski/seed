@@ -19,7 +19,7 @@ import { decodeCheckpoint } from './checkpoint.ts';
 import { chatGenerationRequest, extractAssistantReply, parseChatRequest } from './chat.ts';
 import { parseGenerationRequest, parseTrainingRequest } from './validation.ts';
 import type { JsonObject } from './validation.ts';
-import { NEW_LIFE_PRESETS } from '../shared/api.ts';
+import { NEW_LIFE_PRESETS, newLifeByteLimit } from '../shared/api.ts';
 import type {
   StudioStatus,
   GenerateResponse,
@@ -368,19 +368,23 @@ export class TorchStudio {
     const selected = size as NewLifeSize;
     if (this.lifeBusy.has(selected))
       throw new Error('New life is learning. Try again in a moment.');
-    const brief = (value: unknown, label: string) => {
-      if (typeof value !== 'string' || !value.trim() || Buffer.byteLength(value.trim()) > 100)
-        throw new Error(`${label} must contain 1 to 100 UTF-8 bytes`);
+    const byteLimit = newLifeByteLimit(selected);
+    const brief = (value: unknown, label: string, limit = byteLimit) => {
+      if (typeof value !== 'string' || !value.trim() || Buffer.byteLength(value.trim()) > limit)
+        throw new Error(`${label} must contain 1 to ${limit} UTF-8 bytes`);
       if (/[\r\n]|(?:User|Assistant):/.test(value))
         throw new Error(`${label} must be one line without conversation role labels`);
       return value.trim();
     };
+    const message = action === 'status' ? undefined : brief(body.message, 'Message');
     const lesson =
-      action === 'status'
+      message === undefined
         ? undefined
         : {
-            message: brief(body.message, 'Message'),
-            ...(action === 'teach' ? { answer: brief(body.answer, 'Answer') } : {}),
+            message,
+            ...(action === 'teach'
+              ? { answer: brief(body.answer, 'Answer', newLifeByteLimit(selected, message)) }
+              : {}),
           };
     this.lifeBusy.add(selected);
     try {
@@ -424,7 +428,15 @@ export class TorchStudio {
               throw new Error('Invalid New life checkpoint');
             const lessons = saved.lessons.map((entry: { message: unknown; answer?: unknown }) => ({
               message: brief(entry.message, 'Message'),
-              ...(entry.answer === undefined ? {} : { answer: brief(entry.answer, 'Answer') }),
+              ...(entry.answer === undefined
+                ? {}
+                : {
+                    answer: brief(
+                      entry.answer,
+                      'Answer',
+                      newLifeByteLimit(selected, String(entry.message)),
+                    ),
+                  }),
             }));
             return run({ interchange: file, lessons });
           });

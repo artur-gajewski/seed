@@ -290,6 +290,7 @@ class Studio:
 
     def life(self, body):
         size, path, config = body["size"], body["path"], body["config"]
+        byte_limit = config["contextSize"] - 48
         if size not in self.lives:
             lessons = []
             if Path(path).exists():
@@ -313,10 +314,13 @@ class Studio:
                     raise TypeError("Invalid New life lesson")
                 for key in ("message",) + (("answer",) if "answer" in lesson else ()):
                     value = lesson.get(key)
+                    limit = byte_limit if key == "message" else min(
+                        byte_limit, config["contextSize"] - 20 - len(lesson["message"].encode("utf-8"))
+                    )
                     if (
                         not isinstance(value, str)
                         or not value.strip()
-                        or len(value.encode("utf-8")) > 100
+                        or len(value.encode("utf-8")) > limit
                         or re.search(r"[\r\n]|(?:User|Assistant):", value)
                     ):
                         raise ValueError("Invalid New life lesson")

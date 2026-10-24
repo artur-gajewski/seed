@@ -19,11 +19,17 @@ import { CheckpointControls } from './components/CheckpointControls.tsx';
 import { ChatPage } from './components/ChatPage.tsx';
 import { NewLifePage } from './components/NewLifePage.tsx';
 import { useChat } from './hooks/useChat.ts';
+import { useStoredState } from './hooks/useStoredState.ts';
+import {
+  DEFAULT_GENERATION_SETTINGS,
+  isTrainingSettings,
+  isGenerationSettings,
+  isTrainingDevice,
+} from './lib/studioPreferences.ts';
 import { DEFAULT_TRAINING_SETTINGS, trainingSettingsForModel } from './lib/trainingSettings.ts';
 
 export function App() {
   const statusRevision = useRef(0);
-  const settingsHydrated = useRef(false);
   const chat = useChat();
   const [status, setStatus] = useState<StudioStatus>({
     model: null,
@@ -33,16 +39,23 @@ export function App() {
     error: null,
   });
   const [text, setText] = useState('');
-  const [device, setDevice] = useState<NonNullable<TrainRequest['device']>>('auto');
+  const [device, setDevice] = useStoredState<NonNullable<TrainRequest['device']>>(
+    'seed.training.device',
+    'auto',
+    isTrainingDevice,
+  );
   const [corpusFileName, setCorpusFileName] = useState<string>();
   const [tab, setTab] = useState<StudioTab>('train');
-  const [settings, setSettings] = useState<TrainingSettings>(DEFAULT_TRAINING_SETTINGS);
-  const [generation, setGeneration] = useState<GenerateRequest>({
-    prompt: 'User: Hello!\nAssistant:',
-    temperature: 0.8,
-    maxTokens: 240,
-    topK: 0,
-  });
+  const [settings, setSettings] = useStoredState<TrainingSettings>(
+    'seed.training.settings',
+    DEFAULT_TRAINING_SETTINGS,
+    isTrainingSettings,
+  );
+  const [generation, setGeneration] = useStoredState<GenerateRequest>(
+    'seed.generation.settings',
+    DEFAULT_GENERATION_SETTINGS,
+    isGenerationSettings,
+  );
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -59,14 +72,6 @@ export function App() {
         const next = await api('status');
         if (live && revision === statusRevision.current) {
           setStatus(next);
-          if (!settingsHydrated.current && next.model) {
-            setSettings(trainingSettingsForModel(next)!);
-            settingsHydrated.current = true;
-            const activeDevice = next.backend?.device;
-            if (activeDevice === 'cpu' || activeDevice === 'mps' || activeDevice === 'cuda') {
-              setDevice(activeDevice);
-            }
-          }
           setConnected(true);
         }
       } catch {
@@ -119,7 +124,6 @@ export function App() {
       const loadedSettings = trainingSettingsForModel(loaded);
       if (loadedSettings) {
         setSettings(loadedSettings);
-        settingsHydrated.current = true;
       }
       const activeDevice = loaded.backend?.device;
       if (activeDevice === 'cpu' || activeDevice === 'mps' || activeDevice === 'cuda') {
@@ -135,7 +139,6 @@ export function App() {
       setStatus(created);
       const loadedSettings = trainingSettingsForModel(created);
       if (loadedSettings) setSettings(loadedSettings);
-      settingsHydrated.current = true;
       setResult(null);
       setNotice(`Model ${created.checkpointFileName} created and selected.`);
     }, true);

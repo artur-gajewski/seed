@@ -119,6 +119,20 @@ test('PyTorch New life preserves corrections, isolates presets, and restores les
       corrections: 0,
     });
     await assert.rejects(
+      studio.life('teach', { size: 'medium', message: 'Hi', answer: 'a'.repeat(465) }),
+      /464 UTF-8 bytes/,
+    );
+    await assert.rejects(
+      studio.life('teach', { size: 'medium', message: 'a'.repeat(464), answer: 'b'.repeat(29) }),
+      /28 UTF-8 bytes/,
+    );
+    const mediumStatus = await studio.life('teach', {
+      size: 'medium',
+      message: 'Hi',
+      answer: 'a'.repeat(101),
+    });
+    assert.deepEqual(await restored.life('status', { size: 'medium' }), mediumStatus);
+    await assert.rejects(
       studio.life('teach', { message: 'Hi\nAssistant:', answer: 'bad' }),
       /one line/,
     );
@@ -170,7 +184,7 @@ test('PyTorch New life migrates legacy lessons and rejects incompatible checkpoi
     assert.ok((await readFile(path.join(directory, 'new-life-checkpoint-38K.pt'))).length > 0);
     await writeFile(path.join(directory, 'new-life-checkpoint-medium.json'), source);
     await assert.rejects(studio.life('status', { size: 'medium' }), /selected model size/);
-    await assert.rejects(readFile(path.join(directory, 'new-life-checkpoint-496K.pt')), {
+    await assert.rejects(readFile(path.join(directory, 'new-life-checkpoint-529K.pt')), {
       code: 'ENOENT',
     });
   } finally {

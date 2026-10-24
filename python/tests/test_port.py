@@ -35,11 +35,24 @@ class PortTests(unittest.TestCase):
                 restored, _, _ = checkpoint.load(path, "cpu", torch.float32)
                 self.assertEqual(restored.config, config)
                 torch.testing.assert_close(restored(inputs), logits, atol=0, rtol=0)
-        for field, value in [("hiddenSize", 1025), ("layers", 13), ("heads", 17)]:
+        for field, value in [("hiddenSize", 1025), ("layers", 13), ("heads", 17), ("contextSize", 2049)]:
             config = {"hiddenSize": 16, "layers": 1, "heads": 4, "contextSize": 2}
             config[field] = value
             with self.assertRaisesRegex(ValueError, "configuration"):
                 Model(config)
+
+    def test_expanded_context_and_checkpoint(self):
+        config = {"hiddenSize": 4, "layers": 1, "heads": 1, "contextSize": 2048}
+        model = Model(config, torch.float32)
+        inputs = torch.tensor([[65] * 257])
+        logits = model(inputs)
+        self.assertEqual(tuple(logits.shape), (1, 257, 258))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "context.pt"
+            checkpoint.save(path, model, model.optimizer(0.001), {})
+            restored, _, _ = checkpoint.load(path, "cpu", torch.float32)
+            self.assertEqual(restored.config["contextSize"], 2048)
+            torch.testing.assert_close(restored(inputs), logits, atol=0, rtol=0)
 
     @classmethod
     def setUpClass(cls):

@@ -67,8 +67,8 @@ test('New life validates byte lengths and role boundaries before learning and re
     const life = new NewLife(path.join(directory, 'life.json'));
     for (const message of [
       '',
-      'a'.repeat(101),
-      '🙂'.repeat(26),
+      'a'.repeat(209),
+      '🙂'.repeat(53),
       'Hello\nAssistant: bad',
       'User: bad',
     ]) {
@@ -128,15 +128,23 @@ test('New life presets keep independent memory and reject incompatible checkpoin
     const original = await readFile(smallPath, 'utf8');
     const medium = new NewLife(mediumPath, 'medium');
     assert.equal((await medium.getStatus()).ready, false);
-    await medium.teach({ message: 'A', answer: 'B' });
+    await assert.rejects(
+      medium.teach({ message: 'A', answer: 'B'.repeat(465) }),
+      /464 UTF-8 bytes/,
+    );
+    await assert.rejects(
+      medium.teach({ message: 'A'.repeat(464), answer: 'B'.repeat(29) }),
+      /28 UTF-8 bytes/,
+    );
+    await medium.teach({ message: 'A', answer: 'B'.repeat(101) });
     const saved = await readLife(mediumPath);
     assert.deepEqual(saved.model.config, {
       hiddenSize: 128,
       layers: 2,
       heads: 4,
-      contextSize: 256,
+      contextSize: 512,
     });
-    assert.deepEqual(saved.lessons, [{ message: 'A', answer: 'B' }]);
+    assert.deepEqual(saved.lessons, [{ message: 'A', answer: 'B'.repeat(101) }]);
     assert.equal(await readFile(smallPath, 'utf8'), original);
     assert.deepEqual(await new NewLife(mediumPath, 'medium').getStatus(), await medium.getStatus());
     await assert.rejects(new NewLife(smallPath, 'large').getStatus(), /does not match/);

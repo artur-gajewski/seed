@@ -67,8 +67,9 @@ the latest lesson with randomly selected previous lessons to reduce forgetting.
 User messages teach language patterns; question-and-answer lessons teach responses.
 Generated replies are never automatically added to training. Teaching another answer
 to the same question replaces its previous lesson; asking again preserves the taught
-answer. Each message and answer must fit in 100 UTF-8 bytes on one line, keeping a
-complete lesson within the model's 256-token window. Up to 1,000 distinct questions
+answer. Message limits follow the selected context window, from 208 bytes for the smallest
+preset to 2000 bytes for 153M. When teaching, the counter shows the answer space
+remaining after the original message and role labels, up to the message limit. Up to 1,000 distinct questions
 are retained; older lessons are not silently removed when this limit is reached.
 
 Every ordinary message trains before generating a reply, including repeated questions. Replies
@@ -79,10 +80,25 @@ the byte-level model has not yet learned to generate valid UTF-8 consistently.
 
 ### Continuing later
 
-New Life offers 38K, 496K, 2.6M, and 13M parameter presets, each with its own learning.
+New Life offers eight model presets, each with its own learning. The 153M preset is
+the default when no previous selection is saved. The dropdown shows
+parameter counts. Width, layers, attention heads, batch size, and context window update
+below the dropdown when you select a preset.
+
+| Parameters | Width | Layers | Attention heads | Batch size | Context tokens |
+| ---------- | ----- | ------ | --------------- | ---------- | -------------- |
+| 38K        | 32    | 1      | 4               | 2          | 256            |
+| 108K       | 64    | 1      | 4               | 3          | 384            |
+| 529K       | 128   | 2      | 4               | 4          | 512            |
+| 1.6M       | 192   | 3      | 6               | 5          | 768            |
+| 2.8M       | 256   | 3      | 8               | 6          | 1024           |
+| 7.8M       | 384   | 4      | 8               | 6          | 1280           |
+| 58M        | 768   | 8      | 12              | 8          | 1536           |
+| 153M       | 1024  | 12     | 16              | 8          | 2048           |
+
+The largest preset has 153,782,530 trainable parameters.
 Weights, optimizer state, and replay lessons are saved atomically after each learning
-action to `data/models/new-life-checkpoint-38K.pt`, `data/models/new-life-checkpoint-496K.pt`,
-`data/models/new-life-checkpoint-2.6M.pt`, or `data/models/new-life-checkpoint-13M.pt`, independently
+action to `data/models/new-life-checkpoint-<parameters>.pt`, independently
 of the studio's `data/models/seed_default.pt`. Existing Transformer New life JSON/V8
 checkpoints are converted to `.pt` when their preset is first loaded, preserving
 lessons, weights, and optimizer moments. Legacy files are retained. An existing `.pt`
