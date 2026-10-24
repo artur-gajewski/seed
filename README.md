@@ -84,9 +84,7 @@ experiment guides. See the [release notes](RELEASE_NOTES.md) for recorded change
 
 ## Screenshot
 
-This screenshot predates the PyTorch backend, the Models panel, and the current larger defaults.
-
-<img width="1896" height="1283" alt="Seed training studio" src="https://github.com/user-attachments/assets/df17f4be-9d47-4991-873b-192fbb95d0c7" />
+<img width="949" height="734" alt="Screenshot 2026-10-24 at 11 48 16" src="https://github.com/user-attachments/assets/68a2fcde-b02f-476f-920b-641f31c4cfa5" />
 
 ## License
 
