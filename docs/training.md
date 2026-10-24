@@ -132,6 +132,17 @@ seed-torch evaluate --device mps --checkpoint data/models/seed_default.pt \
   --output data/reports/color-reasoning.json
 ```
 
+For `data/inputs/compositional_generalization.txt`, run `npm run analyze:compositional` to report
+family counts, answer distributions, duplicate questions, conflicting answers, and
+unclassified questions in `data/reports/compositional_generalization_analysis.json`.
+Run `npm run reference:compositional -- --per-family 100` to extract a deterministic,
+deduplicated reference set at `data/references/compositional_generalization_reference.json`.
+Both scripts accept `--corpus` and `--output`. These references contain corpus
+questions and measure training-data recall; they are not a held-out benchmark.
+Evaluate them with `npm run evaluate -- --evaluation
+data/references/compositional_generalization_reference.json` or pass the same `--evaluation`
+to `seed-torch evaluate`. Answers are normalized to lowercase to match both evaluators.
+
 Use `color_reasoning_02_reference.json` to evaluate supplemental training. Reports
 record every reply and scores by question family. Keep both reference datasets
 separate from training. Greedy decoding is the default; use `--temperature 0.8

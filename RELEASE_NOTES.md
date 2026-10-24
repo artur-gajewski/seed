@@ -14,6 +14,15 @@ A summary of new features, improvements, and changes in Seed.
 
 ## 2026-10-24
 
+- **Compositional generalization corpus:** Added
+  `data/inputs/compositional_generalization.txt` with 14,000 question/answer pairs
+  across 22 task families, including attribute selection, ownership, locations,
+  arithmetic, ordering, and conditional rules. `npm run analyze:compositional`
+  reports family counts, answer distributions, duplicate questions, and conflicting
+  answers. `npm run reference:compositional` creates a deterministic reference set
+  compatible with both evaluation CLIs; the default includes 2,093 questions.
+  These references come from the training corpus and measure recall, not held-out
+  compositional generalization.
 - **Larger context windows:** Increased the context limit from 256 to 2048 tokens
   in both training engines, the API, and training CLIs. The Training selector offers
   intermediate sizes through 2048; existing checkpoints retain their saved architecture.
