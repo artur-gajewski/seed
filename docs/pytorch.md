@@ -48,8 +48,11 @@ recover from a process failure, then load a checkpoint.
 
 New life uses separate `.pt` files per preset and atomically saves weights, optimizer,
 and replay lessons after each action. Existing JSON/V8 Transformer checkpoints are
-migrated without modifying the legacy file. New life retains its correction/replay
-behavior; generated replies are not added to lessons.
+migrated when their architecture matches the selected preset, without modifying the legacy file. New life retains its correction/replay
+behavior; generated replies are not added to lessons. There are eight presets from
+38K to 153M, with contexts from 256 to 2048 tokens. The browser defaults to 153M
+and remembers the chosen preset. Message limits reach 2000 UTF-8 bytes; teaching
+answers use the remaining context. See [New Life](new-life.md) for the full table.
 
 ## Training controls and progress
 
@@ -123,10 +126,13 @@ is a valid architecture. Width 768 is also available in the studio. Width must b
 divisible by the head count. The CLI accepts integer widths from 4 to 1024 and
 head counts from 1 to 16; the studio/API require widths of at least 16.
 The training context range is 2–2048 in the CLI and 8–2048 in the studio/API.
+The CLI retains defaults of width 256, four layers, eight heads, context 256, batch
+eight, 30,000 updates, and learning rate 0.0003. These differ from the browser’s
+maximum defaults; browser preferences do not change CLI or omitted API values.
 
 Choose a new checkpoint path when changing architecture. `--resume` retains the
 saved architecture; it does not expand a model's width, layers, or heads. The
-configuration (width 1024, twelve layers, context 256) has about 152 million
+maximum configuration (width 1024, twelve layers, context 2048) has about 153.8 million
 parameters. Weights, gradients, optimizer state, and activations all consume memory,
 so increase size gradually and reduce batch size if necessary. These limits are
 configuration bounds, not a guarantee that every device can train the largest model.

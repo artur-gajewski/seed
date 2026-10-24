@@ -2,6 +2,11 @@
 
 Read the [results and recommendations](RESULTS.md) for a concise summary.
 
+These are recorded experiments with explicitly fixed model sizes and contexts.
+They predate the studio’s 153.8M-parameter, 2048-token defaults. References to the
+original 3.36M model and 256-byte context describe the historical workload, not
+current UI defaults. See [Training](../docs/training.md) for current settings.
+
 Open `report.html` directly in a browser. It contains inline charts, measured results, methodology, limitations, and embedded raw run data; it requires no server or network connection.
 
 - `PLAN.md`: experiment protocol and the explicitly exploratory scale-check addition.

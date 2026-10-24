@@ -15,7 +15,8 @@ will be gibberish; a handful of lessons does not produce a fluent assistant.
 4. Ask the question again, then introduce other short questions and answers.
 
 Enter submits the chat input. After sending a message or correction, focus returns to the message
-input, and the conversation follows the latest row automatically. The counters show
+input, and the conversation follows the latest row automatically. The single-line input
+fills the available width. The counters show
 remembered lessons, taught answers, and total learning updates.
 
 Use **Up** and **Down** in the input to recall successfully submitted messages and
@@ -28,7 +29,7 @@ history lasts until the page is refreshed.
 You can also teach directly in **Say something simple…**: prefix your preferred answer
 with `!`, for example `!The sky is blue.`. This teaches an answer to the latest message
 you sent in the visible conversation, rather than sending a new question. The `!` is
-removed before learning and does not count toward the 100-byte limit. Send a message
+removed before learning and does not count toward the displayed answer-byte limit. Send a message
 first; the shortcut needs a previous reply to correct. Both Enter and the send button
 support this shortcut, and the input clears and regains focus after saving successfully.
 
@@ -69,7 +70,11 @@ Generated replies are never automatically added to training. Teaching another an
 to the same question replaces its previous lesson; asking again preserves the taught
 answer. Message limits follow the selected context window, from 208 bytes for the smallest
 preset to 2000 bytes for 153M. When teaching, the counter shows the answer space
-remaining after the original message and role labels, up to the message limit. Up to 1,000 distinct questions
+remaining after the original message and role labels, up to the message limit.
+Message limits are the context size minus 48 bytes. Answer limits are the smaller
+of that message limit and the context size minus 20 bytes minus the original message’s
+UTF-8 byte length. For example, a 2000-byte message in 153M leaves 28 bytes for a taught
+answer; a short message permits a longer answer. Up to 1,000 distinct questions
 are retained; older lessons are not silently removed when this limit is reached.
 
 Every ordinary message trains before generating a reply, including repeated questions. Replies
@@ -83,7 +88,9 @@ the byte-level model has not yet learned to generate valid UTF-8 consistently.
 New Life offers eight model presets, each with its own learning. The 153M preset is
 the default when no previous selection is saved. The dropdown shows
 parameter counts. Width, layers, attention heads, batch size, and context window update
-below the dropdown when you select a preset.
+below the dropdown when you select a preset. Your selection is remembered in this
+browser between visits; changing presets clears the visible conversation and input
+history while retaining each preset’s saved learning.
 
 | Parameters | Width | Layers | Attention heads | Batch size | Context tokens |
 | ---------- | ----- | ------ | --------------- | ---------- | -------------- |
@@ -100,7 +107,7 @@ The largest preset has 153,782,530 trainable parameters.
 Weights, optimizer state, and replay lessons are saved atomically after each learning
 action to `data/models/new-life-checkpoint-<parameters>.pt`, independently
 of the studio's `data/models/seed_default.pt`. Existing Transformer New life JSON/V8
-checkpoints are converted to `.pt` when their preset is first loaded, preserving
+checkpoints with a matching preset architecture are converted to `.pt` when first loaded, preserving
 lessons, weights, and optimizer moments. Legacy files are retained. An existing `.pt`
 checkpoint takes precedence. Saved learning reloads automatically
 after a server restart.

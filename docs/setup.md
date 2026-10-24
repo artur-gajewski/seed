@@ -27,6 +27,20 @@ npm start
 
 Open **http://127.0.0.1:3001**.
 
+### Initial settings and saved preferences
+
+Training starts with the supported maximum settings: width 1024, twelve layers,
+sixteen heads, batch eight, context 2048, 1,000,000 updates, and learning rate 0.05.
+Text generation starts at 1000 new tokens, temperature 2, and Top K 512. New Life
+starts at 153M when no preset selection is saved. Choose smaller settings in the UI
+for smaller experiments; see [Training](training.md) and [New Life](new-life.md).
+
+The browser remembers Training settings/device, Text generation settings/prompt, and
+the New Life preset. Preferences belong to that browser origin: development on port
+5173 and production on port 3001 have separate storage. Clearing site storage restores
+the initial defaults. Checkpoints are stored separately on the server. Explicitly
+loading a checkpoint updates Training controls; polling does not overwrite preferences.
+
 ### Run on a MacBook with GPU acceleration
 
 The API automatically uses the repository's `.venv/bin/python`. Set `SEED_PYTHON`

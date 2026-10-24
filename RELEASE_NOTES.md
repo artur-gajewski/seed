@@ -4,12 +4,36 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Contents
 
+- [2026-10-24](#2026-10-24)
 - [2026-10-22](#2026-10-22)
 - [2026-10-21](#2026-10-21)
 - [2026-10-20](#2026-10-20)
 - [2026-10-19](#2026-10-19)
 - [2026-10-18](#2026-10-18)
 - [2026-10-17](#2026-10-17)
+
+## 2026-10-24
+
+- **Larger context windows:** Increased the context limit from 256 to 2048 tokens
+  in both training engines, the API, and training CLIs. The Training selector offers
+  intermediate sizes through 2048; existing checkpoints retain their saved architecture.
+- **Eight New Life presets:** Added 38K, 108K, 529K, 1.6M, 2.8M, 7.8M, 58M, and
+  153M parameter options, with context windows increasing from 256 to 2048 tokens.
+  The largest uses width 1024, twelve layers, and sixteen attention heads, and is
+  selected by default when no previous selection is saved. Each preset keeps its
+  own learning. The dropdown shows parameter counts, with settings displayed below.
+- **Maximum defaults and remembered settings:** Training defaults to width 1024,
+  twelve layers, sixteen heads, batch size eight, a 2048-token context, 1,000,000
+  updates, and peak learning rate 0.05. Text generation defaults to 1000 new tokens,
+  temperature 2, and Top K 512. Training settings, device selection, generation
+  settings, and the prompt persist in browser storage between visits. Status polling
+  preserves these preferences; explicitly loading a checkpoint fills in its settings.
+- **Model-aware New Life input:** Message limits now follow the selected model,
+  from 208 bytes to 2000 bytes for 153M. Teaching answers use the remaining context
+  after the original message and role labels. The counter and validation reflect
+  the available budget, and the “one short line” hint has been removed.
+- **Chat input:** Chat and New Life composers fill the available width. Chat now
+  uses a single-line input with Enter to send.
 
 ## 2026-10-22
 

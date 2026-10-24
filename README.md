@@ -12,7 +12,9 @@ Seed runs locally with a React/TypeScript frontend, a Node.js 24 API, and a Pyth
 worker. It supports Apple Silicon GPUs (MPS), NVIDIA GPUs (CUDA), and CPUs. No external
 inference API is used.
 
-The default model has about **3.36 million parameters** and starts with random weights.
+Training defaults to about **153.8 million parameters** and a **2048-token context**,
+and starts with random weights. New Life offers eight presets from 38K to 153M, with
+153M selected initially.
 It learns from the text you supply; it has no pretrained English knowledge. Seed is built
 for learning and small experiments, rather than broad assistant capabilities.
 
@@ -48,13 +50,19 @@ GPU acceleration. Checkpoints persist in a Docker volume. See the
 ## Try your first model
 
 1. Open **Training** and import an [included corpus](data/README.md), or paste your own text.
-2. Choose your settings and start training. Compare training and validation loss.
+2. Choose your settings and start training. The Training page starts at the supported
+   maximums; smaller models are available. Compare training and validation loss.
 3. Try an unseen prompt in **Text generation** or **Chat**. Low loss alone does not establish
    reliable answers.
 
 Training saves checkpoints automatically. Keep your corpus files separately: checkpoints
 store learned weights and training state, not the source text. Sending a message in Chat
 does not train the model; use **New life** to experiment with teaching through conversation.
+
+Training settings, device selection, Text generation settings and prompt, and the New Life
+preset are remembered in this browser between visits. Both chat inputs use the available
+width and accept a single line; Enter sends. See the [training guide](docs/training.md)
+for defaults and [New Life](docs/new-life.md) for model-dependent message limits.
 
 ## Documentation
 
@@ -74,7 +82,7 @@ experiment guides. See the [release notes](RELEASE_NOTES.md) for recorded change
 
 ## Screenshot
 
-This screenshot predates the PyTorch backend and the Models panel.
+This screenshot predates the PyTorch backend, the Models panel, and the current larger defaults.
 
 <img width="1896" height="1283" alt="Seed training studio" src="https://github.com/user-attachments/assets/df17f4be-9d47-4991-873b-192fbb95d0c7" />
 

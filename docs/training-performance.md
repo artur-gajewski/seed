@@ -63,7 +63,9 @@ SEED_TENSOR_BACKEND=accelerate npm run profile:training
 ```
 
 The benchmark uses seed 42, deterministic byte windows, and constant learning rate 0.0003. Defaults
-match width 256, four layers, eight heads, batch eight, and context 256: **3,357,442 parameters**.
+are width 256, four layers, eight heads, batch eight, and context 256: **3,357,442 parameters**.
+These are benchmark defaults, not the current studio defaults of width 1024, twelve
+layers, sixteen heads, batch eight, and context 2048 (153,782,530 parameters).
 It performs one warmup and three measured updates, prints individual times, and reports the median
 and a 30,000-update projection as JSON. Run engines sequentially on an otherwise idle machine.
 Configure `BENCH_SAMPLES`, `BENCH_WARMUP`, `BENCH_WIDTH`, `BENCH_LAYERS`, `BENCH_HEADS`,

@@ -13,7 +13,9 @@ punctuation, statements, instructions, object identification, and distractors.
 Half the examples include a preceding conversation turn with an accurate answer.
 Turns are separated by a blank line so PyTorch learns a stop token after every
 answer; complete sessions are separated by two blank lines. All sessions fit a
-256-token context. The supplemental generator samples complete sessions for replay.
+256-token context used by this experiment. The current studio supports up to 2048
+tokens; the commands below retain the experiment’s explicit smaller architecture
+and sampling settings. The supplemental generator samples complete sessions for replay.
 
 The separate evaluation contains 2,306 examples covering held-out color/object
 pairs, six objects absent from training, and conversation continuations. Reports
@@ -116,7 +118,7 @@ literal spellings: answers repeat the spelling used in the question.
 The supplement adds varied wording, new objects, missing punctuation, distractors,
 subject switching, and follow-ups that refer to an earlier scene or an explicit
 color change. Sessions range from one to five user/assistant turns. Each complete
-session fits the existing 256-token context, including beginning and stop tokens.
+session fits the experiment’s 256-token context, including beginning and stop tokens.
 Turns have blank-line separators so each answer receives a learned stop token.
 The generator selects 4,204 earlier sessions for replay and removes duplicate
 sessions before shuffling. Replay can reduce forgetting but does not guarantee it.

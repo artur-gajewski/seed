@@ -42,7 +42,8 @@ separators organize replay sampling; they do not reset the training context.
 31,173 sessions covering 22 color spellings, varied questions, distractors, explicit
 color changes, and conversations of up to five turns. It includes a sample of the
 earlier lessons to help retain existing behavior. Each session fits the existing
-256-byte-token context, including special tokens.
+256-byte-token context used by this experiment, including special tokens. This is
+a corpus design bound, not the current 2048-token model limit.
 
 Regenerate the original corpus with `node scripts/create-color-reasoning-01.ts`
 and the supplement with `node scripts/create-color-reasoning-02.ts`.
@@ -52,7 +53,9 @@ Use the [experiment guide](../docs/color-reasoning.md#supplemental-training-add2
 for PyTorch training, resume commands, and before/after evaluation. Suggested
 settings are starting points; evaluate both references to check new skills and retention.
 The [studio and CLI support larger architectures](../docs/pytorch.md#train-on-an-m4-max),
-including width 1024, up to twelve layers, and sixteen attention heads. The included
+including width 1024, up to twelve layers, sixteen attention heads, and 2048-token
+contexts. The studio now defaults to the largest supported settings; the explicit
+commands here retain smaller configurations for these corpora. The included
 small synthetic corpora do not require the maximum model size; compare held-out
 results before increasing capacity.
 

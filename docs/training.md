@@ -30,7 +30,7 @@ Training panel defaults use the supported maximums: width 1024, twelve layers, s
 The context selector offers increasing sizes through 2048 tokens; the default is 2048.
 The API and PyTorch CLI also accept intermediate integer widths and head counts within
 their limits; width must be divisible by the number of heads. Width 1024 with twelve
-layers and context 256 has about 152 million parameters. Larger settings require more
+layers and context 2048 has 153,782,530 parameters. Larger settings require more
 memory and training time. Create a new model to change architecture; continuing training
 retains the loaded checkpoint's architecture. See the [PyTorch guide](pytorch.md)
 for CLI options.
@@ -43,9 +43,10 @@ The split is contiguous and does not deduplicate repeated examples. Repeated or 
 
 **Continue existing model** trains further without resetting the learned weights. It retains the loaded architecture, context limit, and optimizer state, and accepts a new corpus. The selected batch size and training length apply to the new session. A resumed session restarts its learning-rate schedule. Architecture controls only affect new models.
 
-Loading a model prefills Training settings with its architecture and saved session
-settings. Refreshing the page restores those settings for the active model; regular
-status polling preserves subsequent manual edits. The session step setting means
+Explicitly loading a model prefills Training settings with its architecture and saved
+session settings. Refreshing the page restores your last valid browser settings and
+device selection, even if they differ from the active model. Regular status polling
+preserves these preferences. The session step setting means
 additional updates, not the model's lifetime update count.
 
 Architecture, parameter count, vocabulary, and lifetime training steps describe the
@@ -74,6 +75,10 @@ seed-torch train --device mps \
   --embedding-width 128 --layers 3 --attention-heads 4 \
   --batch-size 8 --steps 6000 --learning-rate 0.001 --context-window 256
 ```
+
+These explicit settings reproduce the smaller color experiment rather than the current
+maximum studio defaults. The training CLIs retain defaults of width 256, four layers,
+eight heads, context 256, batch eight, 30,000 updates, and learning rate 0.0003.
 
 Use `--device cpu` on CPU hosts or `--device cuda` on NVIDIA hosts. Interactive
 progress refreshes on one line; redirected output remains JSON lines. Ctrl+C saves
@@ -109,9 +114,14 @@ Training inserts a special end-of-response token after assistant answers. Genera
 
 Chat sends recent turns in the `User:` / `Assistant:` format. Requests accept up to 41 alternating messages, starting and ending with a user, with up to 2,000 Unicode code points per message. Chat formatting retains up to 4,096 code points of recent complete turns, but the model actually attends only to its configured context window in **bytes**, which may be much shorter. Text generation accepts prompts up to 4,096 code points.
 
-Enter sends a chat message; Shift + Enter inserts a newline. Temperature controls randomness. Top K in Text generation limits sampling to the K most likely tokens; 1 chooses the most likely token and 0 uses all candidates. `maxTokens` limits generated tokens, not visible characters. UTF-8 characters may occupy multiple tokens. Chat also removes any subsequent role marker generated after the assistant reply.
+Chat uses a single-line input that fills the available width. Enter sends a message. Temperature controls randomness. Top K in Text generation limits sampling to the K most likely tokens; 1 chooses the most likely token and 0 uses all candidates. `maxTokens` limits generated tokens, not visible characters. UTF-8 characters may occupy multiple tokens. Chat also removes any subsequent role marker generated after the assistant reply.
 
-Chat history and drafts remain in browser memory while switching pages and reset on refresh. Sending a message does not train the model.
+Text generation defaults to 1000 new tokens, temperature 2, and Top K 512. Its prompt
+and settings are remembered in this browser between visits; saved preferences override
+these defaults. Invalid or unreadable saved settings fall back to the defaults.
+
+Chat history and drafts remain in browser memory while switching pages and reset on refresh.
+This differs from the saved Text generation prompt. Sending a Chat message does not train the model.
 
 ## Evaluate a trained checkpoint
 

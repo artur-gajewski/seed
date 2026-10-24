@@ -21,7 +21,11 @@
 - `server/tensor.ts`: matrix operations, causal attention, normalization, GELU, and backward derivatives.
 - `server/numerics.ts`, `server/accelerated-attention.ts`, and `native/accelerate.cc`: optional native CPU matrix acceleration and attention.
 - `server/legacy-model.ts`: original RNN, retained for version 1 checkpoints.
-- `shared/api.ts`: request and response types shared with the React app.
+- `shared/api.ts`: shared request/response types, eight New Life presets, and context-aware byte budgets.
+- `src/lib/trainingSettings.ts`: maximum browser training defaults and checkpoint-prefill behavior.
+- `src/lib/studioPreferences.ts`: generation defaults, preference validation, and browser storage access.
+- `src/hooks/useStoredState.ts`: restore and persist valid Training/generation settings.
+- `src/lib/newLifeInput.ts`: correction parsing and model-aware message/answer validation.
 
 Each Transformer block uses pre-layer normalization, masked multi-head self-attention, residual connections, and a GELU feed-forward network with a 4× expansion. Learned token and position embeddings precede the blocks; final normalization and an output projection predict the next byte. The API uses batched Float32 PyTorch tensors and automatic differentiation. The reference engine retains Float64 buffers and manual gradients for parity tests. AdamW uses global gradient clipping at norm 1 and matrix weight decay 0.01.
 
@@ -37,7 +41,9 @@ npm run format:check
 npm run format
 ```
 
-The build runs strict TypeScript checking before Vite. Tests cover numerical derivatives for every Transformer parameter group, causal masking, pattern learning from random weights, UTF-8 encoding, exact checkpoint resumption, chat formatting, validation measurement, origin handling, and the API lifecycle. Legacy RNN gradient and checkpoint tests remain. These tests establish implementation behavior, not general assistant capability. There are no browser interaction tests.
+The build runs strict TypeScript checking before Vite. Tests cover numerical derivatives for every Transformer parameter group, causal masking, pattern learning from random weights, UTF-8 encoding, exact checkpoint resumption, chat formatting, validation measurement, origin handling, and the API lifecycle. Tests also cover 2048-token model/checkpoint limits, preference persistence and corrupt
+storage, and New Life message/answer budgets and restoration. Legacy RNN gradient
+and checkpoint tests remain. These tests establish implementation behavior, not general assistant capability. There are no browser interaction tests.
 
 Prettier uses two-space indentation, single quotes, semicolons, trailing commas, and a 100-character line width. Keep blank lines between functions and logical sections, one variable declaration per statement, and braces around conditionals and loops.
 
