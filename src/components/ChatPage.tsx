@@ -14,7 +14,7 @@ interface ChatPageProps {
 const SUGGESTED_PROMPTS = ['Hello!', 'Tell me a story.', 'How do you learn?'];
 
 export function ChatPage({ chat, status, connected, studioBusy, onOpenStudio }: ChatPageProps) {
-  const composer = useRef<HTMLTextAreaElement>(null);
+  const composer = useRef<HTMLInputElement>(null);
   const conversation = useRef<HTMLDivElement>(null);
   const canSend = Boolean(status.model && connected && !studioBusy && !chat.isSending);
   const characterCount = Array.from(chat.draft.trim()).length;
@@ -152,7 +152,8 @@ export function ChatPage({ chat, status, connected, studioBusy, onOpenStudio }: 
           <label className="sr-only" htmlFor="chat-prompt">
             Message your trained model
           </label>
-          <textarea
+          <input
+            type="text"
             id="chat-prompt"
             ref={composer}
             placeholder={
@@ -161,9 +162,8 @@ export function ChatPage({ chat, status, connected, studioBusy, onOpenStudio }: 
             value={chat.draft}
             onChange={(event) => chat.setDraft(event.target.value)}
             disabled={!status.model || chat.isSending}
-            rows={3}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
                 event.preventDefault();
                 event.currentTarget.form?.requestSubmit();
               }
@@ -198,7 +198,7 @@ export function ChatPage({ chat, status, connected, studioBusy, onOpenStudio }: 
           </div>
         </form>
         <p className="chat-footnote">
-          <span>Enter to send · Shift + Enter for a new line</span>
+          <span>Enter to send</span>
         </p>
       </div>
     </section>

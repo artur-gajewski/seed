@@ -9,10 +9,7 @@ import {
   serveFrontend,
 } from './http.ts';
 import type { Request, Response } from './http.ts';
-import { ModelStudio } from './studio.ts';
-import { NewLife } from './new-life.ts';
-import { NEW_LIFE_PRESETS, type NewLifeSize } from '../shared/api.ts';
-import { tensorBackend } from './numerics.ts';
+import { TorchStudio } from './torch-studio.ts';
 
 export type { Request, Response } from './http.ts';
 
@@ -21,28 +18,9 @@ const buildDirectory = path.join(projectDirectory, 'dist');
 // Vite forwards browser Origin unchanged, even if the proxy rewrites Host.
 const developmentOrigins =
   process.env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : [];
-const studio = new ModelStudio(path.join(projectDirectory, 'data/models/checkpoint.json'));
-const lives = new Map<NewLifeSize, NewLife>();
-function getLife(size: unknown = 'small'): NewLife {
-  if (typeof size !== 'string' || !Object.hasOwn(NEW_LIFE_PRESETS, size)) {
-    throw new Error('Invalid New life model size');
-  }
-  const selected = size as NewLifeSize;
-  let life = lives.get(selected);
-  if (!life) {
-    const suffix = selected === 'small' ? '' : `-${selected}`;
-    life = new NewLife(
-      path.join(
-        projectDirectory,
-        `data/models/new-life-checkpoint-${NEW_LIFE_PRESETS[selected].label}.json`,
-      ),
-      selected,
-      path.join(projectDirectory, `data/models/new-life-checkpoint${suffix}.json`),
-    );
-    lives.set(selected, life);
-  }
-  return life;
-}
+export const studio = new TorchStudio(
+  process.env.SEED_CHECKPOINT || path.join(projectDirectory, 'data/models/seed_default.pt'),
+);
 
 async function handleApiRequest(
   request: Request,
@@ -56,13 +34,12 @@ async function handleApiRequest(
   }
 
   if (request.method === 'GET' && pathname === '/api/new-life/status') {
-    sendJson(response, 200, await getLife().getStatus());
+    sendJson(response, 200, await studio.life('status'));
     return;
   }
 
   if (request.method === 'GET' && pathname === '/api/status') {
-    const checkpoint = await studio.getCheckpointInfo();
-    sendJson(response, 200, { ...studio.getStatus(), checkpoint });
+    sendJson(response, 200, await studio.getStatus());
     return;
   }
 
@@ -75,35 +52,35 @@ async function handleApiRequest(
 
   switch (pathname) {
     case '/api/new-life/settings':
-      sendJson(response, 200, await getLife(body.size).getStatus());
+      sendJson(response, 200, await studio.life('status', body));
       return;
     case '/api/new-life/message':
-      sendJson(response, 200, await getLife(body.size).message(body));
+      sendJson(response, 200, await studio.life('message', body));
       return;
     case '/api/new-life/teach':
-      sendJson(response, 200, await getLife(body.size).teach(body));
+      sendJson(response, 200, await studio.life('teach', body));
       return;
     case '/api/train':
-      studio.startTraining(body);
-      sendJson(response, 202, studio.getStatus());
+      sendJson(response, 202, await studio.startTraining(body));
       return;
 
     case '/api/stop':
-      studio.stopTraining();
-      sendJson(response, 200, studio.getStatus());
+      sendJson(response, 200, await studio.stopTraining());
       return;
 
     case '/api/generate':
-      sendJson(response, 200, studio.generate(body));
+      sendJson(response, 200, await studio.generate(body));
       return;
 
     case '/api/chat':
-      sendJson(response, 200, studio.chat(body));
+      sendJson(response, 200, await studio.chat(body));
       return;
 
     case '/api/checkpoint/save':
       await studio.saveCheckpoint();
-      sendJson(response, 200, { message: 'Checkpoint saved to data/models/checkpoint.json' });
+      sendJson(response, 200, {
+        message: `Checkpoint saved to ${(await studio.getStatus()).checkpointFileName}`,
+      });
       return;
 
     case '/api/checkpoint/delete':
@@ -114,8 +91,10 @@ async function handleApiRequest(
       return;
 
     case '/api/checkpoint/load':
-      await studio.loadCheckpoint();
-      sendJson(response, 200, studio.getStatus());
+      sendJson(response, 200, await studio.loadCheckpoint(body));
+      return;
+    case '/api/checkpoint/create':
+      sendJson(response, 201, await studio.createCheckpoint(body));
       return;
 
     default:
@@ -150,6 +129,32 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const host = process.env.HOST || '127.0.0.1';
   server.listen(port, host, () => {
     console.log(`Seed API running at http://${host}:${port}`);
-    console.log(`Tensor backend: ${tensorBackend} (CPU, Float64)`);
+    void studio
+      .getStatus()
+      .then((status) => {
+        console.log(`Training backend: PyTorch (${status.backend?.device}, Float32)`);
+      })
+      .catch((error) => console.error(error.message));
+  });
+}
+
+let shuttingDown = false;
+async function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  server.close();
+  try {
+    await studio.close();
+  } catch (error) {
+    console.error(error);
+    process.exitCode = 1;
+  }
+}
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  process.once('SIGINT', () => {
+    void shutdown();
+  });
+  process.once('SIGTERM', () => {
+    void shutdown();
   });
 }

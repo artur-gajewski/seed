@@ -37,5 +37,6 @@ test('color reasoning evaluation holds complete color/object pairs out of traini
     assert.ok(!corpus.includes(object), `Leaked unseen object: ${object}`);
   }
   assert.ok(!corpus.includes('Assistant: I do not know.'));
-  assert.match(corpus, /Assistant: [^\n]+\.\nUser:/);
+  assert.match(corpus, /Assistant: [^\n]+\.\n\nUser:/);
+  assert.doesNotMatch(corpus, /Assistant: [^\n]+\nUser:/);
 });

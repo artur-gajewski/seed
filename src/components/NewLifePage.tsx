@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { NEW_LIFE_PRESETS } from '../../shared/api.ts';
+import { NEW_LIFE_PRESETS, newLifeByteLimit } from '../../shared/api.ts';
 import type { NewLifeSize, NewLifeStatus } from '../../shared/api.ts';
 import { api } from '../lib/api.ts';
 import { newLifeInputContent, parseNewLifeInput } from '../lib/newLifeInput.ts';
@@ -28,7 +28,7 @@ function rememberedModelSize(): NewLifeSize {
   } catch {
     // Browser storage can be unavailable; the default model still works.
   }
-  return 'small';
+  return 'x-large';
 }
 
 export function NewLifePage() {
@@ -111,8 +111,10 @@ export function NewLifePage() {
     }
   }
 
-  const valid = (text: string) => byteLength(text) > 0 && byteLength(text) <= 100;
   const { isTeaching: isTeachingDraft, content: draftContent } = newLifeInputContent(draft);
+  const latestMessage = messages.findLast((exchange) => !exchange.teaching)?.message;
+  const byteLimit = newLifeByteLimit(size, isTeachingDraft ? latestMessage : undefined);
+  const valid = (text: string) => byteLength(text) > 0 && byteLength(text) <= byteLimit;
 
   async function teachAnswer(message: string, preferredAnswer: string, correction: string) {
     setStatus(await api('new-life/teach', { message, answer: preferredAnswer.trim(), size }));
@@ -129,7 +131,7 @@ export function NewLifePage() {
       <div className="new-life-intro">
         <div className="new-life-settings">
           <label>
-            Parameters:{' '}
+            Model preset:{' '}
             <select
               value={size}
               disabled={busy}
@@ -224,6 +226,7 @@ export function NewLifePage() {
               const input = parseNewLifeInput(
                 draft,
                 messages.findLast((exchange) => !exchange.teaching)?.message,
+                size,
               );
               if (input.kind === 'teach') {
                 await teachAnswer(input.message, input.answer, draft.trim());
@@ -292,8 +295,8 @@ export function NewLifePage() {
           />
           <div className="chat-composer-actions">
             <span>
-              {byteLength(draftContent)} / 100 bytes ·{' '}
-              {isTeachingDraft ? 'Teaching latest answer' : 'one short line'}
+              {byteLength(draftContent)} / {byteLimit} bytes
+              {isTeachingDraft ? ' · Teaching latest answer' : ''}
             </span>
             <button
               className="chat-send"

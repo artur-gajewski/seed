@@ -1,0 +1,62 @@
+{
+  "pilot": {
+    "transformer-cpu": {
+      "training_seconds": 4.359515194431879,
+      "task_loss": 0.2491035864998897,
+      "prose_loss": 1.6454192847013474,
+      "accuracy": 0.16666666666666666,
+      "decode_tokens_s": 2940.517866343398
+    },
+    "transformer-mps": {
+      "training_seconds": 4.404145361778016,
+      "task_loss": 0.24920515778164068,
+      "prose_loss": 1.6442239185174305,
+      "accuracy": 0.16483516483516483,
+      "decode_tokens_s": 2764.246029291448
+    },
+    "gru-cpu": {
+      "training_seconds": 10.171992881417586,
+      "task_loss": 0.2755887471139431,
+      "prose_loss": 1.07441142698129,
+      "accuracy": 0.14285714285714285,
+      "decode_tokens_s": 22483.04248982848
+    },
+    "gru-mps": {
+      "training_seconds": 19.99162924825214,
+      "task_loss": 0.2755888756364584,
+      "prose_loss": 1.0744111090898514,
+      "accuracy": 0.14285714285714285,
+      "decode_tokens_s": 3987.3497757289215
+    }
+  },
+  "full-scale": {
+    "transformer-cpu": {
+      "training_seconds": 23.2168458676897,
+      "task_loss": 0.1705050077289343,
+      "prose_loss": 0.46267470344901085,
+      "accuracy": 0.13186813186813187,
+      "decode_tokens_s": 741.9128600264515
+    },
+    "transformer-mps": {
+      "training_seconds": 10.399364485754631,
+      "task_loss": 0.16207053884863853,
+      "prose_loss": 0.45129456371068954,
+      "accuracy": 0.8846153846153846,
+      "decode_tokens_s": 2013.0533895293536
+    },
+    "gru-cpu": {
+      "training_seconds": 62.12987445888575,
+      "task_loss": 0.18425347656011581,
+      "prose_loss": 0.20360174216330051,
+      "accuracy": 0.16483516483516483,
+      "decode_tokens_s": 8347.190974664649
+    },
+    "gru-mps": {
+      "training_seconds": 31.685905798571184,
+      "task_loss": 0.18301990628242493,
+      "prose_loss": 0.20275122858583927,
+      "accuracy": 0.16483516483516483,
+      "decode_tokens_s": 3209.1549751708308
+    }
+  }
+}

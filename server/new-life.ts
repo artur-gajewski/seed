@@ -4,7 +4,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { LanguageModel } from './model.ts';
 import { encodeCheckpoint, decodeCheckpoint } from './checkpoint.ts';
 import type { ModelCheckpoint } from './model.ts';
-import { NEW_LIFE_PRESETS } from '../shared/api.ts';
+import { NEW_LIFE_PRESETS, newLifeByteLimit } from '../shared/api.ts';
 import type { NewLifeSize, NewLifeReply, NewLifeStatus } from '../shared/api.ts';
 import type { JsonObject } from './validation.ts';
 import { extractAssistantReply } from './chat.ts';
@@ -19,9 +19,9 @@ interface SavedLife {
   lessons: Lesson[];
 }
 
-function briefText(value: unknown, label: string): string {
-  if (typeof value !== 'string' || !value.trim() || Buffer.byteLength(value.trim()) > 100) {
-    throw new Error(`${label} must contain 1 to 100 UTF-8 bytes`);
+function briefText(value: unknown, label: string, limit: number): string {
+  if (typeof value !== 'string' || !value.trim() || Buffer.byteLength(value.trim()) > limit) {
+    throw new Error(`${label} must contain 1 to ${limit} UTF-8 bytes`);
   }
   if (/[\r\n]|(?:User|Assistant):/.test(value)) {
     throw new Error(`${label} must be one line without conversation role labels`);
@@ -73,8 +73,16 @@ export class NewLife {
             throw new Error('Invalid New life checkpoint');
           }
           const lessons = saved.lessons.map((lesson) => ({
-            message: briefText(lesson.message, 'Message'),
-            ...(lesson.answer === undefined ? {} : { answer: briefText(lesson.answer, 'Answer') }),
+            message: briefText(lesson.message, 'Message', newLifeByteLimit(this.size)),
+            ...(lesson.answer === undefined
+              ? {}
+              : {
+                  answer: briefText(
+                    lesson.answer,
+                    'Answer',
+                    newLifeByteLimit(this.size, lesson.message),
+                  ),
+                }),
           }));
           const model = LanguageModel.restore(saved.model);
           if (!(model instanceof LanguageModel)) throw new Error('New life requires a Transformer');
@@ -112,7 +120,7 @@ export class NewLife {
   }
 
   async message(body: JsonObject): Promise<NewLifeReply> {
-    const message = briefText(body.message, 'Message');
+    const message = briefText(body.message, 'Message', newLifeByteLimit(this.size));
     return this.exclusive(async () => {
       await this.learn({ message });
       const generated = this.model!.generate(`User: ${message}\nAssistant:`, 80, 0.8, 0);
@@ -121,8 +129,8 @@ export class NewLife {
   }
 
   async teach(body: JsonObject): Promise<NewLifeStatus> {
-    const message = briefText(body.message, 'Message');
-    const answer = briefText(body.answer, 'Answer');
+    const message = briefText(body.message, 'Message', newLifeByteLimit(this.size));
+    const answer = briefText(body.answer, 'Answer', newLifeByteLimit(this.size, message));
     return this.exclusive(async () => {
       await this.learn({ message, answer });
       return this.status();

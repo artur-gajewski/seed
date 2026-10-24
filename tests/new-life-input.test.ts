@@ -1,3 +1,5 @@
+import { NEW_LIFE_PRESETS, newLifeByteLimit } from '../shared/api.ts';
+import type { NewLifeSize } from '../shared/api.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { newLifeInputContent, parseNewLifeInput } from '../src/lib/newLifeInput.ts';
@@ -10,7 +12,7 @@ test('New life composer routes ! answers to the latest question without the comm
     answer: 'The sky is blue.',
   });
   assert.throws(() => parseNewLifeInput('!Hello'), /Send a message first/);
-  for (const draft of ['', '!', '!   ', '!🙂'.repeat(26), 'a'.repeat(101)]) {
+  for (const draft of ['', '!', '!   ', '!🙂'.repeat(53), 'a'.repeat(209)]) {
     assert.throws(() => parseNewLifeInput(draft, 'Hi'));
   }
   assert.equal(parseNewLifeInput(`!${'a'.repeat(100)}`, 'Hi').kind, 'teach');
@@ -65,7 +67,7 @@ test('natural correction formats teach the supplied answer rather than the feedb
   }
   assert.equal(parseNewLifeInput('No, 4.', 'What is 2 + 2?').answer, '4.');
   assert.equal(parseNewLifeInput(`No, ${'a'.repeat(100)}`, 'Hi').kind, 'teach');
-  assert.throws(() => parseNewLifeInput(`No, ${'🙂'.repeat(26)}`, 'Hi'));
+  assert.throws(() => parseNewLifeInput(`No, ${'🙂'.repeat(53)}`, 'Hi'));
 });
 
 test('ordinary questions, negative statements, and bare feedback do not become taught answers', () => {
@@ -96,4 +98,39 @@ test('ordinary questions, negative statements, and bare feedback do not become t
     message: 'Hello',
     answer: 'How are you?',
   });
+});
+
+test('New life input limits follow the selected context and leave room for a complete lesson', () => {
+  for (const [size, preset] of Object.entries(NEW_LIFE_PRESETS)) {
+    const limit = newLifeByteLimit(size as NewLifeSize);
+    assert.equal(
+      parseNewLifeInput('a'.repeat(limit), undefined, size as NewLifeSize).kind,
+      'message',
+    );
+    assert.equal(
+      parseNewLifeInput('!' + 'a'.repeat(limit), 'Hi', size as NewLifeSize).kind,
+      'teach',
+    );
+    assert.throws(() => parseNewLifeInput('a'.repeat(limit + 1), undefined, size as NewLifeSize));
+    assert.throws(() =>
+      parseNewLifeInput('🙂'.repeat(Math.floor(limit / 4) + 1), undefined, size as NewLifeSize),
+    );
+    const message = 'a'.repeat(limit);
+    const answerLimit = newLifeByteLimit(size as NewLifeSize, message);
+    assert.equal(
+      parseNewLifeInput('!' + 'b'.repeat(answerLimit), message, size as NewLifeSize).kind,
+      'teach',
+    );
+    assert.throws(() =>
+      parseNewLifeInput('!' + 'b'.repeat(answerLimit + 1), message, size as NewLifeSize),
+    );
+    const lesson = `User: ${message}\nAssistant: ${'b'.repeat(answerLimit)}`;
+    assert.ok(Buffer.byteLength(lesson) + 2 <= preset.contextSize);
+  }
+});
+
+test('153M allows 2000-byte messages and budgets answers from the remaining context', () => {
+  assert.equal(newLifeByteLimit('x-large'), 2000);
+  assert.equal(newLifeByteLimit('x-large', 'a'.repeat(2000)), 28);
+  assert.equal(newLifeByteLimit('x-large', '🙂'.repeat(500)), 28);
 });

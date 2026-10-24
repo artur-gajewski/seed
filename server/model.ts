@@ -51,20 +51,20 @@ export class LanguageModel {
     if (
       !Number.isInteger(this.hiddenSize) ||
       this.hiddenSize < 4 ||
-      this.hiddenSize > 512 ||
+      this.hiddenSize > 1024 ||
       !Number.isInteger(heads) ||
       heads < 1 ||
-      heads > 8 ||
+      heads > 16 ||
       this.hiddenSize % heads !== 0 ||
       !Number.isInteger(layers) ||
       layers < 1 ||
-      layers > 4 ||
+      layers > 12 ||
       !Number.isInteger(contextSize) ||
       contextSize < 2 ||
-      contextSize > 256
+      contextSize > 2048
     ) {
       throw new Error(
-        'Invalid Transformer configuration: width must be divisible by heads; maximum width 512, context 256, 4 layers, 8 heads',
+        'Invalid Transformer configuration: width must be divisible by heads; maximum width 1024, context 2048, 12 layers, 16 heads',
       );
     }
     let randomState = seed >>> 0;

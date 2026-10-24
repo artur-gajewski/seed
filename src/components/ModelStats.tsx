@@ -1,49 +1,55 @@
-import type { StudioStatus } from '../../shared/api.ts';
+import type { StudioStatus, TrainingSettings } from '../../shared/api.ts';
+import { modelStats, selectedModelStats } from '../lib/modelStats.ts';
 
-export function ModelStats({ model }: { model: StudioStatus['model'] }) {
+export function ModelStats({
+  status,
+  settings,
+}: {
+  status: StudioStatus;
+  settings?: TrainingSettings;
+}) {
+  const stats = modelStats(status);
+  const model = status.model;
+  const preview =
+    settings !== undefined &&
+    !status.running &&
+    (!model ||
+      model.architecture === 'rnn' ||
+      model.hiddenSize !== settings.hiddenSize ||
+      model.layers !== settings.layers ||
+      model.heads !== settings.heads ||
+      model.contextSize !== settings.sequenceLength);
+  const selected = settings ? selectedModelStats(settings) : null;
   return (
-    <section className="stats">
+    <section className="stats" aria-label="Current model and training progress">
       <div>
-        <span>ARCHITECTURE</span>
-        <strong>
-          {model?.architecture === 'rnn' ? 'Character RNN' : 'Transformer'}{' '}
-          <small>{model?.architecture === 'rnn' ? 'legacy' : 'decoder'}</small>
-        </strong>
-        <p>
-          {model?.architecture === 'rnn'
-            ? 'Legacy checkpoint'
-            : `${model?.layers ?? 2} layers · ${model?.heads ?? 4} attention heads`}
-        </p>
+        <span>{preview ? 'SELECTED ARCHITECTURE' : 'ARCHITECTURE'}</span>
+        <strong>{preview ? 'Transformer' : stats.architecture}</strong>
+        <p>{preview ? selected!.description : stats.architectureDetail}</p>
       </div>
       <div>
-        <span>PARAMETERS</span>
+        <span>{preview ? 'SELECTED PARAMETERS' : 'PARAMETERS'}</span>
         <strong>
-          {model ? model.parameters.toLocaleString() : '—'}
+          {preview ? selected!.parameters.toLocaleString() : stats.parameters}
           <small>trainable</small>
         </strong>
-        <p>Initialized from random weights</p>
+        <p>{preview ? 'Estimated size for selected architecture' : stats.parametersDetail}</p>
       </div>
       <div>
-        <span>VOCABULARY</span>
+        <span>{preview ? 'SELECTED VOCABULARY' : 'VOCABULARY'}</span>
         <strong>
-          {model?.vocabulary ?? '—'}
-          <small>{model?.tokenizer === 'characters' ? 'characters' : 'tokens'}</small>
+          {preview ? '258' : stats.vocabulary}
+          <small>{preview ? 'tokens' : stats.vocabularyUnit}</small>
         </strong>
-        <p>
-          {model?.tokenizer === 'characters'
-            ? 'One character = one token'
-            : '256 UTF-8 bytes + start/stop tokens'}
-        </p>
+        <p>{preview ? 'New model · UTF-8 byte tokenizer' : stats.vocabularyDetail}</p>
       </div>
       <div>
-        <span>TRAINING STEPS</span>
+        <span>{preview ? 'CURRENT MODEL STEPS' : 'TRAINING STEPS'}</span>
         <strong>
-          {(model?.steps ?? 0).toLocaleString()}
-          <small>updates</small>
+          {stats.steps}
+          {status.model && <small>total updates</small>}
         </strong>
-        <p>
-          {model?.architecture === 'rnn' ? 'Backpropagation + Adam' : 'Backpropagation + AdamW'}
-        </p>
+        <p>{stats.stepsDetail}</p>
       </div>
     </section>
   );

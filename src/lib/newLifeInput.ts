@@ -1,3 +1,6 @@
+import { newLifeByteLimit } from '../../shared/api.ts';
+import type { NewLifeSize } from '../../shared/api.ts';
+
 // Recognize explicit correction cues, rather than asking the untrained model to classify them.
 const correctionPrefixes = [
   /^(?:no|nope|nah|not quite|wrong|incorrect|actually|correction|instead)\s*[.!,:;—–-]+\s*/i,
@@ -35,10 +38,15 @@ export function newLifeInputContent(draft: string) {
   return { isTeaching: true, content };
 }
 
-export function parseNewLifeInput(draft: string, latestMessage?: string) {
+export function parseNewLifeInput(
+  draft: string,
+  latestMessage?: string,
+  size: NewLifeSize = 'small',
+) {
   const { isTeaching, content } = newLifeInputContent(draft);
-  if (!content || new TextEncoder().encode(content).length > 100) {
-    throw new Error('Enter 1 to 100 UTF-8 bytes. Teaching prefixes do not count.');
+  const limit = newLifeByteLimit(size, isTeaching ? latestMessage : undefined);
+  if (!content || new TextEncoder().encode(content).length > limit) {
+    throw new Error(`Enter 1 to ${limit} UTF-8 bytes. Teaching prefixes do not count.`);
   }
   if (isTeaching) {
     if (!latestMessage) throw new Error('Send a message first, then teach an answer to its reply.');

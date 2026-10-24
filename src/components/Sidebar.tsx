@@ -4,10 +4,11 @@ interface SidebarProps {
   tab: StudioTab;
   connected: boolean | null;
   architecture?: 'transformer' | 'rnn';
+  device?: string;
   onTabChange: (tab: StudioTab) => void;
 }
 
-export function Sidebar({ tab, connected, architecture, onTabChange }: SidebarProps) {
+export function Sidebar({ tab, connected, architecture, device, onTabChange }: SidebarProps) {
   return (
     <aside className="sidebar">
       <a href="/" className="brand">
@@ -50,7 +51,10 @@ export function Sidebar({ tab, connected, architecture, onTabChange }: SidebarPr
         <span className={`dot ${connected ? 'active' : ''}`} />
         <div>
           {connected ? 'Local engine connected' : 'Connecting to engine…'}
-          <small>{architecture === 'rnn' ? 'Character RNN' : 'Transformer'} · CPU</small>
+          <small>
+            {architecture === 'rnn' ? 'Character RNN' : 'Transformer'} ·{' '}
+            {device?.toUpperCase() ?? 'PyTorch'}
+          </small>
         </div>
       </div>
     </aside>

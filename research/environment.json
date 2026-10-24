@@ -1,0 +1,14 @@
+{
+  "platform": "macOS-26.7.1-arm64-arm-64bit",
+  "python": "3.12.15 (main, Sep 30 2026, 22:04:19) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "torch": "2.14.1",
+  "mps_available": false,
+  "mps_built": true,
+  "quantized_engines": ["qnnpack"],
+  "threads": 4,
+  "steps": 800,
+  "batch": 8,
+  "context": 128,
+  "device": "cpu",
+  "command": ".venv/bin/python research/experiment.py --device cpu"
+}

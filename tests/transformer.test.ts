@@ -120,12 +120,32 @@ for (const width of [384, 512]) {
 
 test('Transformer width expansion preserves width and context limits', () => {
   const text = 'abc'.repeat(30);
-  assert.throws(() => parseTrainingRequest({ text, hiddenSize: 513 }), /Hidden size/);
+  const expanded = parseTrainingRequest({ text, hiddenSize: 1024, layers: 12, heads: 16 });
+  assert.equal(expanded.hiddenSize, 1024);
+  assert.equal(expanded.layers, 12);
+  assert.equal(expanded.heads, 16);
+  assert.throws(() => parseTrainingRequest({ text, hiddenSize: 1025 }), /Hidden size/);
+  assert.throws(() => parseTrainingRequest({ text, layers: 13 }), /Layers/);
+  assert.throws(() => parseTrainingRequest({ text, heads: 17 }), /Attention heads/);
   assert.throws(() => parseTrainingRequest({ text, hiddenSize: 384, heads: 5 }), /divisible/);
-  assert.throws(() => parseTrainingRequest({ text, sequenceLength: 384 }), /Sequence length/);
-  assert.throws(() => new LanguageModel('', 520), /Invalid Transformer configuration/);
+  assert.throws(() => parseTrainingRequest({ text, sequenceLength: 2049 }), /Sequence length/);
+  assert.throws(() => new LanguageModel('', 1025), /Invalid Transformer configuration/);
   assert.throws(
-    () => new LanguageModel('', 512, 42, { contextSize: 384 }),
+    () => new LanguageModel('', 16, 42, { contextSize: 2049 }),
     /Invalid Transformer configuration/,
   );
+});
+
+test('expanded context windows accept increments through 2048 and restore checkpoints', () => {
+  const text = 'abc'.repeat(30);
+  for (const sequenceLength of [384, 512, 768, 1024, 1280, 1536, 1792, 2048]) {
+    assert.equal(parseTrainingRequest({ text, sequenceLength }).sequenceLength, sequenceLength);
+  }
+  const model = new LanguageModel('', 4, 42, { layers: 1, heads: 1, contextSize: 2048 });
+  const restored = LanguageModel.restore(JSON.parse(JSON.stringify(model.serialize())));
+  assert.ok(restored instanceof LanguageModel);
+  assert.equal(restored.contextSize, 2048);
+  const inputs = [65, 66];
+  assert.deepEqual(restored.forward(inputs).values, model.forward(inputs).values);
+  assert.throws(() => restored.forward(Array(2049).fill(65)), /context window/);
 });

@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SAMPLE } from './lib/sample.ts';
-import type { GenerateRequest, StudioStatus, TrainingSettings } from '../shared/api.ts';
+import type {
+  GenerateRequest,
+  StudioStatus,
+  TrainingSettings,
+  TrainRequest,
+} from '../shared/api.ts';
 import type { GenerationResult, StudioTab } from './types.ts';
 import { api } from './lib/api.ts';
 import { Sidebar } from './components/Sidebar.tsx';
@@ -11,12 +16,20 @@ import { Playground } from './components/Playground.tsx';
 import { LearningCurve } from './components/LearningCurve.tsx';
 import { TrainingControls } from './components/TrainingControls.tsx';
 import { CheckpointControls } from './components/CheckpointControls.tsx';
-import { StudioNote } from './components/StudioNote.tsx';
 import { ChatPage } from './components/ChatPage.tsx';
 import { NewLifePage } from './components/NewLifePage.tsx';
 import { useChat } from './hooks/useChat.ts';
+import { useStoredState } from './hooks/useStoredState.ts';
+import {
+  DEFAULT_GENERATION_SETTINGS,
+  isTrainingSettings,
+  isGenerationSettings,
+  isTrainingDevice,
+} from './lib/studioPreferences.ts';
+import { DEFAULT_TRAINING_SETTINGS, trainingSettingsForModel } from './lib/trainingSettings.ts';
 
 export function App() {
+  const statusRevision = useRef(0);
   const chat = useChat();
   const [status, setStatus] = useState<StudioStatus>({
     model: null,
@@ -26,23 +39,23 @@ export function App() {
     error: null,
   });
   const [text, setText] = useState('');
+  const [device, setDevice] = useStoredState<NonNullable<TrainRequest['device']>>(
+    'seed.training.device',
+    'auto',
+    isTrainingDevice,
+  );
   const [corpusFileName, setCorpusFileName] = useState<string>();
   const [tab, setTab] = useState<StudioTab>('train');
-  const [settings, setSettings] = useState<TrainingSettings>({
-    hiddenSize: 256,
-    steps: 30_000,
-    sequenceLength: 256,
-    learningRate: 0.0003,
-    layers: 4,
-    heads: 8,
-    batchSize: 8,
-  });
-  const [generation, setGeneration] = useState<GenerateRequest>({
-    prompt: 'User: Hello!\nAssistant:',
-    temperature: 0.8,
-    maxTokens: 240,
-    topK: 0,
-  });
+  const [settings, setSettings] = useStoredState<TrainingSettings>(
+    'seed.training.settings',
+    DEFAULT_TRAINING_SETTINGS,
+    isTrainingSettings,
+  );
+  const [generation, setGeneration] = useStoredState<GenerateRequest>(
+    'seed.generation.settings',
+    DEFAULT_GENERATION_SETTINGS,
+    isGenerationSettings,
+  );
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -54,14 +67,15 @@ export function App() {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const poll = async () => {
+      const revision = statusRevision.current;
       try {
         const next = await api('status');
-        if (live) {
+        if (live && revision === statusRevision.current) {
           setStatus(next);
           setConnected(true);
         }
       } catch {
-        if (live) {
+        if (live && revision === statusRevision.current) {
           setConnected(false);
         }
       } finally {
@@ -77,7 +91,8 @@ export function App() {
     };
   }, []);
 
-  async function act(fn: () => Promise<void>) {
+  async function act(fn: () => Promise<void>, rethrow = false) {
+    statusRevision.current++;
     setError('');
     setNotice('');
     setBusy(true);
@@ -85,7 +100,9 @@ export function App() {
       await fn();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+      if (rethrow) throw e;
     } finally {
+      statusRevision.current++;
       setBusy(false);
     }
   }
@@ -95,23 +112,36 @@ export function App() {
 
   const train = (resume: boolean) =>
     act(async () => {
-      setStatus(await api('train', { text, ...settings, resume }));
+      setStatus(
+        await api('train', { text, ...settings, resume, device: resume ? undefined : device }),
+      );
     });
 
-  const checkpoint = (action: 'save' | 'load' | 'delete') =>
+  const loadCheckpoint = (fileName?: string) =>
     act(async () => {
-      if (action === 'load') {
-        const loaded = await api('checkpoint/load', {});
-        setStatus(loaded);
-        setSettings((current) => ({ ...current, ...loaded.trainingSettings }));
-        setResult(null);
-        setNotice('Checkpoint loaded. Ready to generate or resume training.');
-      } else {
-        const data = await api(action === 'delete' ? 'checkpoint/delete' : 'checkpoint/save', {});
-        setNotice(data.message);
+      const loaded = await api('checkpoint/load', { fileName });
+      setStatus(loaded);
+      const loadedSettings = trainingSettingsForModel(loaded);
+      if (loadedSettings) {
+        setSettings(loadedSettings);
       }
-      setStatus(await api('status'));
+      const activeDevice = loaded.backend?.device;
+      if (activeDevice === 'cpu' || activeDevice === 'mps' || activeDevice === 'cuda') {
+        setDevice(activeDevice);
+      }
+      setResult(null);
+      setNotice('Model loaded. Ready to generate or resume training.');
     });
+
+  const createCheckpoint = (name: string) =>
+    act(async () => {
+      const created = await api('checkpoint/create', { name, settings, device });
+      setStatus(created);
+      const loadedSettings = trainingSettingsForModel(created);
+      if (loadedSettings) setSettings(loadedSettings);
+      setResult(null);
+      setNotice(`Model ${created.checkpointFileName} created and selected.`);
+    }, true);
 
   const importCorpus = (file: File) =>
     act(async () => {
@@ -141,6 +171,7 @@ export function App() {
         tab={tab}
         connected={connected}
         architecture={status.model?.architecture}
+        device={status.backend?.device}
         onTabChange={setTab}
       />
       <main>
@@ -168,7 +199,7 @@ export function App() {
           />
         ) : (
           <>
-            <ModelStats model={status.model} />
+            <ModelStats status={status} settings={tab === 'train' ? settings : undefined} />
             <div className="content-grid">
               <div className="primary">
                 {tab === 'train' ? (
@@ -206,15 +237,18 @@ export function App() {
                   onSettingChange={field}
                   onTrain={train}
                   onStop={stopTraining}
+                  device={device}
+                  onDeviceChange={setDevice}
                 />
                 <CheckpointControls
                   checkpoint={status.checkpoint}
                   busy={busy || chat.isSending}
-                  hasModel={Boolean(status.model)}
                   running={status.running}
-                  onCheckpoint={checkpoint}
+                  onLoad={loadCheckpoint}
+                  onCreate={createCheckpoint}
+                  fileName={status.checkpointFileName}
+                  files={status.checkpoints}
                 />
-                <StudioNote tab={tab} onTabChange={setTab} />
               </div>
             </div>
           </>

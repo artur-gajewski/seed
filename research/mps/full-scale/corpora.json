@@ -1,0 +1,130 @@
+{
+  "source": "data/inputs/short_stories.txt",
+  "source_sha256": "9a8f474356165438e3f23f3233ef2ade05812467570bd07302b12cb123a86cc4",
+  "pairs": {
+    "train": [
+      ["red", "cup"],
+      ["red", "hat"],
+      ["red", "box"],
+      ["red", "book"],
+      ["red", "bag"],
+      ["red", "chair"],
+      ["blue", "ball"],
+      ["blue", "cup"],
+      ["blue", "hat"],
+      ["blue", "kite"],
+      ["blue", "book"],
+      ["blue", "bag"],
+      ["green", "car"],
+      ["green", "ball"],
+      ["green", "cup"],
+      ["green", "boat"],
+      ["green", "kite"],
+      ["green", "book"],
+      ["yellow", "car"],
+      ["yellow", "ball"],
+      ["yellow", "box"],
+      ["yellow", "boat"],
+      ["yellow", "kite"],
+      ["yellow", "chair"],
+      ["purple", "car"],
+      ["purple", "hat"],
+      ["purple", "box"],
+      ["purple", "boat"],
+      ["purple", "bag"],
+      ["purple", "chair"],
+      ["orange", "cup"],
+      ["orange", "hat"],
+      ["orange", "box"],
+      ["orange", "book"],
+      ["orange", "bag"],
+      ["orange", "chair"],
+      ["white", "ball"],
+      ["white", "cup"],
+      ["white", "hat"],
+      ["white", "kite"],
+      ["white", "book"],
+      ["white", "bag"]
+    ],
+    "validation": [
+      ["red", "ball"],
+      ["red", "kite"],
+      ["blue", "car"],
+      ["blue", "boat"],
+      ["green", "box"],
+      ["green", "chair"],
+      ["yellow", "hat"],
+      ["yellow", "bag"],
+      ["purple", "cup"],
+      ["purple", "book"],
+      ["orange", "ball"],
+      ["orange", "kite"],
+      ["white", "car"],
+      ["white", "boat"]
+    ],
+    "test": [
+      ["red", "car"],
+      ["red", "boat"],
+      ["blue", "box"],
+      ["blue", "chair"],
+      ["green", "hat"],
+      ["green", "bag"],
+      ["yellow", "cup"],
+      ["yellow", "book"],
+      ["purple", "ball"],
+      ["purple", "kite"],
+      ["orange", "car"],
+      ["orange", "boat"],
+      ["white", "box"],
+      ["white", "chair"]
+    ]
+  },
+  "task_counts": {
+    "train": 546,
+    "validation": 182,
+    "test": 182
+  },
+  "story_counts": {
+    "train": 17992,
+    "validation": 991,
+    "test": 1017
+  },
+  "files": {
+    "tasks-validation.txt": {
+      "bytes": 14881,
+      "sha256": "c1c07bce3967c34fea66537ede0868f75cb4dd9236c3ae5553c41c9ffd505552"
+    },
+    "tasks-train.json": {
+      "bytes": 72861,
+      "sha256": "57fe7bbde7086a386ecc5c3486799f8d7435fc297c837130b8b3c76597f9457c"
+    },
+    "tasks-train.txt": {
+      "bytes": 44550,
+      "sha256": "a9339e14f321d398dbfb36d2e90249ca9054a6c0e8ae69cb832395c7f313395a"
+    },
+    "tasks-test.txt": {
+      "bytes": 14881,
+      "sha256": "1cbf1cf4e022866f9dcf9a8a1fbdf616c74474bb25241eb733292f2df532288c"
+    },
+    "tasks-test.json": {
+      "bytes": 24320,
+      "sha256": "0066463e28c16cd6b84d8a4b6622b9fbd400d60a81c27a2e9cf1451f450772a0"
+    },
+    "tasks-validation.json": {
+      "bytes": 24320,
+      "sha256": "bf1062c311bd89ef8018dd2aaeee8fd0334ceb6edd607ac19b409ae02c28fad6"
+    },
+    "prose-test.txt": {
+      "bytes": 152705,
+      "sha256": "3c690573823c6a42c91f042d1e35d28e25361d48014e780abe669bbf66671540"
+    },
+    "prose-train.txt": {
+      "bytes": 2703031,
+      "sha256": "6ec54429c4cb62e35f75fb0fd572fde229bdf7d9b3af1fcf7aba38bceed50781"
+    },
+    "prose-validation.txt": {
+      "bytes": 148926,
+      "sha256": "28a28954d5926a5f6c5e062d46500dce37ca1a8abd7f953ed33a5a24d2639aac"
+    }
+  }
+}

@@ -8,4 +8,5 @@ dist/
 native/*.node
 *.cpuprofile
 .venv/
-python/
+__pycache__/
+*.egg-info/

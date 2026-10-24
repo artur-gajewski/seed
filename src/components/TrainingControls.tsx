@@ -1,8 +1,10 @@
 import { useRef } from 'react';
-import type { StudioStatus, TrainingSettings } from '../../shared/api.ts';
+import type { StudioStatus, TrainingSettings, TrainRequest } from '../../shared/api.ts';
 import { Icon } from './Icon.tsx';
 import { formatDuration } from '../lib/formatDuration.ts';
 interface TrainingControlsProps {
+  device: NonNullable<TrainRequest['device']>;
+  onDeviceChange: (device: NonNullable<TrainRequest['device']>) => void;
   hasCorpus: boolean;
   status: StudioStatus;
   settings: TrainingSettings;
@@ -22,6 +24,8 @@ export function TrainingControls({
   onSettingChange,
   onTrain,
   onStop,
+  device,
+  onDeviceChange,
 }: TrainingControlsProps) {
   const helpDialog = useRef<HTMLDialogElement>(null);
   const progress = status.job ? (status.job.completed / status.job.total) * 100 : 0;
@@ -80,9 +84,9 @@ export function TrainingControls({
             </dd>
           </dl>
           <p>
-            Train a new model applies all settings and starts with random weights. Continue existing
-            model keeps its architecture and context limit, while using the selected batch size,
-            steps, and learning rate.
+            Train with new weights applies all settings and starts with random weights. Continue
+            existing model keeps its architecture and context limit, while using the selected batch
+            size, steps, and learning rate.
           </p>
         </div>
         <form method="dialog" className="confirmation-actions">
@@ -94,19 +98,43 @@ export function TrainingControls({
       <p className="card-description">Set the model size and training parameters.</p>
       <fieldset disabled={status.running || busy}>
         <label>
+          Training device
+          <select
+            value={device}
+            onChange={(event) =>
+              onDeviceChange(event.target.value as NonNullable<TrainRequest['device']>)
+            }
+          >
+            <option value="auto">Automatic (prefer GPU)</option>
+            {(status.backend?.devices ?? ['cpu']).map((value) => (
+              <option key={value} value={value}>
+                {value === 'mps'
+                  ? 'Apple GPU (MPS)'
+                  : value === 'cuda'
+                    ? 'NVIDIA GPU (CUDA)'
+                    : 'CPU'}
+              </option>
+            ))}
+          </select>
+          <small className="device-status">
+            {status.backend
+              ? `PyTorch · ${status.backend.device.toUpperCase()} · Float32`
+              : 'Connecting to PyTorch…'}
+          </small>
+        </label>
+        <label>
           Embedding width <span>Model size</span>
           <select
             value={settings.hiddenSize}
             onChange={(e) => onSettingChange('hiddenSize', e.target.value)}
           >
-            <option value="16">16</option>
-            <option value="32">32</option>
-            <option value="48">48</option>
-            <option value="64">64</option>
-            <option value="128">128</option>
-            <option value="256">256</option>
-            <option value="384">384</option>
-            <option value="512">512</option>
+            {[...new Set([16, 32, 48, 64, 128, 256, 384, 512, 768, 1024, settings.hiddenSize])]
+              .sort((a, b) => a - b)
+              .map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
           </select>
         </label>
         <div className="field-pair">
@@ -116,7 +144,7 @@ export function TrainingControls({
               value={settings.layers}
               onChange={(event) => onSettingChange('layers', event.target.value)}
             >
-              {[1, 2, 3, 4].map((value) => (
+              {Array.from({ length: 12 }, (_, index) => index + 1).map((value) => (
                 <option key={value} value={value}>
                   {value}
                 </option>
@@ -129,11 +157,13 @@ export function TrainingControls({
               value={settings.heads}
               onChange={(event) => onSettingChange('heads', event.target.value)}
             >
-              {[1, 2, 4, 8].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
+              {[...new Set([1, 2, 4, 8, 16, settings.heads])]
+                .sort((a, b) => a - b)
+                .map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
             </select>
           </label>
         </div>
@@ -143,11 +173,13 @@ export function TrainingControls({
             value={settings.batchSize}
             onChange={(event) => onSettingChange('batchSize', event.target.value)}
           >
-            {[1, 2, 4, 8].map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
+            {[...new Set([1, 2, 4, 8, settings.batchSize])]
+              .sort((a, b) => a - b)
+              .map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
           </select>
         </label>
         <div className="field-pair">
@@ -179,11 +211,31 @@ export function TrainingControls({
             value={settings.sequenceLength}
             onChange={(e) => onSettingChange('sequenceLength', e.target.value)}
           >
-            {[16, 32, 48, 64, 128, 256].map((n) => (
-              <option key={n} value={n}>
-                {n} tokens
-              </option>
-            ))}
+            {[
+              ...new Set([
+                16,
+                32,
+                48,
+                64,
+                128,
+                256,
+                384,
+                512,
+                768,
+                1024,
+                1280,
+                1536,
+                1792,
+                2048,
+                settings.sequenceLength,
+              ]),
+            ]
+              .sort((a, b) => a - b)
+              .map((n) => (
+                <option key={n} value={n}>
+                  {n} tokens
+                </option>
+              ))}
           </select>
         </label>
       </fieldset>
@@ -224,7 +276,7 @@ export function TrainingControls({
           onClick={() => onTrain(false)}
         >
           <Icon name="play" />
-          {status.model ? 'Train a new model' : 'Start training'}
+          {status.model ? 'Train with new weights' : 'Start training'}
           <Icon name="arrow" />
         </button>
       )}

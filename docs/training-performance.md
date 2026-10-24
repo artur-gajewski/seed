@@ -1,11 +1,16 @@
-# Training performance
+# TypeScript reference training performance
+
+This document records optimizations and historical CPU measurements of the retained
+TypeScript reference engine. The current studio, API, and New life use PyTorch; see
+[PyTorch setup and training](pytorch.md). These timings do not measure the current
+GPU backend or establish a CPU/GPU speedup.
 
 ## Strategy and implementation
 
-Seed keeps its TypeScript Transformer, manual derivatives, Float64 weights, AdamW optimizer,
-tokenization, API, UI, and version 2 checkpoint format. An optional Node-API addon calls Apple's
+The reference engine retains its TypeScript Transformer, manual derivatives, Float64 weights,
+AdamW optimizer, tokenizer, and version 2 checkpoint format. An optional Node-API addon calls Apple's
 Accelerate BLAS directly on existing typed-array storage. This is **CPU acceleration**, not Metal
-GPU training. Linux and installations without the addon use JavaScript.
+GPU training. The Linux reference engine can use OpenBLAS; otherwise it falls back to JavaScript.
 
 Changes, in measured order:
 
@@ -28,7 +33,7 @@ Use Node 24 and macOS with Xcode Command Line Tools installed. Build the optiona
 
 ```sh
 npm run native:build
-npm run dev
+SEED_TENSOR_BACKEND=accelerate npm run benchmark
 ```
 
 The build uses `xcrun clang++` and the system Accelerate framework; no new npm dependencies or
@@ -39,14 +44,15 @@ node-gyp cache and common Node installation locations. Set `NODE_INCLUDE_DIR` ex
 NODE_INCLUDE_DIR=/path/to/node/include/node npm run native:build
 ```
 
-Restart the server after building. Its startup log reports `Tensor backend: accelerate`.
+The reference benchmark reports its active numerical backend; building the addon does
+not change the PyTorch API backend.
 `SEED_TENSOR_BACKEND=auto` (default) uses the addon when present on macOS. Set it to `javascript`
 to force the portable engine, or `accelerate` to require native acceleration and fail clearly if
 unavailable. A present but unloadable addon reports its error rather than silently falling back.
 Rebuild the ignored `native/accelerate.node` when changing machine architecture.
 
-Run directly on macOS to use Accelerate. The existing Linux Docker image retains the JavaScript
-backend and cannot load the macOS addon.
+Run reference benchmarks directly on macOS to use Accelerate. The current Linux
+Docker studio uses CPU PyTorch and cannot access the Mac GPU or macOS addon.
 
 ## Reproduce measurements
 
@@ -57,7 +63,9 @@ SEED_TENSOR_BACKEND=accelerate npm run profile:training
 ```
 
 The benchmark uses seed 42, deterministic byte windows, and constant learning rate 0.0003. Defaults
-match width 256, four layers, eight heads, batch eight, and context 256: **3,357,442 parameters**.
+are width 256, four layers, eight heads, batch eight, and context 256: **3,357,442 parameters**.
+These are benchmark defaults, not the current studio defaults of width 512, twelve
+layers, sixteen heads, batch eight, and context 2048 (39,142,658 parameters).
 It performs one warmup and three measured updates, prints individual times, and reports the median
 and a 30,000-update projection as JSON. Run engines sequentially on an otherwise idle machine.
 Configure `BENCH_SAMPLES`, `BENCH_WARMUP`, `BENCH_WIDTH`, `BENCH_LAYERS`, `BENCH_HEADS`,
@@ -129,7 +137,7 @@ Accelerate's largest absolute difference was `7.77e-16`. This is a short-run num
 a guarantee of identical long-run trajectories. Native tests skip when the optional addon is absent;
 build it before running the native verification suite.
 
-## Acceleration alternatives
+## Historical acceleration alternatives
 
 - **Apple Accelerate (implemented):** system-provided optimized CPU linear algebra, direct Float64
   buffers, a small native boundary, and no checkpoint conversion. Apple's documentation identifies
@@ -144,10 +152,12 @@ build it before running the native verification suite.
   [Apple MLX](https://github.com/ml-explore/mlx),
   [dtype conversion](https://github.com/ml-explore/mlx/blob/main/docs/src/usage/numpy.rst),
   [MLX-Node](https://github.com/mlx-node/mlx-node).
-- **OpenBLAS or another native BLAS:** a possible future backend for Linux/Windows using the same
-  matrix operations, but it adds library packaging and ABI concerns. It was not installed or measured.
+- **OpenBLAS (implemented for the reference engine):** optional native CPU matrix
+  multiplication on Linux. See the native build scripts and tests; Raspberry Pi
+  performance has not been measured here.
 - **Workers:** could improve UI/API responsiveness or distribute batch windows, but gradient
   reduction and extra model copies add complexity. They do not replace efficient matrix kernels.
 
-No GPU backend was implemented or benchmarked. The GPU comparison remains unmeasured; there is no
-GPU speedup claim. The measured CPU improvement is sufficient to justify the smaller initial change.
+These historical optimizations did not include GPU training. The current PyTorch
+backend supports MPS/CUDA, but no matched GPU comparison is recorded here and no
+GPU speedup is claimed. The measured CPU improvement is sufficient to justify the smaller initial change.

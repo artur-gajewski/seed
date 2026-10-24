@@ -1,0 +1,17 @@
+{
+  "repository_revision": "ac3ff9b17bb441ba0cc3324e54ea9035a78b3c6f",
+  "scripts_sha256": {
+    "cross_device.py": "728ddedc52572e659966475757afacdc35eaab50e0e734ae3aed18e2039f08db",
+    "experiment.py": "ee6238b351ded482c94c27a19fa5f428c28fee05ce6b52c629958e8e46cefb1d",
+    "mps_report.py": "a00c5fb852a18b54842d8ee52c289a2b8a027f7c873569eb35c5b8728ecd727f",
+    "mps_run.py": "4453de5258277950e1ddb1b52bb2ba6681dc9cb453953fcde11f6213a66e006b",
+    "report.py": "ddc96ca5822aad852290247f417cb0c3252e57b57d5e6c1a0c6b987e1d8cb6c4",
+    "scale_check.py": "c67a130c9bc6570da026079734255cc547060c7c1addf2461dbe11b04b37be34",
+    "test_experiment.py": "6474a08c38270d7575f673a9ae3b2dfa763c7ae5ca1cda14a71c5d8b290c493d"
+  },
+  "retained_training_runs": 16,
+  "inference_variants": 8,
+  "cross_device_evaluations": 4,
+  "previous_cpu_provenance": "provenance-cpu.json",
+  "mps_execution": "outside sandbox"
+}

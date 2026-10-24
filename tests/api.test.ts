@@ -1,11 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { handler } from '../server/index.ts';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { Readable } from 'node:stream';
 import type { StudioStatus, GenerateResponse, ChatResponse } from '../shared/api.ts';
 import type { Request } from '../server/index.ts';
 
 test('API validates, trains, generates, stops, and resumes a model', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-torch-api-'));
+  process.env.SEED_CHECKPOINT = path.join(directory, 'checkpoint.pt');
+  process.env.SEED_DEVICE = 'cpu';
+  const { handler, studio } = await import('../server/index.ts');
   // Exercise the real HTTP handler without binding a port (restricted in CI).
 
   const request = async <T = StudioStatus>(
@@ -112,7 +118,28 @@ test('API validates, trains, generates, stops, and resumes a model', async () =>
     assert.equal(chatResponse.data.modelStep, 1);
     assert.ok(chatResponse.data.tokens >= 1 && chatResponse.data.tokens <= 40);
     assert.equal((await request('chat', { messages: [] })).status, 400);
+    const created = await request('checkpoint/create', {
+      name: 'created-from-api',
+      settings: {
+        hiddenSize: 16,
+        layers: 2,
+        heads: 4,
+        sequenceLength: 64,
+        batchSize: 2,
+        steps: 100,
+        learningRate: 0.001,
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.data.checkpointFileName, 'created-from-api.pt');
+    assert.equal(created.data.model!.steps, 0);
+    assert.ok(created.data.checkpoints!.includes('created-from-api.pt'));
   } finally {
-    await request('stop', {});
+    try {
+      await request('stop', {});
+    } finally {
+      await studio.close();
+      await rm(directory, { recursive: true, force: true });
+    }
   }
 });

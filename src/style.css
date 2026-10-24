@@ -259,7 +259,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 35px 0 29px;
+  margin: 11px 0 29px;
   gap: 16px;
 }
 .eyebrow {
@@ -294,6 +294,27 @@ h1 {
 }
 .state-badge.training {
   background: var(--success-background);
+  color: #fde047;
+}
+.state-badge.training > span {
+  animation: training-throb 1.8s ease-in-out infinite;
+}
+@keyframes training-throb {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .state-badge.training > span {
+    animation: none;
+  }
+}
+.state-badge.ready {
+  color: #86efac;
 }
 .stats {
   display: grid;
@@ -472,6 +493,7 @@ i {
   margin: 0;
 }
 .config label,
+.checkpoint label,
 .generation-settings label {
   display: block;
   font-size: 0.9375rem;
@@ -485,6 +507,8 @@ i {
 }
 .config input,
 .config select,
+.checkpoint select,
+.checkpoint input,
 .generation-settings input {
   display: block;
   width: 100%;
@@ -496,6 +520,11 @@ i {
   color: var(--text-secondary);
   margin-top: 8px;
   min-height: 44px;
+}
+.device-status {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
 }
 .field-pair {
   display: grid;
@@ -598,6 +627,13 @@ i {
 }
 .checkpoint-actions > button:first-child {
   flex: 1;
+}
+.create-checkpoint-button {
+  width: 100%;
+  margin-top: 8px;
+}
+.card.checkpoint {
+  margin-bottom: 24px;
 }
 .checkpoint-actions > .danger-button {
   width: 100%;
@@ -710,31 +746,6 @@ i {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-}
-.honest-note {
-  padding: 0 7px;
-}
-.honest-note > span {
-  font-size: 0.9375rem;
-  letter-spacing: 1.2px;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.honest-note p {
-  font-size: 0.9375rem;
-  color: var(--text-muted);
-  line-height: 1.9;
-  margin: 10px 0 15px;
-}
-.honest-note button {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  background: none;
-  border: 0;
-  padding: 0;
-  font-size: 0.9375rem;
-  color: var(--accent);
 }
 .loss-key {
   font-size: 0.9375rem;
@@ -1030,9 +1041,6 @@ footer i {
   .config {
     grid-row: span 2;
   }
-  .honest-note {
-    grid-column: 2;
-  }
   .page-heading {
     display: block;
   }
@@ -1062,9 +1070,6 @@ footer i {
   }
   h1 {
     font-size: 1.875rem;
-  }
-  .chart {
-    height: auto;
   }
 }
 @media (max-width: 480px) {
@@ -1107,9 +1112,6 @@ footer i {
   }
   .secondary {
     display: flex;
-  }
-  .honest-note {
-    padding: 5px;
   }
   .stats {
     padding: 17px 0;
@@ -1187,6 +1189,15 @@ footer i {
   align-items: center;
   gap: 8px 16px;
   margin-bottom: 12px;
+}
+
+.new-life-settings label {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.new-life-settings select {
+  max-width: 100%;
 }
 
 .new-life-model-details {
@@ -1412,6 +1423,7 @@ footer i {
 }
 
 .chat-composer-area {
+  max-width: none;
   flex-shrink: 0;
   padding: 16px 0 8px;
   background: var(--page-background);
@@ -1429,12 +1441,9 @@ footer i {
   border-color: var(--accent);
 }
 
-.chat-composer textarea,
-.new-life-page .chat-composer input {
+.chat-composer input {
   width: 100%;
-  min-height: 70px;
-  max-height: 220px;
-  resize: vertical;
+  min-height: 44px;
   background: transparent;
   border: 0;
   color: var(--text-primary);
@@ -1444,7 +1453,6 @@ footer i {
   outline: none;
 }
 
-.new-life-page .chat-composer-area,
 .new-life-page .chat-messages {
   max-width: none;
 }
@@ -1453,13 +1461,7 @@ footer i {
   margin-left: 0;
 }
 
-.new-life-page .chat-composer input {
-  min-height: 44px;
-  max-height: none;
-}
-
-.chat-composer textarea::placeholder,
-.new-life-page .chat-composer input::placeholder {
+.chat-composer input::placeholder {
   color: var(--text-muted);
 }
 
