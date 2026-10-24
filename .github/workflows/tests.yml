@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SEED_DEVICE: cpu
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Python backend
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install 'torch>=2.6,<3' --index-url https://download.pytorch.org/whl/cpu
+          .venv/bin/python -m pip install -e ./python
+      - name: Run tests
+        run: npm test
+      - name: Run Python tests
+        run: .venv/bin/python -m unittest discover -s python/tests -v
+      - name: Check types and build
+        run: npm run build
+      - name: Check formatting
+        run: npm run format:check

@@ -1,5 +1,7 @@
 # Seed
 
+[![Tests](https://github.com/artur-gajewski/seed/actions/workflows/tests.yml/badge.svg)](https://github.com/artur-gajewski/seed/actions/workflows/tests.yml)
+
 **A local language-model training studio.** Train a small model from scratch on your own
 text, watch its learning progress, and experiment with its output.
 
