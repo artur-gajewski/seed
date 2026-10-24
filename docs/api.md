@@ -28,18 +28,18 @@ curl http://127.0.0.1:3001/api/train \
 
 ## Training limits and defaults
 
-The browser’s maximum defaults and saved preferences are separate from the API’s
+The browser’s defaults and saved preferences are separate from the API’s
 fallbacks for omitted fields. Explicit request values take precedence.
 
 | Field            | API range                     | API fallback | Browser default |
 | ---------------- | ----------------------------- | ------------ | --------------- |
-| `hiddenSize`     | 16–1024, divisible by `heads` | 64           | 1024            |
+| `hiddenSize`     | 16–1024, divisible by `heads` | 64           | 512             |
 | `layers`         | 1–12                          | 2            | 12              |
 | `heads`          | 1–16                          | 4            | 16              |
 | `sequenceLength` | 8–2048 UTF-8 byte tokens      | 64           | 2048            |
 | `batchSize`      | 1–8                           | 2            | 8               |
-| `steps`          | 1–1,000,000                   | 1000         | 1,000,000       |
-| `learningRate`   | 0.00001–0.05                  | 0.001        | 0.05            |
+| `steps`          | 1–1,000,000                   | 1000         | 30,000          |
+| `learningRate`   | 0.00001–0.05                  | 0.001        | 0.003           |
 
 Integer fields must contain integers. Training text must contain at least 64 Unicode
 code points and at most 10,000,000 UTF-8 bytes. `resume` retains the loaded model’s

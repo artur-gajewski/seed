@@ -3,7 +3,7 @@
 Read the [results and recommendations](RESULTS.md) for a concise summary.
 
 These are recorded experiments with explicitly fixed model sizes and contexts.
-They predate the studio’s 153.8M-parameter, 2048-token defaults. References to the
+They predate the studio’s current 39.1M-parameter, 2048-token defaults. References to the
 original 3.36M model and 256-byte context describe the historical workload, not
 current UI defaults. See [Training](../docs/training.md) for current settings.
 

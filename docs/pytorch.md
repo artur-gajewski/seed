@@ -60,7 +60,8 @@ Loading a model fills in architecture, context window, batch size, peak learning
 rate, session length, and active device. Training settings, device selection, and
 Text generation settings (including the prompt) are saved in browser storage between
 visits. Polling does not overwrite these preferences. Without saved preferences,
-Training uses the supported maximum settings; Text generation defaults to 1000 new
+Training defaults to width 512, twelve layers, sixteen heads, batch eight, context
+2048, 30,000 updates, and peak learning rate 0.003; Text generation defaults to 1000 new
 tokens, temperature 2, and Top K 512. Checkpoints
 without session metadata use their actual architecture with default session settings.
 
@@ -128,7 +129,7 @@ head counts from 1 to 16; the studio/API require widths of at least 16.
 The training context range is 2–2048 in the CLI and 8–2048 in the studio/API.
 The CLI retains defaults of width 256, four layers, eight heads, context 256, batch
 eight, 30,000 updates, and learning rate 0.0003. These differ from the browser’s
-maximum defaults; browser preferences do not change CLI or omitted API values.
+defaults; browser preferences do not change CLI or omitted API values.
 
 Choose a new checkpoint path when changing architecture. `--resume` retains the
 saved architecture; it does not expand a model's width, layers, or heads. The

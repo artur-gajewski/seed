@@ -22,9 +22,9 @@ A summary of new features, improvements, and changes in Seed.
   The largest uses width 1024, twelve layers, and sixteen attention heads, and is
   selected by default when no previous selection is saved. Each preset keeps its
   own learning. The dropdown shows parameter counts, with settings displayed below.
-- **Maximum defaults and remembered settings:** Training defaults to width 1024,
-  twelve layers, sixteen heads, batch size eight, a 2048-token context, 1,000,000
-  updates, and peak learning rate 0.05. Text generation defaults to 1000 new tokens,
+- **Defaults and remembered settings:** Training defaults to width 512,
+  twelve layers, sixteen heads, batch size eight, a 2048-token context, 30,000
+  updates, and peak learning rate 0.003. Text generation defaults to 1000 new tokens,
   temperature 2, and Top K 512. Training settings, device selection, generation
   settings, and the prompt persist in browser storage between visits. Status polling
   preserves these preferences; explicitly loading a checkpoint fills in its settings.

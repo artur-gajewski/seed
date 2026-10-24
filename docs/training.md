@@ -17,7 +17,7 @@ See the [corpus examples guide](../data/README.md) for corpus descriptions, sugg
 4. Compare training and validation loss. The last 10% of encoded tokens are withheld from training. Validation evaluates up to three fixed windows at the first update, every 100 updates, and the last update. The dashed line shows the most recent validation measurement. Increasing validation loss while training loss drops can indicate overfitting.
 5. Test prompts and questions you did not train on. Low loss is not evidence of factual accuracy, reasoning, or reliable instruction following.
 
-Training panel defaults use the supported maximums: width 1024, twelve layers, sixteen attention heads, a 2048-token context, batch size 8, 1,000,000 updates, and peak learning rate 0.05. This is about 153.8 million trainable parameters. Training settings and device selection are remembered in this browser between visits; loading a checkpoint explicitly replaces them with that model’s settings.
+Training panel defaults: width 512, twelve layers, sixteen attention heads, a 2048-token context, batch size 8, 30,000 updates, and peak learning rate 0.003. This is about 39.1 million trainable parameters. Training settings and device selection are remembered in this browser between visits; loading a checkpoint explicitly replaces them with that model’s settings.
 
 | Setting                   | Supported values                              |
 | ------------------------- | --------------------------------------------- |
@@ -77,7 +77,7 @@ seed-torch train --device mps \
 ```
 
 These explicit settings reproduce the smaller color experiment rather than the current
-maximum studio defaults. The training CLIs retain defaults of width 256, four layers,
+studio defaults. The training CLIs retain defaults of width 256, four layers,
 eight heads, context 256, batch eight, 30,000 updates, and learning rate 0.0003.
 
 Use `--device cpu` on CPU hosts or `--device cuda` on NVIDIA hosts. Interactive

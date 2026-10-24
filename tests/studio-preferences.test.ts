@@ -11,7 +11,7 @@ import {
 } from '../src/lib/studioPreferences.ts';
 import { parseTrainingRequest, parseGenerationRequest } from '../server/validation.ts';
 
-test('maximum defaults satisfy the API contracts', () => {
+test('studio defaults satisfy the API contracts', () => {
   assert.deepEqual(parseTrainingRequest({ text: 'abc'.repeat(30), ...DEFAULT_TRAINING_SETTINGS }), {
     text: 'abc'.repeat(30),
     ...DEFAULT_TRAINING_SETTINGS,

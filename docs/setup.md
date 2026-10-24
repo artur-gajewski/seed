@@ -29,8 +29,8 @@ Open **http://127.0.0.1:3001**.
 
 ### Initial settings and saved preferences
 
-Training starts with the supported maximum settings: width 1024, twelve layers,
-sixteen heads, batch eight, context 2048, 1,000,000 updates, and learning rate 0.05.
+Training starts with width 512, twelve layers,
+sixteen heads, batch eight, context 2048, 30,000 updates, and learning rate 0.003.
 Text generation starts at 1000 new tokens, temperature 2, and Top K 512. New Life
 starts at 153M when no preset selection is saved. Choose smaller settings in the UI
 for smaller experiments; see [Training](training.md) and [New Life](new-life.md).

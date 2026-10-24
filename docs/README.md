@@ -5,7 +5,7 @@
 ## Using the studio
 
 - [Setup and configuration](setup.md): local installation, Docker, GPUs, ports, and production builds.
-- [Training and generation](training.md): maximum defaults, saved preferences, validation, single-line Chat, CLI training, and evaluation.
+- [Training and generation](training.md): default settings, saved preferences, validation, single-line Chat, CLI training, and evaluation.
 - [New life](new-life.md): eight presets through 153M, context-aware byte limits, teaching, and saved learning.
 - [Models and storage](models.md): create and load models, checkpoint contents, and legacy migration.
 - [Corpus examples](../data/README.md): included datasets and suggested training settings.

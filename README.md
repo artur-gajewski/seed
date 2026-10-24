@@ -12,7 +12,7 @@ Seed runs locally with a React/TypeScript frontend, a Node.js 24 API, and a Pyth
 worker. It supports Apple Silicon GPUs (MPS), NVIDIA GPUs (CUDA), and CPUs. No external
 inference API is used.
 
-Training defaults to about **153.8 million parameters** and a **2048-token context**,
+Training defaults to about **39.1 million parameters** and a **2048-token context**,
 and starts with random weights. New Life offers eight presets from 38K to 153M, with
 153M selected initially.
 It learns from the text you supply; it has no pretrained English knowledge. Seed is built
@@ -50,8 +50,8 @@ GPU acceleration. Checkpoints persist in a Docker volume. See the
 ## Try your first model
 
 1. Open **Training** and import an [included corpus](data/README.md), or paste your own text.
-2. Choose your settings and start training. The Training page starts at the supported
-   maximums; smaller models are available. Compare training and validation loss.
+2. Choose your settings and start training. The Training page starts with the default
+   configuration; smaller models are available. Compare training and validation loss.
 3. Try an unseen prompt in **Text generation** or **Chat**. Low loss alone does not establish
    reliable answers.
 

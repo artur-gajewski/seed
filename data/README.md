@@ -54,7 +54,7 @@ for PyTorch training, resume commands, and before/after evaluation. Suggested
 settings are starting points; evaluate both references to check new skills and retention.
 The [studio and CLI support larger architectures](../docs/pytorch.md#train-on-an-m4-max),
 including width 1024, up to twelve layers, sixteen attention heads, and 2048-token
-contexts. The studio now defaults to the largest supported settings; the explicit
+contexts. The studio defaults to width 512, twelve layers, sixteen heads, and context 2048; the explicit
 commands here retain smaller configurations for these corpora. The included
 small synthetic corpora do not require the maximum model size; compare held-out
 results before increasing capacity.

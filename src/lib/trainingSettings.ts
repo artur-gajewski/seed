@@ -1,10 +1,10 @@
 import type { StudioStatus, TrainingSettings } from '../../shared/api.ts';
 
 export const DEFAULT_TRAINING_SETTINGS: TrainingSettings = {
-  hiddenSize: 1024,
-  steps: 1_000_000,
+  hiddenSize: 512,
+  steps: 30_000,
   sequenceLength: 2048,
-  learningRate: 0.05,
+  learningRate: 0.003,
   layers: 12,
   heads: 16,
   batchSize: 8,
