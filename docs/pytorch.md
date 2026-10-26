@@ -236,3 +236,100 @@ Node integration tests exercise the real worker, API training/stop/generation,
 model creation from scratch, duplicate-name rejection, checkpoint save/load/delete, legacy migration, New life replay/persistence, failed
 saves, status responsiveness, and startup failures. CUDA hardware validation remains
 to be performed. No GPU speedup is claimed by this port.
+
+## Supervised Q&A in the studio
+
+The studio offers **Language modeling** (the unchanged random byte-window objective)
+and **Supervised Q&A** (complete examples, with answer-only loss enabled by default).
+The standalone `seed-torch train` CLI continues to use language modeling; select Q&A
+in the studio or send a studio `/api/train` request with `trainingMode: "supervised-qa"`.
+
+Prepare UTF-8 text with complete role-labelled pairs:
+
+```text
+User: A purple cup is beside a blue bottle. What color is the cup?
+Assistant: purple.
+
+User: What color is the blue robot?
+Assistant: blue.
+```
+
+Role labels must start a line and include one space after the colon. Questions and
+answers may span lines. Blank lines between records and final newlines are separators;
+other content, including answer spaces and punctuation, is preserved. Empty turns,
+missing roles, unexpected role order, and reserved `<|endofstory|>` markers are rejected.
+Role labels at the start of content lines are reserved for record boundaries.
+
+The prompt matches existing chat exactly: `User: {question}\nAssistant:` (no trailing
+space). The generated target is the leading space followed by the answer and EOS.
+BOS is 256, EOS is 257, and bytes retain IDs 0–255. Inputs and targets are shifted
+one position; all prompt and right-padding targets use `-100`. Thus the first answer
+byte is predicted from the complete prompt, EOS contributes loss, and gradients still
+flow through prompt representations. No padding token or architecture change is needed:
+causal attention prevents right padding from influencing earlier answer positions.
+Disabling assistant-only loss includes prompt targets while still masking padding.
+
+Batch size means examples per update. Entire examples must fit within the selected
+context (and the loaded model's context limit). Oversized examples fail with their
+record ID and required token count; answers are never truncated.
+
+Exact duplicate records are deduplicated, then shuffled with the configured seed.
+The default split is 90% training / 10% validation, rounded to whole examples with at
+least one on each side. At least two distinct records are required. Checkpoints save
+the corpus hash, split seed, ordered record hashes, duplicate count, prompt format,
+and evaluation sample count, allowing reconstruction with the original corpus.
+Keep the corpus, seed, split fraction, and evaluation count fixed across runs.
+
+### Fine-tune an existing checkpoint
+
+1. Stop any running training. Back up your checkpoint first, since continuing training
+   saves back to the loaded file. For an isolated copy, copy `data/models/your-model.pt`
+   to `data/models/your-model-qa.pt` and load `your-model-qa.pt` in the studio's
+   checkpoint selector. Legacy Transformer JSON checkpoints can also be loaded through
+   the existing conversion path; keep the original file as a backup.
+2. Import the Q&A corpus and select **Supervised Q&A**.
+3. Suggested initial settings: learning rate **0.0001**, batch **16**, context **512**
+   if every example fits, **2,000** steps, validation split **0.1**, seed **42**,
+   evaluation interval **100**, and evaluation samples **100**.
+4. Leave **Assistant-only loss**, **Reset optimizer when switching training modes**,
+   and **Start a new learning-rate schedule** enabled.
+5. Click **Continue existing model**. This retains model weights, architecture, and
+   cumulative model steps. **Train with new weights** creates random weights instead.
+6. For chat evaluation select **Top-K = 1**. Temperature does not change greedy output.
+
+Older checkpoints without objective metadata are treated as language-model checkpoints.
+Changing objectives resets optimizer moments by default, with an explicit opt-out.
+Restarting the schedule is independent of optimizer reset; disabling it continues the
+saved schedule position and horizon. Neither option resets weights or cumulative steps.
+Native checkpoint format and byte vocabulary remain compatible.
+
+### Accuracy and clean evaluation
+
+At update 1, each evaluation interval, and the final update, Q&A evaluation uses a fixed
+first N records from each deterministic split (or all records if fewer exist). It
+reports training and validation answer cross-entropy separately from exact-match
+accuracy. Accuracy uses actual autoregressive greedy generation from the prompt alone,
+requires EOS, and compares the entire answer including spaces and punctuation. It
+uses evaluation mode and restores the previous model state. Generation is capped by
+the remaining context and the reference byte length plus a small safety margin.
+The reference answer is never supplied as model context during accuracy evaluation.
+
+Low cross-entropy can coexist with wrong answers: most bytes may be easy to predict,
+while one incorrect color determines whether an answer is useful. Exact match exposes
+that failure. Exact duplicates cannot cross this split, but paraphrases and related
+questions still can. A checkpoint previously trained on the whole corpus may already
+have seen its validation questions; its scores on this corpus are **not clean held-out
+results**. For clean evaluation, reserve genuinely unseen questions before any training,
+use a model that has never seen them, and keep that evaluation set fixed.
+
+For a bounded pipeline smoke experiment (CPU, no checkpoint writes):
+
+```sh
+PYTHONPATH=python .venv/bin/python research/qa-overfit.py
+```
+
+The experiment uses 100 synthetic color questions, a width-64 two-layer model,
+16 examples per update, and stops at 95% training exact match or 1,500 updates.
+It writes only `/tmp/seed-qa-overfit-result.json`. In the implementation verification,
+it reached 100/100 correct after 100 updates (answer loss about 0.00462). This is a
+simple overfitting check, not a measure of compositional generalization.

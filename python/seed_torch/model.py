@@ -128,8 +128,11 @@ class Model(nn.Module):
         )
 
     def update(self, inputs, targets, optimizer, lr):
+        self.train()
         optimizer.zero_grad(set_to_none=True)
-        loss = F.cross_entropy(self(inputs).reshape(-1, 258), targets.reshape(-1))
+        loss = F.cross_entropy(
+            self(inputs).reshape(-1, 258), targets.reshape(-1), ignore_index=-100
+        )
         if not torch.isfinite(loss):
             raise ValueError("Non-finite training loss")
         loss.backward()
@@ -152,14 +155,25 @@ class Model(nn.Module):
 
     @torch.no_grad()
     def generate_detailed(self, prompt, max_tokens=48, temperature=0.4, top_k=1):
+        previous = self.training
+        self.eval()
+        try:
+            return self._generate(prompt, max_tokens, temperature, top_k)
+        finally:
+            self.train(previous)
+
+    def _generate(self, prompt, max_tokens, temperature, top_k):
         device = next(self.parameters()).device
         context, result = [256, *prompt.encode("utf-8")], []
         generated_tokens = 0
+        ended = False
         for _ in range(max_tokens):
             tokens = torch.tensor([context[-self.config["contextSize"] :]], device=device)
             logits = self(tokens)[0, -1] / temperature
             logits[256] = -torch.inf
-            if top_k:
+            if top_k == 1:
+                token = logits.argmax().item()
+            elif top_k:
                 # Stable ordering preserves Seed's token-order tie break.
                 order = torch.argsort(logits, descending=True, stable=True)[:top_k]
                 token = order[torch.multinomial(logits[order].softmax(-1), 1)].item()
@@ -167,10 +181,12 @@ class Model(nn.Module):
                 token = torch.multinomial(logits.softmax(-1), 1).item()
             generated_tokens += 1
             if token == 257:
+                ended = True
                 break
             result.append(token)
             context.append(token)
         return {
             "completion": bytes(result).decode("utf-8", errors="replace"),
             "tokens": generated_tokens,
+            "endedWithEos": ended,
         }

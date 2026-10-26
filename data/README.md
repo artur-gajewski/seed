@@ -100,3 +100,11 @@ To load the CLI result, stop studio training, choose `short-stories.pt` under
 **Select model** in the **Models** panel, and click **Load model**. No copying to the
 default filename is needed. Do not run CLI and studio training against the same
 file simultaneously.
+
+## Supervised Q&A v2
+
+`inputs/supervised_qa_v2.txt` provides 44,000 balanced examples across 22 task
+families, with 2,200 separately reserved questions in
+`references/supervised_qa_v2_unseen.json`. Never import the unseen reference files
+for training. See the [training and evaluation guide](../docs/supervised-qa-v2.md)
+for settings for the existing 512-width model, scope, and limitations.

@@ -2,8 +2,19 @@ export interface LossPoint {
   step: number;
   loss: number;
   validationLoss?: number;
+  trainingLoss?: number;
+  trainingAccuracy?: number;
+  validationAccuracy?: number;
 }
 export interface TrainingSettings {
+  trainingMode?: 'language-modeling' | 'supervised-qa';
+  assistantOnlyLoss?: boolean;
+  validationSplit?: number;
+  randomSeed?: number;
+  evaluationInterval?: number;
+  evaluationSamples?: number;
+  resetOptimizerOnModeChange?: boolean;
+  restartSchedule?: boolean;
   hiddenSize: number;
   steps: number;
   sequenceLength: number;
@@ -25,6 +36,9 @@ export interface TrainingJob {
   estimatedRemainingMs?: number;
   loss: number | null;
   validationLoss?: number;
+  trainingLoss?: number;
+  trainingAccuracy?: number;
+  validationAccuracy?: number;
   trainingTokens?: number;
   validationTokens?: number;
   batchSize?: number;

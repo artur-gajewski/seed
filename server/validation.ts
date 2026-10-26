@@ -33,12 +33,44 @@ export function parseTrainingRequest(body: JsonObject): TrainRequest {
   const learningRate = requireNumber(body.learningRate ?? 0.001, 0.00001, 0.05, 'Learning rate');
   const layers = requireInteger(body.layers ?? 2, 1, 12, 'Layers');
   const heads = requireInteger(body.heads ?? 4, 1, 16, 'Attention heads');
-  const batchSize = requireInteger(body.batchSize ?? 2, 1, 8, 'Batch size');
+  const batchSize = requireInteger(body.batchSize ?? 2, 1, 64, 'Batch size');
   if (hiddenSize % heads !== 0) {
     throw new Error('Hidden size must be divisible by the number of attention heads');
   }
 
+  const trainingMode = body.trainingMode ?? 'language-modeling';
+  if (trainingMode !== 'language-modeling' && trainingMode !== 'supervised-qa') {
+    throw new Error('Invalid training mode');
+  }
+  for (const key of ['assistantOnlyLoss', 'resetOptimizerOnModeChange', 'restartSchedule']) {
+    if (body[key] !== undefined && typeof body[key] !== 'boolean') {
+      throw new Error(`${key} must be a boolean`);
+    }
+  }
+  const objectiveSettings = {
+    trainingMode,
+    assistantOnlyLoss: (body.assistantOnlyLoss ?? true) as boolean,
+    resetOptimizerOnModeChange: (body.resetOptimizerOnModeChange ?? true) as boolean,
+    restartSchedule: (body.restartSchedule ?? true) as boolean,
+    validationSplit: requireNumber(body.validationSplit ?? 0.1, 0.01, 0.5, 'Validation split'),
+    randomSeed: requireInteger(body.randomSeed ?? 42, 0, 4294967295, 'Random seed'),
+    evaluationInterval: requireInteger(
+      body.evaluationInterval ?? 100,
+      1,
+      1000000,
+      'Evaluation interval',
+    ),
+    evaluationSamples: requireInteger(
+      body.evaluationSamples ?? 100,
+      1,
+      10000,
+      'Evaluation samples',
+    ),
+  };
   return {
+    ...Object.fromEntries(
+      Object.entries(objectiveSettings).filter(([key]) => body[key] !== undefined),
+    ),
     text: body.text,
     hiddenSize,
     steps,

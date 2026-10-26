@@ -22,7 +22,7 @@ export function isTrainingSettings(value: unknown): value is TrainingSettings {
     numberInRange(s.layers, 1, 12) &&
     numberInRange(s.heads, 1, 16) &&
     s.hiddenSize % s.heads === 0 &&
-    numberInRange(s.batchSize, 1, 8) &&
+    numberInRange(s.batchSize, 1, 64) &&
     numberInRange(s.sequenceLength, 8, 2048) &&
     numberInRange(s.steps, 1, 1_000_000) &&
     numberInRange(s.learningRate, 0.00001, 0.05, false)

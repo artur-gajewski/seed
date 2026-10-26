@@ -103,3 +103,8 @@ experiment guides. See the [release notes](RELEASE_NOTES.md) for recorded change
 
 Full text: [LICENSE](LICENSE). The license covers the code, documentation,
 and included corpora. It does not cover your own training data or generated text.
+
+The PyTorch studio also supports **Supervised Q&A**: complete-example batches,
+answer-only loss, deterministic example-level splits, and greedy answer accuracy.
+See [Q&A fine-tuning instructions](docs/pytorch.md#supervised-qa-in-the-studio), including
+how to continue an existing checkpoint safely and evaluate unseen questions.

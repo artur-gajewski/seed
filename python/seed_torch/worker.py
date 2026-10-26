@@ -20,7 +20,7 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
-from . import checkpoint
+from . import checkpoint, qa
 from .cli import device_for, learning_rate, validation
 from .model import Model, encode_training
 
@@ -43,6 +43,10 @@ class Studio:
         self.lives = {}
         self.durations = deque(maxlen=10)
         self.last_event = 0
+        self.qa_data = None
+        self.split_metadata = None
+        self.schedule_step = 0
+        self.schedule_total = None
 
     def status(self):
         model = None
@@ -91,6 +95,9 @@ class Studio:
                 "history": self.history,
                 "trainingSettings": self.settings,
                 "job": self.job,
+                "split": self.split_metadata,
+                "scheduleStep": self.schedule_step,
+                "scheduleTotal": self.schedule_total,
             },
         )
         self.saved_step = self.model.step
@@ -135,6 +142,8 @@ class Studio:
         self.device, self.checkpoint_path = device, body["path"]
         self.saved_step, self.error = model.step, None
         self.history, self.job, self.corpus_sha256 = [], None, None
+        self.qa_data = self.split_metadata = None
+        self.schedule_step, self.schedule_total = 0, None
 
     def start(self, body, path):
         if self.training is not None:
@@ -142,12 +151,6 @@ class Studio:
         device = device_for(body.get("device", str(self.device)), "float32")
         if body["resume"] and self.model is None:
             raise ValueError("No model to resume")
-        tokens = encode_training(body["text"])
-        split = int(len(tokens) * 0.9)
-        training = torch.tensor(tokens[:split], device=device)
-        held_out = torch.tensor(tokens[split:], device=device)
-        if len(held_out) < 2:
-            raise ValueError("Corpus is too short for validation")
         if body["resume"]:
             model = self.model
             if device != self.device:
@@ -166,6 +169,53 @@ class Studio:
                 torch.float32,
             ).to(device)
             optimizer = model.optimizer(body["learningRate"])
+        mode = body.get("trainingMode", "language-modeling")
+        if mode not in ("language-modeling", "supervised-qa"):
+            raise ValueError("Unknown training mode")
+        previous_mode = (self.settings or {}).get("trainingMode", "language-modeling")
+        changed = body["resume"] and mode != previous_mode
+        context = min(body["sequenceLength"], model.config["contextSize"])
+        qa_data = metadata = None
+        if mode == "supervised-qa":
+            seed = body.get("randomSeed", 42)
+            fraction = body.get("validationSplit", 0.1)
+            if not 0 < fraction < 1:
+                raise ValueError("Validation split must be between 0 and 1")
+            records = qa.parse(body["text"])
+            train_records, validation_records = qa.split(records, seed, fraction)
+            train_encoded, validation_encoded = [
+                [qa.encode(r, context, body.get("assistantOnlyLoss", True)) for r in group]
+                for group in (train_records, validation_records)
+            ]
+            qa_data = (train_records, validation_records, train_encoded, validation_encoded)
+            training, held_out = train_encoded, validation_encoded
+            split = sum(len(x) for x, _ in training)
+            tokens = range(split + sum(len(x) for x, _ in held_out))
+            metadata = {
+                "seed": seed,
+                "validationSplit": fraction,
+                "trainingIds": [qa.record_id(r) for r in train_records],
+                "validationIds": [qa.record_id(r) for r in validation_records],
+                "duplicatesRemoved": len(records) - len(train_records) - len(validation_records),
+                "evaluationSamples": body.get("evaluationSamples", 100),
+                "promptFormat": "User: {question}\nAssistant:",
+            }
+        else:
+            tokens = encode_training(body["text"])
+            split = int(len(tokens) * 0.9)
+            training = torch.tensor(tokens[:split], device=device)
+            held_out = torch.tensor(tokens[split:], device=device)
+            if len(held_out) < 2:
+                raise ValueError("Corpus is too short for validation")
+        if changed and body.get("resetOptimizerOnModeChange", True):
+            optimizer = model.optimizer(body["learningRate"])
+        if not body["resume"] or body.get("restartSchedule", True):
+            self.schedule_step = 0
+            self.schedule_total = body["steps"]
+        elif self.schedule_total is None:
+            self.schedule_total = self.schedule_step + body["steps"]
+        self.qa_data, self.split_metadata = qa_data, metadata
+        self.sampler = random.Random(body.get("randomSeed", 42))
         self.device, self.model, self.optimizer = device, model, optimizer
         self.checkpoint_path = path
         self.saved_step = None
@@ -177,6 +227,7 @@ class Studio:
         }
         self.settings.update(
             {
+                "trainingMode": mode,
                 "hiddenSize": model.config["hiddenSize"],
                 "layers": model.config["layers"],
                 "heads": model.config["heads"],
@@ -203,26 +254,49 @@ class Studio:
         started = time.perf_counter()
         training, held_out = self.training
         job = self.job
-        length = min(job["sequenceLength"], len(training) - 1)
-        starts = [random.randrange(len(training) - length) for _ in range(job["batchSize"])]
-        x = torch.stack([training[s : s + length] for s in starts])
-        y = torch.stack([training[s + 1 : s + length + 1] for s in starts])
-        lr = learning_rate(job["completed"], job["total"], job["learningRate"])
+        if self.qa_data is not None:
+            x, y = qa.batch(self.sampler.choices(training, k=job["batchSize"]), self.device)
+        else:
+            length = min(job["sequenceLength"], len(training) - 1)
+            starts = [random.randrange(len(training) - length) for _ in range(job["batchSize"])]
+            x = torch.stack([training[s : s + length] for s in starts])
+            y = torch.stack([training[s + 1 : s + length + 1] for s in starts])
+        lr = learning_rate(
+            min(self.schedule_step, self.schedule_total), self.schedule_total, job["learningRate"]
+        )
         loss = self.model.update(x, y, self.optimizer, lr)
         self.durations.append(time.perf_counter() - started)
         job["loss"] = loss if job["loss"] is None else 0.95 * job["loss"] + 0.05 * loss
         job["completed"] += 1
+        self.schedule_step += 1
         job["effectiveLearningRate"] = lr
         remaining = job["total"] - job["completed"]
         if len(self.durations) == 10:
             job["estimatedRemainingMs"] = sum(self.durations) / 10 * remaining * 1000
-        validate = job["completed"] == 1 or job["completed"] % 100 == 0 or remaining == 0
+        validate = (
+            job["completed"] == 1
+            or job["completed"] % self.settings.get("evaluationInterval", 100) == 0
+            or remaining == 0
+        )
         if validate:
-            job["validationLoss"] = validation(self.model, held_out)
+            if self.qa_data is not None:
+                tr, va, te, ve = self.qa_data
+                count = self.settings.get("evaluationSamples", 100)
+                job["trainingLoss"], job["trainingAccuracy"] = qa.evaluate(
+                    self.model, tr, te, count
+                )
+                job["validationLoss"], job["validationAccuracy"] = qa.evaluate(
+                    self.model, va, ve, count
+                )
+            else:
+                job["validationLoss"] = validation(self.model, held_out)
         if validate or job["completed"] % 10 == 0:
             point = {"step": self.model.step, "loss": job["loss"]}
             if "validationLoss" in job:
                 point["validationLoss"] = job["validationLoss"]
+            for key in ("trainingLoss", "trainingAccuracy", "validationAccuracy"):
+                if key in job:
+                    point[key] = job[key]
             self.history = (self.history + [point])[-2000:]
         if self.model.step % 100 == 0:
             self.save()
@@ -287,6 +361,9 @@ class Studio:
         self.history, self.job, self.error = history[-2000:], None, None
         self.saved_step = model.step
         self.corpus_sha256 = session.get("corpus_sha256")
+        self.split_metadata = session.get("split")
+        self.schedule_step = session.get("scheduleStep", model.step)
+        self.schedule_total = session.get("scheduleTotal")
 
     def life(self, body):
         size, path, config = body["size"], body["path"], body["config"]
@@ -314,8 +391,13 @@ class Studio:
                     raise TypeError("Invalid New life lesson")
                 for key in ("message",) + (("answer",) if "answer" in lesson else ()):
                     value = lesson.get(key)
-                    limit = byte_limit if key == "message" else min(
-                        byte_limit, config["contextSize"] - 20 - len(lesson["message"].encode("utf-8"))
+                    limit = (
+                        byte_limit
+                        if key == "message"
+                        else min(
+                            byte_limit,
+                            config["contextSize"] - 20 - len(lesson["message"].encode("utf-8")),
+                        )
                     )
                     if (
                         not isinstance(value, str)

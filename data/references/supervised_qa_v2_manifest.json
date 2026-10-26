@@ -1,0 +1,33 @@
+{
+  "seed": 20261024,
+  "trainingExamples": 44000,
+  "unseenExamples": 2200,
+  "families": {
+    "ordering": 2000,
+    "parity": 2000,
+    "object-selection": 2000,
+    "conditional": 2000,
+    "universal-rule": 2000,
+    "counting": 2000,
+    "multiplication": 2000,
+    "transfer": 2000,
+    "temporal": 2000,
+    "state-update": 2000,
+    "subtraction": 2000,
+    "comparison": 2000,
+    "negation": 2000,
+    "ownership": 2000,
+    "quantity-comparison": 2000,
+    "addition": 2000,
+    "color-distractor": 2000,
+    "location": 2000,
+    "object": 2000,
+    "color": 2000,
+    "multi-step-arithmetic": 2000,
+    "carrying": 2000
+  },
+  "maxInputTokens": 148,
+  "corpusBytes": 3792864,
+  "corpusSha256": "4e105c0325bc346789efad8c3f7357f5fa81b87be3f0097b73889bf72c01241d",
+  "scope": "Synthetic bounded tasks; unseen questions share templates and vocabulary. No guarantee of reasoning generalization."
+}

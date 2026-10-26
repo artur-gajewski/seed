@@ -531,6 +531,36 @@ i {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+.qa-settings {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+}
+.config .training-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.config .training-checkbox input {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 3px 0 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+.qa-settings .field-pair {
+  margin-top: 20px;
+  row-gap: 16px;
+}
+.qa-settings .field-pair label {
+  min-width: 0;
+  margin-bottom: 0;
+}
 .training-progress {
   border-top: 1px solid var(--border-subtle);
   padding-top: 20px;

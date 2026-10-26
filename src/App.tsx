@@ -108,7 +108,15 @@ export function App() {
   }
 
   const field = (key: keyof TrainingSettings, value: string) =>
-    setSettings((s) => ({ ...s, [key]: Number(value) }));
+    setSettings((s) => ({
+      ...s,
+      [key]:
+        key === 'trainingMode'
+          ? value
+          : ['assistantOnlyLoss', 'resetOptimizerOnModeChange', 'restartSchedule'].includes(key)
+            ? value === 'true'
+            : Number(value),
+    }));
 
   const train = (resume: boolean) =>
     act(async () => {

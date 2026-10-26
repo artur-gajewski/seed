@@ -61,6 +61,15 @@ export function TrainingControls({
             token.
           </p>
           <dl>
+            <dt>Training mode</dt>
+            <dd>
+              Language modeling learns to predict every next token in random text windows.
+              Supervised Q&amp;A uses complete User: / Assistant: examples, gives the model the full
+              question as context, and learns from the assistant’s answer and end token. Keep
+              assistant-only loss enabled for answer-focused training. Q&amp;A splits complete
+              examples into training and validation sets and reports answer accuracy using greedy
+              generation.
+            </dd>
             <dt>Embedding width and layers</dt>
             <dd>Set the model’s capacity. Larger values require more memory and training time.</dd>
             <dt>Attention heads</dt>
@@ -69,7 +78,10 @@ export function TrainingControls({
               Embedding width must be divisible by the number of heads.
             </dd>
             <dt>Batch size</dt>
-            <dd>How many text windows are used for each weight update.</dd>
+            <dd>
+              How many text windows (language modeling) or complete examples (Supervised Q&amp;A)
+              are used for each weight update.
+            </dd>
             <dt>Training steps</dt>
             <dd>How many weight updates to run. More steps give the model more practice.</dd>
             <dt>Learning rate</dt>
@@ -84,6 +96,11 @@ export function TrainingControls({
             </dd>
           </dl>
           <p>
+            Suggested Q&amp;A fine-tuning: continue the existing model with learning rate 0.0001,
+            batch size 16, context 512 if all examples fit, and 2,000 steps. Evaluate every 100
+            updates on 100 examples. Use Top-K = 1 for greedy chat.
+          </p>
+          <p>
             Train with new weights applies all settings and starts with random weights. Continue
             existing model keeps its architecture and context limit, while using the selected batch
             size, steps, and learning rate.
@@ -97,6 +114,58 @@ export function TrainingControls({
       </dialog>
       <p className="card-description">Set the model size and training parameters.</p>
       <fieldset disabled={status.running || busy}>
+        <label>
+          Training mode
+          <select
+            value={settings.trainingMode ?? 'language-modeling'}
+            onChange={(e) => onSettingChange('trainingMode', e.target.value)}
+          >
+            <option value="language-modeling">Language modeling</option>
+            <option value="supervised-qa">Supervised Q&amp;A</option>
+          </select>
+        </label>
+        {settings.trainingMode === 'supervised-qa' && (
+          <div className="qa-settings">
+            {(
+              [
+                ['assistantOnlyLoss', 'Assistant-only loss'],
+                ['resetOptimizerOnModeChange', 'Reset optimizer when switching training modes'],
+                ['restartSchedule', 'Start a new learning-rate schedule'],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="training-checkbox">
+                <input
+                  type="checkbox"
+                  checked={settings[key] ?? true}
+                  onChange={(e) => onSettingChange(key, String(e.target.checked))}
+                />
+                {label}
+              </label>
+            ))}
+            <div className="field-pair">
+              {(
+                [
+                  ['validationSplit', 'Validation split', 0.1, 0.01, 0.5],
+                  ['randomSeed', 'Random seed', 42, 0, 4294967295],
+                  ['evaluationInterval', 'Evaluation interval', 100, 1, 1000000],
+                  ['evaluationSamples', 'Evaluation samples', 100, 1, 10000],
+                ] as const
+              ).map(([key, label, fallback, min, max]) => (
+                <label key={key}>
+                  {label}
+                  <input
+                    type="number"
+                    min={min}
+                    max={max}
+                    step={key === 'validationSplit' ? 0.01 : 1}
+                    value={settings[key] ?? fallback}
+                    onChange={(e) => onSettingChange(key, e.target.value)}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
         <label>
           Training device
           <select
@@ -168,12 +237,17 @@ export function TrainingControls({
           </label>
         </div>
         <label>
-          Batch size <span>Windows per update</span>
+          Batch size{' '}
+          <span>
+            {settings.trainingMode === 'supervised-qa'
+              ? 'Examples per update'
+              : 'Windows per update'}
+          </span>
           <select
             value={settings.batchSize}
             onChange={(event) => onSettingChange('batchSize', event.target.value)}
           >
-            {[...new Set([1, 2, 4, 8, settings.batchSize])]
+            {[...new Set([1, 2, 4, 8, 16, 32, 64, settings.batchSize])]
               .sort((a, b) => a - b)
               .map((value) => (
                 <option key={value} value={value}>

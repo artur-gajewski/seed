@@ -367,3 +367,51 @@ test('the renamed default prefers existing checkpoint.pt and preserves its conte
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test('supervised Q&A settings reach the worker and persist answer metrics through reload', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'seed-torch-qa-'));
+  const studio = new TorchStudio(path.join(directory, 'qa.pt'), { device: 'cpu' });
+  try {
+    const settings = {
+      text: Array.from({ length: 20 }, (_, i) => `User: Color ${i}?\nAssistant: blue.`).join(
+        '\n\n',
+      ),
+      hiddenSize: 16,
+      layers: 1,
+      heads: 2,
+      sequenceLength: 64,
+      trainingMode: 'supervised-qa',
+      steps: 2,
+      batchSize: 16,
+      evaluationInterval: 1,
+      evaluationSamples: 2,
+      randomSeed: 7,
+      validationSplit: 0.1,
+      assistantOnlyLoss: true,
+      resetOptimizerOnModeChange: true,
+      restartSchedule: true,
+    };
+    await studio.startTraining(settings);
+    const complete = await finished(studio);
+    assert.equal(complete.trainingSettings?.trainingMode, 'supervised-qa');
+    assert.equal(complete.trainingSettings?.batchSize, 16);
+    assert.equal(typeof complete.job?.trainingAccuracy, 'number');
+    assert.equal(typeof complete.job?.validationAccuracy, 'number');
+    assert.ok(complete.job!.validationLoss! > 0);
+    const loaded = await studio.loadCheckpoint();
+    assert.deepEqual(loaded.history, complete.history);
+    await assert.rejects(
+      studio.startTraining({ ...settings, resume: true, sequenceLength: 8 }),
+      /needs.*context tokens/,
+    );
+    assert.equal((await studio.getStatus()).model?.steps, 2);
+    await assert.rejects(studio.startTraining({ ...settings, randomSeed: -1 }), /Random seed/);
+    await assert.rejects(
+      studio.startTraining({ ...settings, assistantOnlyLoss: 'true' }),
+      /boolean/,
+    );
+  } finally {
+    await studio.close();
+    await rm(directory, { recursive: true, force: true });
+  }
+});

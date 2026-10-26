@@ -30,7 +30,30 @@ export function LearningCurve({ status, tab }: { status: StudioStatus; tab: Stud
               '—'}
           </strong>
         </span>
-        <span>Dashed line · held-out final 10% · evaluated every 100 updates</span>
+        <span>Dashed line · held-out loss</span>
+        {status.trainingSettings?.trainingMode === 'supervised-qa' && (
+          <>
+            <span>
+              Training answer accuracy:{' '}
+              {(
+                (status.job?.trainingAccuracy ?? status.history.at(-1)?.trainingAccuracy ?? 0) * 100
+              ).toFixed(1)}
+              %
+            </span>
+            <span>
+              Validation answer accuracy:{' '}
+              {(
+                (status.job?.validationAccuracy ?? status.history.at(-1)?.validationAccuracy ?? 0) *
+                100
+              ).toFixed(1)}
+              %
+            </span>
+            <span>
+              Training evaluation loss:{' '}
+              {(status.job?.trainingLoss ?? status.history.at(-1)?.trainingLoss)?.toFixed(3) ?? '—'}
+            </span>
+          </>
+        )}
       </div>
       <LossChart points={status.history} />
       <div className="chart-caption">
