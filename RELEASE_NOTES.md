@@ -4,6 +4,7 @@ A summary of new features, improvements, and changes in Seed.
 
 ## Contents
 
+- [2026-10-26](#2026-10-26)
 - [2026-10-24](#2026-10-24)
 - [2026-10-22](#2026-10-22)
 - [2026-10-21](#2026-10-21)
@@ -11,6 +12,19 @@ A summary of new features, improvements, and changes in Seed.
 - [2026-10-19](#2026-10-19)
 - [2026-10-18](#2026-10-18)
 - [2026-10-17](#2026-10-17)
+
+## 2026-10-26
+
+- **Supervised Q&A training:** Added a studio training mode for complete
+  `User:` / `Assistant:` examples, with assistant-only loss enabled by default,
+  including the answer's stop token. Records are deduplicated and split into
+  training and validation sets by example; examples exceeding the context window
+  are rejected without truncating answers. Continue training an existing model
+  to fine-tune its weights, with separate controls for resetting the optimizer
+  when switching modes and restarting the learning-rate schedule. Checkpoints
+  retain training-mode and dataset metadata. Available through the studio and
+  training API; the standalone CLI continues to use language modeling. See the
+  [Q&A fine-tuning guide](docs/pytorch.md#supervised-qa-in-the-studio).
 
 ## 2026-10-24
 
